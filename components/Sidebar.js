@@ -1,0 +1,64 @@
+import { LayoutDashboard, History, Zap, User, Settings } from 'lucide-react'
+
+import Link from 'next/link'
+
+export function Sidebar({ userStats = { level: 1, xp: 0 }, activePage = 'Dashboard' }) {
+    const menuItems = [
+        { icon: <LayoutDashboard size={24} />, label: 'Dashboard', href: '/' },
+        { icon: <History size={24} />, label: 'Patterns', href: '/patterns' },
+        { icon: <Zap size={24} />, label: 'Cycles', href: '#' },
+        { icon: <User size={24} />, label: 'Profile', href: '#' },
+        { icon: <Settings size={24} />, label: 'Settings', href: '#' },
+    ]
+
+    const nextLevelXP = userStats.level * 100
+    const progress = userStats.xp % 100
+
+    return (
+        <aside className="sidebar-panel">
+            {/* Header */}
+            <div className="sidebar-header">
+                <h1 className="text-xxl" style={{ fontSize: '1.8rem', fontStyle: 'italic', fontWeight: '900', lineHeight: 0.9 }}>
+                    MOOD<br />SLAYER
+                </h1>
+            </div>
+
+            {/* Menu */}
+            <nav className="sidebar-nav">
+                {menuItems.map((item, idx) => (
+                    <Link
+                        key={idx}
+                        href={item.href}
+                        className={`sidebar-btn ${activePage === item.label ? 'active' : ''}`}
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                        {item.icon}
+                        {item.label}
+                    </Link>
+                ))}
+            </nav>
+
+            {/* Footer */}
+            <div className="sidebar-footer">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <div style={{ width: '40px', height: '40px', background: 'white', border: '3px solid black', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '0.9rem' }}>
+                        L{userStats.level}
+                    </div>
+                    <div>
+                        <p style={{ fontWeight: '900', fontSize: '0.9rem', textTransform: 'uppercase', margin: 0 }}>LEVEL {userStats.level}</p>
+                        <p style={{ fontSize: '0.6rem', fontWeight: 'bold', textTransform: 'uppercase', margin: 0, opacity: 0.6 }}>XP: {userStats.xp}</p>
+                    </div>
+                </div>
+
+                {/* XP Bar */}
+                <div style={{ width: '100%', height: '8px', background: 'white', border: '2px solid black', position: 'relative' }}>
+                    <div style={{
+                        width: `${progress}%`, height: '100%',
+                        background: 'var(--green)',
+                        transition: 'width 0.3s ease'
+                    }}></div>
+                </div>
+            </div>
+        </aside>
+    )
+}
