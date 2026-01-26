@@ -1,16 +1,8 @@
-import { LayoutDashboard, History, Zap, User, Settings } from 'lucide-react'
+import { Activity, Zap, User, Settings } from 'lucide-react'
 
 import Link from 'next/link'
 
 export function Sidebar({ userStats = { level: 1, xp: 0 }, activePage = 'Dashboard' }) {
-    const menuItems = [
-        { icon: <LayoutDashboard size={24} />, label: 'Dashboard', href: '/' },
-        { icon: <History size={24} />, label: 'Patterns', href: '/patterns' },
-        { icon: <Zap size={24} />, label: 'Cycles', href: '#' },
-        { icon: <User size={24} />, label: 'Profile', href: '#' },
-        { icon: <Settings size={24} />, label: 'Settings', href: '#' },
-    ]
-
     const nextLevelXP = userStats.level * 100
     const progress = userStats.xp % 100
 
