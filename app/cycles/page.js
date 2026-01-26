@@ -165,7 +165,7 @@ export default function CyclesPage() {
 
     return (
         <div className="app-shell">
-            <Sidebar userStats={userStats} activePage="Cycles" />
+            <Sidebar activePage="Cycles" />
 
             <div className="main-content" style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '1400px', margin: '0 auto' }}>
                 <header className="dashboard-header">

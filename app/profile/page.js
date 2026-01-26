@@ -3,24 +3,14 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/Sidebar'
 import { Trophy, Flame, Star, Lock, Zap, Sparkles, TrendingUp } from 'lucide-react'
 
+import { useUser } from '../../context/UserContext'
+
 export default function ProfilePage() {
-    const [userStats, setUserStats] = useState({ level: 1, xp: 0, streak: 0 })
+    const { userStats } = useUser()
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
         setMounted(true)
-        const fetchStats = async () => {
-            try {
-                const res = await fetch('/api/user-stats')
-                const stats = await res.json()
-                if (stats && !stats.error) {
-                    setUserStats(stats)
-                }
-            } catch (e) {
-                console.error('Failed to fetch user stats', e)
-            }
-        }
-        fetchStats()
     }, [])
 
     if (!mounted) return null
@@ -39,7 +29,7 @@ export default function ProfilePage() {
 
     return (
         <div className="app-shell">
-            <Sidebar userStats={userStats} activePage="Profile" />
+            <Sidebar activePage="Profile" />
 
             <main className="main-content">
                 <header className="dashboard-header">

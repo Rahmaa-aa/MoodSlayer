@@ -1,9 +1,8 @@
-import { Activity, Zap, User, Settings, LogOut } from 'lucide-react'
-import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
+import { useUser } from '@/context/UserContext'
 
-export function Sidebar({ userStats, activePage }) {
+export function Sidebar({ activePage }) {
     const { data: session } = useSession()
+    const { userStats } = useUser()
 
     return (
         <aside className="sidebar-panel">

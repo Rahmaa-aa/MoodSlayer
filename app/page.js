@@ -1,40 +1,27 @@
 'use client'
-
 import React, { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { Smile, CloudRain, Moon, Zap, Calendar, Heart, Activity, Plus, Pencil, Trash2, Settings, Flame } from 'lucide-react'
 import { Sidebar } from '../components/Sidebar'
 import { TrackableManager } from '../components/TrackableManager'
 import { RetroToggle } from '../components/RetroToggle'
 import { Stepper } from '../components/Stepper'
 import { Notifications, showToast } from '../components/Notifications'
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragOverlay,
-    defaultDropAnimationSideEffects,
-} from '@dnd-kit/core'
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { SortableHabit } from '../components/SortableHabit'
+import { useUser } from '../context/UserContext'
+
+// Dynamic imports for performance (No DND needed on SSR)
+const DndContext = dynamic(() => import('@dnd-kit/core').then(mod => mod.DndContext), { ssr: false })
+const SortableContext = dynamic(() => import('@dnd-kit/sortable').then(mod => mod.SortableContext), { ssr: false })
+const SortableHabit = dynamic(() => import('../components/SortableHabit').then(mod => mod.SortableHabit), { ssr: false })
+const DragOverlay = dynamic(() => import('@dnd-kit/core').then(mod => mod.DragOverlay), { ssr: false })
+
+// Helper functions for DND
+import { closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 export default function Home() {
-    // Default initial state
-    const DEFAULT_TRACKABLES = [
-        { id: 'gym', name: 'Gym', category: 'Health', type: 'boolean' },
-        { id: 'water', name: 'Water (L)', category: 'Health', type: 'number', unit: 'L' },
-        { id: 'reading', name: 'Reading', category: 'Mind', type: 'boolean' },
-        { id: 'meditation', name: 'Meditation', category: 'Mind', type: 'number', unit: 'MIN' }
-    ]
-
-    const [trackables, setTrackables] = useState(DEFAULT_TRACKABLES)
+    const { userStats, setUserStats, refreshStats } = useUser()
+    const [trackables, setTrackables] = useState([])
     const [formData, setFormData] = useState({ mood: '' })
     const [stats, setStats] = useState({ total: 0, stability: 100 })
     const [isSaving, setIsSaving] = useState(false)
@@ -44,10 +31,7 @@ export default function Home() {
     // Edit Mode State
     const [isEditMode, setIsEditMode] = useState(false)
     const [editingItem, setEditingItem] = useState(null)
-
-    // Gamification State
-    const [userStats, setUserStats] = useState({ streak: 0, xp: 0, level: 1, lastLog: null })
-    const [lastSaved, setLastSaved] = useState(null) // For auto-save indicator
+    const [lastSaved, setLastSaved] = useState(null)
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -70,43 +54,16 @@ export default function Home() {
     useEffect(() => {
         setMounted(true)
 
-        // Load data from APIs
         const loadInitialData = async () => {
             try {
-                // 1. Fetch Trackables
                 const resT = await fetch('/api/trackables')
                 const savedT = await resT.json()
-                if (Array.isArray(savedT) && savedT.length > 0) {
+                if (Array.isArray(savedT)) {
                     setTrackables(savedT)
-                } else {
-                    setTrackables(DEFAULT_TRACKABLES)
                 }
-
-                // 2. Fetch User Stats
-                const resS = await fetch('/api/user-stats')
-                const stats = await resS.json()
-                if (stats && !stats.error) {
-                    const lastDate = stats.lastLog ? new Date(stats.lastLog) : null
-                    const today = new Date()
-
-                    if (lastDate) {
-                        const diffTime = Math.abs(today - lastDate)
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-                        const todayStr = today.toISOString().split('T')[0]
-                        const lastStr = stats.lastLog.split('T')[0]
-
-                        if (lastStr !== todayStr && diffDays > 1) {
-                            stats.streak = 0
-                        }
-                    }
-                    setUserStats(stats)
-                }
-
-                // 3. Fetch Entries
                 fetchEntries()
             } catch (e) {
-                console.error('Failed to load initial data', e)
-                setTrackables(DEFAULT_TRACKABLES)
+                console.error('Failed to load trackables', e)
             }
         }
 
@@ -445,7 +402,7 @@ export default function Home() {
     return (
         <div className="app-shell">
             <Notifications />
-            <Sidebar userStats={userStats} activePage="Dashboard" />
+            <Sidebar activePage="Dashboard" />
 
             <TrackableManager
                 isOpen={showManager}
