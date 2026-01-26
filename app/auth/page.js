@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Logo } from '@/components/Logo'
-import { Zap, Shield, Key, User, Edit3, ArrowRight, Sparkles, Heart } from 'lucide-react'
+import { Zap, Shield, Key, User, Edit3, ArrowRight, Sparkles, Heart, Activity, Target } from 'lucide-react'
 
 export default function AuthPage() {
     const [mode, setMode] = useState('signin') // 'signin' or 'signup'
@@ -84,87 +84,84 @@ export default function AuthPage() {
     }
 
     return (
-        <div className="landing-wrapper" style={{
-            display: 'flex',
+        <div className="landing-container" style={{
             minHeight: '100vh',
-            background: 'white',
-            overflow: 'hidden'
+            padding: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            zIndex: 10
         }}>
-            {/* LEFT SIDE: BRANDING */}
-            <div className="branding-section" style={{
-                flex: 1.2,
-                background: 'black',
-                color: 'white',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                padding: '80px',
-                position: 'relative',
-                overflow: 'hidden'
+            <div className="bento-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(400px, 1fr) 450px',
+                gap: '32px',
+                width: '100%',
+                maxWidth: '1200px',
             }}>
-                {/* Background Memphis/Cyber elements */}
-                <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'var(--blue)', opacity: 0.2, filter: 'blur(100px)' }}></div>
-                <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '300px', height: '300px', borderRadius: '50%', background: 'var(--pink)', opacity: 0.2, filter: 'blur(80px)' }}></div>
+                {/* BRAND BENTO BOX */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    <div className="cyber-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px', position: 'relative' }}>
+                        <div className="cyber-header" style={{ position: 'absolute', top: '24px', left: '24px' }}>CORE_VIBE_SYSTEM</div>
 
-                <div style={{ position: 'relative', zIndex: 10 }}>
-                    <Logo width={120} height={120} className="glow-logo" />
+                        <div style={{ marginTop: '24px' }}>
+                            <Logo width={160} height={160} />
 
-                    <h1 style={{ fontSize: '4.5rem', fontWeight: '900', fontStyle: 'italic', lineHeight: 0.9, marginTop: '32px', textTransform: 'uppercase' }}>
-                        MOOD<br /><span style={{ color: 'var(--yellow)' }}>SLAYER</span>
-                    </h1>
+                            <h1 style={{ fontSize: '4.5rem', fontWeight: '900', fontStyle: 'italic', lineHeight: 0.9, marginTop: '24px', textTransform: 'uppercase', color: 'black' }}>
+                                MOOD<br /><span style={{ color: 'var(--pink)' }}>SLAYER</span>
+                            </h1>
 
-                    <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <p style={{ fontSize: '1.2rem', fontWeight: 'bold', maxWidth: '500px', opacity: 0.9 }}>
-                            <span style={{ color: 'var(--green)' }}># NoCap</span> Tracking for your Neural Vibe Matrix.
-                            Predicting your next move before you even make it. 🦾✨
-                        </p>
+                            <div style={{ marginTop: '32px' }}>
+                                <p style={{ fontSize: '1.5rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.2 }}>
+                                    MASTER YOUR PATTERNS.<br />SLAY YOUR VIBES.
+                                </p>
+                                <p style={{ fontSize: '1rem', fontWeight: '600', opacity: 0.6, marginTop: '16px', maxWidth: '400px' }}>
+                                    The neural hub for your daily life. Track, predict, and optimize your world with absolute precision.
+                                </p>
+                            </div>
+                        </div>
 
-                        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                            <div className="badge">MAIN_CHARACTER_ENERGY</div>
-                            <div className="badge">PATTERN_SLAYER</div>
-                            <div className="badge">NEURAL_DUMP</div>
+                        <div style={{ marginTop: '40px', display: 'flex', gap: '12px' }}>
+                            <div className="tag-badge"><Activity size={14} /> ANALYTICS</div>
+                            <div className="tag-badge"><Target size={14} /> PREDICTIONS</div>
+                            <div className="tag-badge"><Zap size={14} /> MOTIVATION</div>
+                        </div>
+                    </div>
+
+                    <div className="cyber-card" style={{ padding: '24px', background: 'var(--blue)', color: 'white', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ background: 'black', padding: '12px', borderRadius: '4px' }}><Sparkles size={24} color="var(--yellow)" /></div>
+                        <div>
+                            <p style={{ fontWeight: '900', margin: 0, fontSize: '0.8rem' }}>UPGRADE_YOUR_EXISTENCE</p>
+                            <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.8 }}>Start your neural journey in 30 seconds.</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer text */}
-                <div style={{ position: 'absolute', bottom: '40px', left: '80px', display: 'flex', alignItems: 'center', gap: '12px', opacity: 0.4 }}>
-                    <Shield size={16} />
-                    <span style={{ fontSize: '0.7rem', fontWeight: '900', letterSpacing: '2px' }}>V_5.4 // ENCRYPTED_VIBES_ONLY</span>
-                </div>
-            </div>
-
-            {/* RIGHT SIDE: AUTH FORM */}
-            <div className="form-section" style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '40px',
-                background: '#f8fafc'
-            }}>
-                <div className="cyber-card" style={{ width: '100%', maxWidth: '450px', background: 'white', padding: '0', overflow: 'hidden' }}>
+                {/* AUTH BENTO BOX */}
+                <div className="cyber-card" style={{ padding: 0, overflow: 'hidden', height: 'fit-content' }}>
                     <div className="cyber-header" style={{
+                        width: '100%',
                         background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
                         color: 'white',
                         padding: '16px',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        margin: 0
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900' }}>
-                            <Zap size={20} /> {mode === 'signin' ? 'UPLINK_INITIALIZED' : 'NEW_RESIDENT_ENROLLMENT'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '0.7rem', fontFamily: "'Press Start 2P', cursive" }}>
+                            <Zap size={16} /> {mode === 'signin' ? 'UPLINK_INITIALIZED' : 'ENROLLMENT_ACTIVE'}
                         </div>
-                        <Sparkles size={18} />
                     </div>
 
                     <div style={{ padding: '40px' }}>
                         <div style={{ marginBottom: '32px' }}>
                             <h2 style={{ fontSize: '2.5rem', fontWeight: '900', fontStyle: 'italic', margin: 0, color: 'black' }}>
-                                {mode === 'signin' ? 'LOGIN' : 'JOIN_US'}
+                                {mode === 'signin' ? 'LOGIN' : 'SIGN UP'}
                             </h2>
-                            <p style={{ fontSize: '0.75rem', fontWeight: '900', color: '#666' }}>
-                                {mode === 'signin' ? 'ENTER_CREDENTIALS_FOR_ACCESS' : 'BEGIN_YOUR_NEURAL_JOURNEY'}
+                            <p style={{ fontSize: '0.75rem', fontWeight: '900', color: '#666', textTransform: 'uppercase' }}>
+                                {mode === 'signin' ? 'IDENTIFY_YOURSELF' : 'JOIN_THE_MATRIX'}
                             </p>
                         </div>
 
@@ -174,15 +171,15 @@ export default function AuthPage() {
                             </div>
                         )}
 
-                        <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                             {mode === 'signup' && (
                                 <div>
-                                    <label className="control-label">RESIDENT_NAME</label>
-                                    <div className="input-with-icon">
+                                    <label className="control-label">USER_NAME</label>
+                                    <div className="input-field">
                                         <div className="input-icon"><Edit3 size={18} /></div>
                                         <input
                                             type="text"
-                                            placeholder="Who are you?"
+                                            placeholder="What should we call you?"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             required
@@ -192,12 +189,12 @@ export default function AuthPage() {
                             )}
 
                             <div>
-                                <label className="control-label">USER_EMAIL</label>
-                                <div className="input-with-icon">
+                                <label className="control-label">CORP_EMAIL</label>
+                                <div className="input-field">
                                     <div className="input-icon"><User size={18} /></div>
                                     <input
                                         type="email"
-                                        placeholder="email@uplink.com"
+                                        placeholder="user@neural.lnk"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
@@ -206,8 +203,8 @@ export default function AuthPage() {
                             </div>
 
                             <div>
-                                <label className="control-label">ACCESS_KEY</label>
-                                <div className="input-with-icon">
+                                <label className="control-label">ACCESS_SECRET</label>
+                                <div className="input-field">
                                     <div className="input-icon"><Key size={18} /></div>
                                     <input
                                         type="password"
@@ -221,8 +218,8 @@ export default function AuthPage() {
 
                             {mode === 'signup' && (
                                 <div>
-                                    <label className="control-label">CONFIRM_KEY</label>
-                                    <div className="input-with-icon">
+                                    <label className="control-label">VERIFY_SECRET</label>
+                                    <div className="input-field">
                                         <div className="input-icon"><Key size={18} /></div>
                                         <input
                                             type="password"
@@ -241,19 +238,21 @@ export default function AuthPage() {
                                 className="sync-btn"
                                 style={{
                                     width: '100%',
-                                    padding: '16px',
-                                    marginTop: '10px',
+                                    padding: '20px',
+                                    marginTop: '8px',
                                     background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '12px'
+                                    gap: '12px',
+                                    fontSize: '1rem',
+                                    boxShadow: '6px 6px 0px black'
                                 }}
                             >
                                 {loading ? 'PROCESSING...' : (
                                     <>
-                                        {mode === 'signin' ? 'INITIATE UPLINK' : 'CREATE ACCOUNT'}
+                                        {mode === 'signin' ? 'START UPLINK' : 'CREATE ACCOUNT'}
                                         <ArrowRight size={20} />
                                     </>
                                 )}
@@ -261,8 +260,8 @@ export default function AuthPage() {
                         </form>
 
                         <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                            <p style={{ fontSize: '0.85rem', fontWeight: '900' }}>
-                                {mode === 'signin' ? 'NEW_HERE?' : 'ALREADY_HAVE_ACCESS?'}
+                            <p style={{ fontSize: '0.8rem', fontWeight: '900' }}>
+                                {mode === 'signin' ? 'FIRST_TIME_HERE?' : 'ALREADY_HAVE_SECRET?'}
                                 <button
                                     onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
                                     style={{
@@ -273,10 +272,11 @@ export default function AuthPage() {
                                         cursor: 'pointer',
                                         marginLeft: '8px',
                                         textDecoration: 'underline',
-                                        fontFamily: 'inherit'
+                                        fontFamily: 'inherit',
+                                        textTransform: 'uppercase'
                                     }}
                                 >
-                                    {mode === 'signin' ? 'ENROLL_NOW' : 'LOG_IN_HERE'}
+                                    {mode === 'signin' ? 'REGISTER' : 'LOG_IN'}
                                 </button>
                             </p>
                         </div>
@@ -285,31 +285,34 @@ export default function AuthPage() {
             </div>
 
             <style jsx>{`
-                .landing-wrapper {
-                    font-family: 'Inter', sans-serif;
+                .landing-container {
+                    font-family: 'Space Grotesk', sans-serif;
                 }
-                .badge {
-                    background: rgba(255, 255, 255, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+                .tag-badge {
+                    background: #f1f5f9;
+                    border: 2px solid black;
                     padding: 6px 12px;
-                    font-size: 0.7rem;
+                    font-size: 0.65rem;
                     font-weight: 900;
                     letter-spacing: 1px;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
                 }
-                .input-with-icon {
+                .input-field {
                     display: flex;
                     align-items: center;
                     border: 3px solid black;
                     background: white;
-                    transition: transform 0.2s ease;
+                    transition: transform 0.1s ease;
                 }
-                .input-with-icon:focus-within {
-                    transform: translate(-2px, -2px);
-                    box-shadow: 4px 4px 0px black;
+                .input-field:focus-within {
+                    transform: translate(-1px, -1px);
+                    box-shadow: 3px 3px 0px black;
                 }
                 .input-icon {
                     padding: 12px;
-                    background: #f1f5f9;
+                    background: #f8fafc;
                     border-right: 3px solid black;
                     display: flex;
                     align-items: center;
@@ -320,11 +323,14 @@ export default function AuthPage() {
                     border: none;
                     padding: 12px;
                     outline: none;
-                    font-weight: bold;
+                    font-weight: 800;
                     font-size: 1rem;
+                    font-family: inherit;
                 }
-                .glow-logo {
-                    filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
+                @media (max-width: 900px) {
+                    .bento-grid {
+                        grid-template-columns: 1fr !important;
+                    }
                 }
             `}</style>
         </div>
