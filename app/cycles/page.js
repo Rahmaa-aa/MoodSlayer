@@ -32,7 +32,7 @@ export default function CyclesPage() {
     useEffect(() => {
         setMounted(true)
 
-        // Load settings
+        // Load settings from localStorage (UI preferences are okay in localStorage)
         const savedSettings = localStorage.getItem('mood_cycles_settings')
         if (savedSettings) {
             const parsed = JSON.parse(savedSettings)
@@ -40,22 +40,33 @@ export default function CyclesPage() {
             if (parsed.chartType) setChartType(parsed.chartType)
         }
 
-        // Load data
-        const savedTrackables = localStorage.getItem('mood_trackables')
-        const parsedTrackables = savedTrackables ? JSON.parse(savedTrackables) : []
-        setTrackables(parsedTrackables)
-        // Default to all predictors initially
-        setSelectedPredictors(parsedTrackables.map(t => t.id))
+        // Load data from APIs
+        const loadData = async () => {
+            try {
+                // 1. Fetch Trackables
+                const resT = await fetch('/api/trackables')
+                const parsedTrackables = await resT.json()
 
-        fetch('/api/entries')
-            .then(res => res.json())
-            .then(data => {
+                if (Array.isArray(parsedTrackables) && parsedTrackables.length > 0) {
+                    setTrackables(parsedTrackables)
+                    setSelectedPredictors(parsedTrackables.map(t => t.id))
+                }
+
+                // 2. Fetch Entries and Run Analysis
+                const resE = await fetch('/api/entries')
+                const data = await resE.json()
                 if (Array.isArray(data)) {
                     setHistory(data)
-                    runAnalysis(data, parsedTrackables, 'moodScore', parsedTrackables.map(t => t.id))
+                    if (parsedTrackables.length > 0) {
+                        runAnalysis(data, parsedTrackables, 'moodScore', parsedTrackables.map(t => t.id))
+                    }
                 }
-            })
-            .catch(err => console.error(err))
+            } catch (e) {
+                console.error('Failed to load cycles data', e)
+            }
+        }
+
+        loadData()
     }, [])
 
     useEffect(() => {
@@ -134,9 +145,8 @@ export default function CyclesPage() {
     }
     const aura = getAura()
 
-    // Get user stats for sidebar navigation only
-    const savedStats = localStorage.getItem('mood_user_stats')
-    const userStats = savedStats ? JSON.parse(savedStats) : { level: 1, xp: 0 }
+    // userStats is only used for the initial Sidebar render, but Sidebar now uses session
+    const userStats = { level: 1, xp: 0 }
 
     // Group trackables by category for the selection UI
     const categories = [...new Set(trackables.map(t => t.category))]

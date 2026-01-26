@@ -69,36 +69,48 @@ export default function Home() {
 
     useEffect(() => {
         setMounted(true)
-        // Load custom trackables from local storage or use default
-        const saved = localStorage.getItem('mood_trackables')
-        if (saved) {
-            setTrackables(JSON.parse(saved))
-        } else {
-            setTrackables(DEFAULT_TRACKABLES)
-        }
 
-        // Load User Stats
-        const savedStats = localStorage.getItem('mood_user_stats')
-        if (savedStats) {
-            const stats = JSON.parse(savedStats)
-            // Check streak integrity
-            const lastDate = new Date(stats.lastLog)
-            const today = new Date()
-            const diffTime = Math.abs(today - lastDate)
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        // Load data from APIs
+        const loadInitialData = async () => {
+            try {
+                // 1. Fetch Trackables
+                const resT = await fetch('/api/trackables')
+                const savedT = await resT.json()
+                if (Array.isArray(savedT) && savedT.length > 0) {
+                    setTrackables(savedT)
+                } else {
+                    setTrackables(DEFAULT_TRACKABLES)
+                }
 
-            // If more than 1 day has passed (meaning they missed yesterday), reset streak
-            // Note: This is a simple check. For production accuracy, compare Date strings (YYYY-MM-DD).
-            const todayStr = today.toISOString().split('T')[0]
-            const lastStr = stats.lastLog ? stats.lastLog.split('T')[0] : ''
+                // 2. Fetch User Stats
+                const resS = await fetch('/api/user-stats')
+                const stats = await resS.json()
+                if (stats && !stats.error) {
+                    const lastDate = stats.lastLog ? new Date(stats.lastLog) : null
+                    const today = new Date()
 
-            if (lastStr !== todayStr && diffDays > 1) { // Missed a day
-                stats.streak = 0
+                    if (lastDate) {
+                        const diffTime = Math.abs(today - lastDate)
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                        const todayStr = today.toISOString().split('T')[0]
+                        const lastStr = stats.lastLog.split('T')[0]
+
+                        if (lastStr !== todayStr && diffDays > 1) {
+                            stats.streak = 0
+                        }
+                    }
+                    setUserStats(stats)
+                }
+
+                // 3. Fetch Entries
+                fetchEntries()
+            } catch (e) {
+                console.error('Failed to load initial data', e)
+                setTrackables(DEFAULT_TRACKABLES)
             }
-            setUserStats(stats)
         }
 
-        fetchEntries()
+        loadInitialData()
     }, [])
 
     // Initialize formData when trackables change
@@ -106,7 +118,6 @@ export default function Home() {
         if (trackables.length > 0) {
             const initialData = { mood: '' }
             trackables.forEach(t => {
-                // Preserve existing value if possible, else default
                 initialData[t.id] = formData[t.id] !== undefined ? formData[t.id] : (t.type === 'boolean' ? false : 0)
             })
             setFormData(prev => ({ ...prev, ...initialData }))
@@ -127,47 +138,37 @@ export default function Home() {
     }
 
     const handleInputChange = (id, value) => {
-        setFormData(prev => {
-            const newData = { ...prev, [id]: value }
-            // Auto-save debounce effect could be here, but for now we'll trigger save directly or via effect
-            // Actually, let's trigger a save function debounced? 
-            // For simplicity in this step, we will just update state. 
-            // Real auto-save usually needs a useEffect hook on formData.
-            return newData
-        })
+        setFormData(prev => ({ ...prev, [id]: value }))
     }
 
     // Auto-Save Effect
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (Object.keys(formData).length > 0) {
+            if (Object.keys(formData).length > 1) { // More than just {mood: ''}
                 saveData(formData)
             }
-        }, 1000) // 1 second debounce
+        }, 1000)
         return () => clearTimeout(timer)
     }, [formData])
 
     // Separated Save Logic
     const saveData = async (dataToSave) => {
-        if (!dataToSave.mood && Object.keys(dataToSave).length === 0) return
+        if (!dataToSave.mood && Object.keys(dataToSave).length <= 1) return
 
         setIsSaving(true)
         try {
             await fetch('/api/entries', {
-                method: 'POST', // Now Upserts
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ data: dataToSave })
             })
-            // Update Gamification
             updateGamification(dataToSave)
             setLastSaved(new Date())
-            // Remove 'done' toast for less spam, user sees 'Autosaved' text
         } catch (e) { console.error('Auto-save failed') }
         setIsSaving(false)
     }
 
-    const updateGamification = (currentData) => {
-        // --- GAMIFICATION LOGIC (Refactored) ---
+    const updateGamification = async (currentData) => {
         const today = new Date()
         const todayStr = today.toISOString().split('T')[0]
         const lastStr = userStats.lastLog ? new Date(userStats.lastLog).toISOString().split('T')[0] : null
@@ -179,14 +180,10 @@ export default function Home() {
             const yesterdayStr = yesterday.toISOString().split('T')[0]
 
             if (lastStr === yesterdayStr) newStreak += 1
-            else newStreak = 1
+            else if (lastStr !== todayStr) newStreak = 1
         }
 
-        // XP Calculation: Only add XP if level actually changes? 
-        // For now, we will just add small XP for interactions to feel good.
-        // Improve: Only add XP once per day per habit? Too complex for now.
-        // Let's create a "Session XP" buffer or just allow it.
-        let gainedXP = 1 // Small increment for every auto-save interaction
+        let gainedXP = 1
         if (currentData.mood) gainedXP = 5
 
         const newXP = userStats.xp + gainedXP
@@ -200,18 +197,22 @@ export default function Home() {
             lastLog: today.toISOString()
         }
 
-        // Only update state if meaningful change (like streak or level up)
         if (newLevel > userStats.level) {
             showToast(`LEVEL UP! ${newLevel}`, 'xp')
-        } else if (Math.random() > 0.8) { // Random chance to show XP gain toast so it's not annoying
+        } else if (Math.random() > 0.8) {
             showToast(`+${gainedXP} XP`, 'xp')
         }
 
         setUserStats(newStats)
-        localStorage.setItem('mood_user_stats', JSON.stringify(newStats))
+        // Sync with MongoDB
+        await fetch('/api/user-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newStats)
+        })
     }
 
-    const handleSaveTrackable = (trackable) => {
+    const handleSaveTrackable = async (trackable) => {
         const existingIndex = trackables.findIndex(t => t.id === trackable.id)
         let updated
         if (existingIndex >= 0) {
@@ -221,15 +222,27 @@ export default function Home() {
             updated = [...trackables, trackable]
         }
         setTrackables(updated)
-        localStorage.setItem('mood_trackables', JSON.stringify(updated))
+
+        // Sync with MongoDB
+        await fetch('/api/trackables', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updated)
+        })
+
         setEditingItem(null)
     }
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('DELETE THIS HABIT?')) {
             const updated = trackables.filter(t => t.id !== id)
             setTrackables(updated)
-            localStorage.setItem('mood_trackables', JSON.stringify(updated))
+            // Sync with MongoDB
+            await fetch('/api/trackables', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updated)
+            })
         }
     }
 

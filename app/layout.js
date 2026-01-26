@@ -1,4 +1,5 @@
 import './globals.css'
+import SessionWrapper from '@/components/SessionWrapper'
 
 export const metadata = {
     title: 'MoodSlayer 9000 | Track Your Vibe',
@@ -13,7 +14,9 @@ export default function RootLayout({ children }) {
                 <div className="memphis-shape shape-1 float" />
                 <div className="memphis-shape shape-2 float" style={{ animationDelay: '1s' }} />
                 <div className="memphis-shape shape-3 float" style={{ animationDelay: '2s' }} />
-                {children}
+                <SessionWrapper>
+                    {children}
+                </SessionWrapper>
             </body>
         </html>
     )
