@@ -1,6 +1,6 @@
 export const authConfig = {
     pages: {
-        signIn: "/auth/signin",
+        signIn: "/auth",
     },
     session: { strategy: "jwt" },
     callbacks: {
