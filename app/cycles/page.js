@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/Sidebar'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid } from 'recharts'
-import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, CheckSquare, Square } from 'lucide-react'
+import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, CheckSquare, Square, Settings, Eye, EyeOff } from 'lucide-react'
 import { prepareData, calculateCorrelations } from '../../lib/ml/preprocessor'
 import { trainPredictor } from '../../lib/ml/engine'
 
@@ -10,6 +10,17 @@ export default function CyclesPage() {
     const [history, setHistory] = useState([])
     const [trackables, setTrackables] = useState([])
     const [mounted, setMounted] = useState(false)
+
+    // UI State
+    const [isEditMode, setIsEditMode] = useState(false)
+    const [visibleWidgets, setVisibleWidgets] = useState({
+        predictors: true,
+        vibe: true,
+        forecaster: true,
+        oracle: true,
+        charts: true
+    })
+    const [chartType, setChartType] = useState('step') // 'step' or 'monotone'
 
     // ML State
     const [correlations, setCorrelations] = useState([])
@@ -20,6 +31,14 @@ export default function CyclesPage() {
 
     useEffect(() => {
         setMounted(true)
+
+        // Load settings
+        const savedSettings = localStorage.getItem('mood_cycles_settings')
+        if (savedSettings) {
+            const parsed = JSON.parse(savedSettings)
+            if (parsed.visibleWidgets) setVisibleWidgets(parsed.visibleWidgets)
+            if (parsed.chartType) setChartType(parsed.chartType)
+        }
 
         // Load data
         const savedTrackables = localStorage.getItem('mood_trackables')
@@ -38,6 +57,12 @@ export default function CyclesPage() {
             })
             .catch(err => console.error(err))
     }, [])
+
+    useEffect(() => {
+        if (mounted) {
+            localStorage.setItem('mood_cycles_settings', JSON.stringify({ visibleWidgets, chartType }))
+        }
+    }, [visibleWidgets, chartType, mounted])
 
     const runAnalysis = async (data, allDefinitions, target, selectedIds) => {
         if (!data || data.length < 3) return
@@ -82,6 +107,10 @@ export default function CyclesPage() {
         runAnalysis(history, trackables, predictionTarget, newSelection)
     }
 
+    const toggleWidget = (key) => {
+        setVisibleWidgets(prev => ({ ...prev, [key]: !prev[key] }))
+    }
+
     if (!mounted) return null
 
     // Process Chart Data
@@ -123,155 +152,192 @@ export default function CyclesPage() {
                             <Brain className="text-pink" /> NEURAL_CYCLES
                         </h2>
                     </div>
-                    {isThinking && <span className="text-xs font-bold animate-pulse text-pink">ANALYZING_PATTERNS...</span>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {isThinking && <span className="text-xs font-bold animate-pulse text-pink">ANALYZING_PATTERNS...</span>}
+                        <button
+                            onClick={() => setIsEditMode(!isEditMode)}
+                            className="sidebar-btn"
+                            style={{ width: 'auto', padding: '8px 16px', background: isEditMode ? 'var(--yellow)' : 'white' }}
+                        >
+                            <Settings size={16} /> {isEditMode ? 'SAVE_CONFIG' : 'CUSTOMISE'}
+                        </button>
+                    </div>
                 </header>
+
+                {isEditMode && (
+                    <section className="cyber-card" style={{ background: 'var(--yellow)', padding: '20px' }}>
+                        <div className="cyber-header" style={{ background: 'black', color: 'white' }}>Layout_Config</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
+                            {Object.keys(visibleWidgets).map(key => (
+                                <button key={key} onClick={() => toggleWidget(key)} className="sidebar-btn" style={{ gap: '8px' }}>
+                                    {visibleWidgets[key] ? <Eye size={16} /> : <EyeOff size={16} />}
+                                    {key.toUpperCase()}
+                                </button>
+                            ))}
+                            <button onClick={() => setChartType(chartType === 'step' ? 'monotone' : 'step')} className="sidebar-btn" style={{ gap: '8px', background: 'white' }}>
+                                <Zap size={16} /> {chartType.toUpperCase()}_LINES
+                            </button>
+                        </div>
+                    </section>
+                )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 1.5fr minmax(280px, 0.8fr)', gap: '20px', alignItems: 'start' }}>
 
                     {/* COL 1: PREDICTOR SELECTION (Customizable) */}
-                    <section className="cyber-card" style={{ height: '100%' }}>
-                        <div className="cyber-header" style={{ backgroundColor: 'var(--blue)', color: 'white' }}>Select_Predictors</div>
-                        <div style={{ padding: '16px', overflowY: 'auto', maxHeight: '600px' }}>
-                            <p style={{ fontSize: '0.65rem', fontWeight: '900', opacity: 0.6, marginBottom: '12px', textTransform: 'uppercase' }}>Pick habits for analysis:</p>
-                            {categories.map(cat => (
-                                <div key={cat} style={{ marginBottom: '20px' }}>
-                                    <h4 style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--blue)', borderBottom: '2px solid #ddd', marginBottom: '8px', paddingBottom: '4px' }}>{cat}</h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        {trackables.filter(t => t.category === cat).map(t => (
-                                            <button
-                                                key={t.id}
-                                                onClick={() => togglePredictor(t.id)}
-                                                style={{
-                                                    display: 'flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none',
-                                                    cursor: 'pointer', textAlign: 'left', padding: '4px 0',
-                                                    color: selectedPredictors.includes(t.id) ? 'black' : '#999',
-                                                    fontWeight: selectedPredictors.includes(t.id) ? '900' : 'normal',
-                                                    fontSize: '0.85rem'
-                                                }}
-                                            >
-                                                {selectedPredictors.includes(t.id) ? <CheckSquare size={16} color="var(--blue)" /> : <Square size={16} />}
-                                                {t.name}
-                                            </button>
-                                        ))}
+                    {visibleWidgets.predictors && (
+                        <section className="cyber-card" style={{ height: '100%' }}>
+                            <div className="cyber-header" style={{ backgroundColor: 'var(--blue)', color: 'white' }}>Select_Predictors</div>
+                            <div style={{ padding: '16px', overflowY: 'auto', maxHeight: '600px' }}>
+                                <p style={{ fontSize: '0.65rem', fontWeight: '900', opacity: 0.6, marginBottom: '12px', textTransform: 'uppercase' }}>Pick habits for analysis:</p>
+                                {categories.map(cat => (
+                                    <div key={cat} style={{ marginBottom: '20px' }}>
+                                        <h4 style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--blue)', borderBottom: '2px solid #ddd', marginBottom: '8px', paddingBottom: '4px' }}>{cat}</h4>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            {trackables.filter(t => t.category === cat).map(t => (
+                                                <button
+                                                    key={t.id}
+                                                    onClick={() => togglePredictor(t.id)}
+                                                    style={{
+                                                        display: 'flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none',
+                                                        cursor: 'pointer', textAlign: 'left', padding: '4px 0',
+                                                        color: selectedPredictors.includes(t.id) ? 'black' : '#999',
+                                                        fontWeight: selectedPredictors.includes(t.id) ? '900' : 'normal',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    {selectedPredictors.includes(t.id) ? <CheckSquare size={16} color="var(--blue)" /> : <Square size={16} />}
+                                                    {t.name}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {/* COL 2: AURA & FORECASTER */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <section className="cyber-card" style={{ textAlign: 'center', padding: '40px 20px', background: 'white' }}>
-                            <div className="cyber-header" style={{ backgroundColor: 'black', color: 'white' }}>VIBE_PROJECTION</div>
-                            <div style={{
-                                width: '140px', height: '140px', borderRadius: '50%', margin: '0 auto 24px',
-                                background: aura.color, boxShadow: aura.glow, border: '5px solid black',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                transition: 'all 0.5s ease'
-                            }}>
-                                <Sparkles size={60} color="black" />
-                            </div>
-                            <h3 style={{ fontSize: '1.8rem', fontWeight: '900', color: aura.color, WebkitTextStroke: '1px black', margin: 0 }}>{aura.name}</h3>
-                            <p style={{ fontSize: '0.7rem', fontWeight: 'bold', opacity: 0.5 }}>TOMORROW'S PREDICTED STATE</p>
-                        </section>
-
-                        <section className="cyber-card">
-                            <div className="cyber-header" style={{ backgroundColor: 'var(--yellow)', color: 'black' }}>Neural_Forecaster</div>
-                            <div style={{ padding: '20px' }}>
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ fontSize: '0.7rem', fontWeight: '900', display: 'block', marginBottom: '8px', opacity: 0.7 }}>PRIMARY TARGET:</label>
-                                    <select
-                                        className="sidebar-btn"
-                                        style={{ width: '100%', cursor: 'pointer', background: 'white', border: '3px solid black', fontWeight: '900' }}
-                                        value={predictionTarget}
-                                        onChange={(e) => handleTargetChange(e.target.value)}
-                                    >
-                                        <option value="moodScore">Overall Mood</option>
-                                        {trackables.map(t => (
-                                            <option key={t.id} value={t.id}>{t.name}</option>
-                                        ))}
-                                    </select>
+                        {visibleWidgets.vibe && (
+                            <section className="cyber-card" style={{ textAlign: 'center', padding: '40px 20px', background: 'white' }}>
+                                <div className="cyber-header" style={{ backgroundColor: 'black', color: 'white' }}>VIBE_PROJECTION</div>
+                                <div style={{
+                                    width: '140px', height: '140px', borderRadius: '50%', margin: '0 auto 24px',
+                                    background: aura.color, boxShadow: aura.glow, border: '5px solid black',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 0.5s ease'
+                                }}>
+                                    <Sparkles size={60} color="black" />
                                 </div>
+                                <h3 style={{ fontSize: '1.8rem', fontWeight: '900', color: aura.color, WebkitTextStroke: '1px black', margin: 0 }}>{aura.name}</h3>
+                                <p style={{ fontSize: '0.7rem', fontWeight: 'bold', opacity: 0.5 }}>TOMORROW'S PREDICTED STATE</p>
+                            </section>
+                        )}
 
-                                <div style={{ background: '#111', color: 'var(--green)', padding: '20px', fontFamily: 'monospace', fontSize: '0.9rem', border: '3px solid black', boxShadow: 'inset 0 0 10px rgba(0,255,0,0.2)' }}>
-                                    <div style={{ marginBottom: '8px' }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
-                                    <div style={{ marginBottom: '8px' }}>&gt; target_prediction: <span style={{ color: 'white', fontWeight: 'bold' }}>{prediction !== null ? prediction.toFixed(2) : 'CALCULATING...'}</span></div>
-                                    <div>&gt; confidence_score: <span style={{ color: history.length > 7 ? 'var(--green)' : 'var(--pink)' }}>{history.length > 7 ? 'NOMINAL' : 'INSUFFICIENT_DATA'}</span></div>
+                        {visibleWidgets.forecaster && (
+                            <section className="cyber-card">
+                                <div className="cyber-header" style={{ backgroundColor: 'var(--yellow)', color: 'black' }}>Neural_Forecaster</div>
+                                <div style={{ padding: '20px' }}>
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <label style={{ fontSize: '0.7rem', fontWeight: '900', display: 'block', marginBottom: '8px', opacity: 0.7 }}>PRIMARY TARGET:</label>
+                                        <select
+                                            className="sidebar-btn"
+                                            style={{ width: '100%', cursor: 'pointer', background: 'white', border: '3px solid black', fontWeight: '900' }}
+                                            value={predictionTarget}
+                                            onChange={(e) => handleTargetChange(e.target.value)}
+                                        >
+                                            <option value="moodScore">Overall Mood</option>
+                                            {trackables.map(t => (
+                                                <option key={t.id} value={t.id}>{t.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div style={{ background: '#111', color: 'var(--green)', padding: '20px', fontFamily: 'monospace', fontSize: '0.9rem', border: '3px solid black', boxShadow: 'inset 0 0 10px rgba(0,255,0,0.2)' }}>
+                                        <div style={{ marginBottom: '8px' }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
+                                        <div style={{ marginBottom: '8px' }}>&gt; target_prediction: <span style={{ color: 'white', fontWeight: 'bold' }}>{prediction !== null ? prediction.toFixed(2) : 'CALCULATING...'}</span></div>
+                                        <div>&gt; confidence_score: <span style={{ color: history.length > 7 ? 'var(--green)' : 'var(--pink)' }}>{history.length > 7 ? 'NOMINAL' : 'INSUFFICIENT_DATA'}</span></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </section>
+                            </section>
+                        )}
                     </div>
 
                     {/* COL 3: THE ORACLE (INSIGHTS) */}
-                    <section className="cyber-card" style={{ height: '100%' }}>
-                        <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>Oracle_Output</div>
-                        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {correlations.length === 0 && <p className="text-center opacity-50 py-10" style={{ fontSize: '0.8rem' }}>Waiting for neural uplink...</p>}
-                            {correlations.slice(0, 6).map((corr, idx) => (
-                                <div key={idx} style={{
-                                    display: 'flex', alignItems: 'center', gap: '12px',
-                                    background: 'white', border: '2px solid black', padding: '12px',
-                                    boxShadow: '4px 4px 0px rgba(0,0,0,0.1)'
-                                }}>
-                                    <div style={{
-                                        padding: '6px', background: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)',
-                                        border: '2px solid black'
+                    {visibleWidgets.oracle && (
+                        <section className="cyber-card" style={{ height: '100%' }}>
+                            <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>Oracle_Output</div>
+                            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {correlations.length === 0 && <p className="text-center opacity-50 py-10" style={{ fontSize: '0.8rem' }}>Waiting for neural uplink...</p>}
+                                {correlations.slice(0, 6).map((corr, idx) => (
+                                    <div key={idx} style={{
+                                        display: 'flex', alignItems: 'center', gap: '12px',
+                                        background: 'white', border: '2px solid black', padding: '12px',
+                                        boxShadow: '4px 4px 0px rgba(0,0,0,0.1)'
                                     }}>
-                                        {corr.impact === 'positive' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <p style={{ fontSize: '0.75rem', fontWeight: '900', margin: 0, textTransform: 'uppercase' }}>
-                                            {corr.feature === 'moodScore' ? 'MOOD' : trackables.find(t => t.id === corr.feature)?.name}
-                                        </p>
-                                        <div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '4px' }}>
-                                            <div style={{ width: `${Math.min(100, corr.strength * 100)}%`, height: '100%', background: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
+                                        <div style={{
+                                            padding: '6px', background: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)',
+                                            border: '2px solid black'
+                                        }}>
+                                            {corr.impact === 'positive' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontSize: '0.75rem', fontWeight: '900', margin: 0, textTransform: 'uppercase' }}>
+                                                {corr.feature === 'moodScore' ? 'MOOD' : trackables.find(t => t.id === corr.feature)?.name}
+                                            </p>
+                                            <div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '4px' }}>
+                                                <div style={{ width: `${Math.min(100, corr.strength * 100)}%`, height: '100%', background: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
+                                            </div>
+                                        </div>
+                                        <div style={{ fontWeight: '900', fontSize: '1rem', color: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}>
+                                            {Math.round(corr.strength * 100)}%
                                         </div>
                                     </div>
-                                    <div style={{ fontWeight: '900', fontSize: '1rem', color: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}>
-                                        {Math.round(corr.strength * 100)}%
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
 
-                            <div style={{ marginTop: '10px', padding: '12px', border: '1px dashed black', fontSize: '0.65rem', lineHeight: 1.4, opacity: 0.8 }}>
-                                <HelpCircle size={10} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                                Higher percentages indicate a stronger relationship between the habit and your {predictionTarget === 'moodScore' ? 'mood' : 'target'}.
+                                <div style={{ marginTop: '10px', padding: '12px', border: '1px dashed black', fontSize: '0.65rem', lineHeight: 1.4, opacity: 0.8 }}>
+                                    <HelpCircle size={10} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                                    Higher percentages indicate a stronger relationship between the habit and your {predictionTarget === 'moodScore' ? 'mood' : 'target'}.
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
+                    )}
                 </div>
 
                 {/* VISUALS: WAVEFORMS */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div className="cyber-card">
-                        <div className="cyber-header" style={{ background: 'white', borderBottom: '3px solid black' }}>Mood_Waveform</div>
-                        <div style={{ height: '200px', padding: '16px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                                    <XAxis dataKey="date" hide />
-                                    <YAxis domain={[0, 4]} hide />
-                                    <Tooltip contentStyle={{ border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
-                                    <Line type="step" dataKey="moodScore" stroke="var(--pink)" strokeWidth={4} dot={false} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                {visibleWidgets.charts && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div className="cyber-card">
+                            <div className="cyber-header" style={{ background: 'white', borderBottom: '3px solid black', color: 'black' }}>Mood_Waveform</div>
+                            <div style={{ height: '200px', padding: '16px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                        <XAxis dataKey="date" hide />
+                                        <YAxis domain={[0, 4]} hide />
+                                        <Tooltip contentStyle={{ border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
+                                        <Line type={chartType} dataKey="moodScore" stroke="var(--pink)" strokeWidth={4} dot={false} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="cyber-card">
-                        <div className="cyber-header" style={{ background: 'white', borderBottom: '3px solid black' }}>Habit_Velocity</div>
-                        <div style={{ height: '200px', padding: '16px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                                    <XAxis dataKey="date" hide />
-                                    <YAxis hide />
-                                    <Bar dataKey="habits" fill="var(--green)" />
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="cyber-card">
+                            <div className="cyber-header" style={{ background: 'white', borderBottom: '3px solid black', color: 'black' }}>Habit_Velocity</div>
+                            <div style={{ height: '200px', padding: '16px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                        <XAxis dataKey="date" hide />
+                                        <YAxis hide />
+                                        <Tooltip contentStyle={{ border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
+                                        <Bar dataKey="habits" fill="var(--green)" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     )

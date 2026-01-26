@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Space+Grotesk:wght@300;400;700;900&display=swap');
 
+* {
+    box-sizing: border-box;
+}
+
 :root {
     --green: #7fff00;
     --pink: #ff1493;
@@ -18,6 +22,7 @@ body {
     color: var(--black);
     height: 100vh;
     overflow: hidden;
+    overflow-x: hidden;
     /* BLUE GRID BACKGROUND */
     background-image:
         linear-gradient(#dde5f0 2px, transparent 2px),
