@@ -8,7 +8,7 @@ import { authConfig } from "./auth.config"
 export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig,
     secret: process.env.AUTH_SECRET,
-    adapter: MongoDBAdapter(clientPromise),
+    adapter: MongoDBAdapter(clientPromise, { databaseName: 'mood_tracker' }),
     providers: [
         CredentialsProvider({
             name: "Credentials",

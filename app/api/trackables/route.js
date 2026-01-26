@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
+import { ObjectId } from 'mongodb'
 
 export async function GET() {
     try {
@@ -9,7 +10,7 @@ export async function GET() {
 
         const client = await clientPromise
         const db = client.db('mood_tracker')
-        const user = await db.collection('users').findOne({ _id: session.user.id })
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) })
 
         // If user has trackables, return them, otherwise return empty array
         return NextResponse.json(user?.trackables || [])
@@ -23,12 +24,16 @@ export async function POST(request) {
         const session = await auth()
         if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-        const trackables = await request.json()
+        const body = await request.json()
+        const trackables = Array.isArray(body) ? body : body.trackables
+
+        if (!trackables) return NextResponse.json({ error: 'Missing trackables' }, { status: 400 })
+
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
         await db.collection('users').updateOne(
-            { _id: session.user.id },
+            { _id: new ObjectId(session.user.id) },
             { $set: { trackables } }
         )
 

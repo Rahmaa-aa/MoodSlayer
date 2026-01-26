@@ -84,37 +84,54 @@ export default function AuthPage() {
     return (
         <div className="landing-container" style={{
             minHeight: '100vh',
-            padding: '40px',
+            width: '100%',
+            padding: '60px 32px 100px 32px', // Large bottom padding to prevent shadow/border cutoff
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'flex-start', // Start from top to prevent clipping during centering
             position: 'relative',
-            zIndex: 10
+            zIndex: 10,
+            overflowX: 'hidden',
+            overflowY: 'auto'
         }}>
             <div className="bento-grid" style={{
+                margin: 'auto 0', // Vertical auto margin centers the content if there is extra space
                 display: 'grid',
-                gridTemplateColumns: 'minmax(400px, 1fr) 450px',
+                gridTemplateColumns: 'minmax(400px, 1.2fr) 450px',
                 gap: '32px',
                 width: '100%',
                 maxWidth: '1200px',
+                alignItems: 'stretch'
             }}>
                 {/* BRAND BENTO BOX */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                    <div className="cyber-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px', position: 'relative' }}>
+                    <div className="cyber-card" style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        padding: '48px',
+                        paddingBottom: '24px', // Reduced bottom padding to accommodate the blue bar
+                        position: 'relative',
+                        background: 'white',
+                        overflow: 'hidden' // Ensure the blue footer doesn't spill out
+                    }}>
                         <div className="cyber-header" style={{ position: 'absolute', top: '24px', left: '24px' }}>CORE_VIBE_SYSTEM</div>
 
-                        <div style={{ marginTop: '24px' }}>
-                            <Logo width={220} height={220} />
-
-                            <h1 style={{ fontSize: '4.5rem', fontWeight: '900', fontStyle: 'italic', lineHeight: 0.9, marginTop: '24px', textTransform: 'uppercase', color: 'black' }}>
-                                MOOD<br /><span style={{ color: 'var(--pink)' }}>SLAYER</span>
-                            </h1>
+                        <div style={{ marginTop: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                <Logo width={120} height={120} />
+                                <h1 style={{ fontSize: '3.5rem', fontWeight: '900', fontStyle: 'italic', lineHeight: 0.8, textTransform: 'uppercase', color: 'black', margin: 0 }}>
+                                    MOOD<br /><span style={{ color: 'var(--pink)' }}>SLAYER</span>
+                                </h1>
+                            </div>
 
                             <div style={{ marginTop: '32px' }}>
-                                <p style={{ fontSize: '1.5rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.2 }}>
+                                <p style={{ fontSize: '1.4rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.1 }}>
                                     MASTER YOUR PATTERNS.<br />SLAY YOUR VIBES.
                                 </p>
-                                <p style={{ fontSize: '1rem', fontWeight: '600', opacity: 0.6, marginTop: '16px', maxWidth: '400px' }}>
+                                <p style={{ fontSize: '1rem', fontWeight: '600', opacity: 0.6, marginTop: '12px', maxWidth: '420px', lineHeight: 1.4 }}>
                                     The neural hub for your daily life. Track, predict, and optimize your world with absolute precision.
                                 </p>
                             </div>
@@ -125,41 +142,54 @@ export default function AuthPage() {
                             <div className="tag-badge"><Target size={14} /> PREDICTIONS</div>
                             <div className="tag-badge"><Zap size={14} /> MOTIVATION</div>
                         </div>
-                    </div>
 
-                    <div className="cyber-card" style={{ padding: '24px', background: 'var(--blue)', color: 'white', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <div style={{ background: 'black', padding: '12px', borderRadius: '4px' }}><Sparkles size={24} color="var(--yellow)" /></div>
-                        <div>
-                            <p style={{ fontWeight: '900', margin: 0, fontSize: '0.8rem' }}>UPGRADE_YOUR_EXISTENCE</p>
-                            <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.8 }}>Start your neural journey in 30 seconds.</p>
+                        {/* INTEGRATED ACCENT BANNER (formerly the "Blue Part") */}
+                        <div style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            background: 'var(--blue)',
+                            color: 'white',
+                            padding: '12px 24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '16px',
+                            borderTop: '3px solid black'
+                        }}>
+                            <Sparkles size={18} color="var(--yellow)" />
+                            <p style={{ fontWeight: '900', margin: 0, fontSize: '0.75rem', letterSpacing: '1px' }}>
+                                UPGRADE_YOUR_EXISTENCE <span style={{ opacity: 0.7, fontWeight: '500', marginLeft: '8px' }}>START_NEURAL_JOURNEY_IN_30S</span>
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 {/* AUTH BENTO BOX */}
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="cyber-card" style={{ padding: 0, overflow: 'hidden', width: '100%', position: 'relative', boxShadow: '8px 8px 0px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="cyber-card" style={{ padding: 0, overflow: 'visible', width: '100%', position: 'relative', background: 'white' }}>
                         <div className="cyber-header" style={{
                             width: '100%',
                             background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
                             color: 'white',
-                            padding: '16px',
+                            padding: '16px 20px',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            margin: 0
+                            margin: 0,
+                            borderBottom: '3px solid black'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '0.7rem', fontFamily: "'Press Start 2P', cursive" }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '0.75rem', fontFamily: "'Press Start 2P', cursive" }}>
                                 <Zap size={16} /> {mode === 'signin' ? 'UPLINK_INITIALIZED' : 'ENROLLMENT_ACTIVE'}
                             </div>
                         </div>
 
-                        <div style={{ padding: '40px', paddingBottom: '60px' }}>
-                            <div style={{ marginBottom: '32px' }}>
-                                <h2 style={{ fontSize: '2.5rem', fontWeight: '900', fontStyle: 'italic', margin: 0, color: 'black' }}>
+                        <div style={{ padding: '32px 32px', paddingBottom: '32px' }}>
+                            <div style={{ marginBottom: '24px' }}>
+                                <h2 style={{ fontSize: '2.2rem', fontWeight: '900', fontStyle: 'italic', margin: 0, color: 'black', lineHeight: 1 }}>
                                     {mode === 'signin' ? 'LOGIN' : 'SIGN UP'}
                                 </h2>
-                                <p style={{ fontSize: '0.75rem', fontWeight: '900', color: '#666', textTransform: 'uppercase' }}>
+                                <p style={{ fontSize: '0.75rem', fontWeight: '900', color: '#666', textTransform: 'uppercase', marginTop: '6px' }}>
                                     {mode === 'signin' ? 'IDENTIFY_YOURSELF' : 'JOIN_THE_MATRIX'}
                                 </p>
                             </div>
@@ -170,7 +200,7 @@ export default function AuthPage() {
                                 </div>
                             )}
 
-                            <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {mode === 'signup' && (
                                     <div>
                                         <label className="control-label">USER_NAME</label>
@@ -178,7 +208,7 @@ export default function AuthPage() {
                                             <div className="input-icon"><Edit3 size={18} /></div>
                                             <input
                                                 type="text"
-                                                placeholder="What should we call you?"
+                                                placeholder="Resident Name"
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                                 required
@@ -238,7 +268,7 @@ export default function AuthPage() {
                                     style={{
                                         width: '100%',
                                         padding: '20px',
-                                        marginTop: '8px',
+                                        marginTop: '12px',
                                         background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
                                         color: 'white',
                                         display: 'flex',
@@ -246,7 +276,7 @@ export default function AuthPage() {
                                         justifyContent: 'center',
                                         gap: '12px',
                                         fontSize: '1rem',
-                                        boxShadow: '6px 6px 0px black'
+                                        boxShadow: '8px 8px 0px black'
                                     }}
                                 >
                                     {loading ? 'PROCESSING...' : (
@@ -258,8 +288,8 @@ export default function AuthPage() {
                                 </button>
                             </form>
 
-                            <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                                <p style={{ fontSize: '0.8rem', fontWeight: '900' }}>
+                            <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                                <p style={{ fontSize: '0.8rem', fontWeight: '900', margin: 0 }}>
                                     {mode === 'signin' ? 'FIRST_TIME_HERE?' : 'ALREADY_HAVE_SECRET?'}
                                     <button
                                         onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
@@ -291,13 +321,13 @@ export default function AuthPage() {
                 .tag-badge {
                     background: #f1f5f9;
                     border: 2px solid black;
-                    padding: 6px 12px;
-                    font-size: 0.65rem;
+                    padding: 8px 14px;
+                    font-size: 0.75rem;
                     font-weight: 900;
                     letter-spacing: 1px;
                     display: flex;
                     align-items: center;
-                    gap: 6px;
+                    gap: 8px;
                 }
                 .input-field {
                     display: flex;
@@ -308,10 +338,10 @@ export default function AuthPage() {
                 }
                 .input-field:focus-within {
                     transform: translate(-1px, -1px);
-                    box-shadow: 3px 3px 0px black;
+                    box-shadow: 4px 4px 0px black;
                 }
                 .input-icon {
-                    padding: 12px;
+                    padding: 14px;
                     background: #f8fafc;
                     border-right: 3px solid black;
                     display: flex;
@@ -321,15 +351,17 @@ export default function AuthPage() {
                 input {
                     flex: 1;
                     border: none;
-                    padding: 12px;
+                    padding: 14px;
                     outline: none;
                     font-weight: 800;
                     font-size: 1rem;
                     font-family: inherit;
                 }
                 @media (max-width: 900px) {
+                    .landing-container { padding: 40px 20px 80px 20px; }
                     .bento-grid {
                         grid-template-columns: 1fr !important;
+                        max-width: 500px;
                     }
                 }
             `}</style>

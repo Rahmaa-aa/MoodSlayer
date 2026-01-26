@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
+import { ObjectId } from 'mongodb'
 
 export async function GET() {
     try {
@@ -9,7 +10,7 @@ export async function GET() {
 
         const client = await clientPromise
         const db = client.db('mood_tracker')
-        const user = await db.collection('users').findOne({ _id: session.user.id })
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) })
 
         const stats = {
             level: user?.level || 1,
@@ -33,7 +34,7 @@ export async function POST(request) {
         const db = client.db('mood_tracker')
 
         await db.collection('users').updateOne(
-            { _id: session.user.id },
+            { _id: new ObjectId(session.user.id) },
             { $set: { level, xp, streak } }
         )
 

@@ -20,8 +20,8 @@ body {
     font-family: 'Space Grotesk', sans-serif;
     background-color: #f0f7ff;
     color: var(--black);
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
     overflow-x: hidden;
     /* BLUE GRID BACKGROUND */
     background-image:

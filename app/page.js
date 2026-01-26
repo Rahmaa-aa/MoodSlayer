@@ -32,6 +32,7 @@ export default function Home() {
     const [isEditMode, setIsEditMode] = useState(false)
     const [editingItem, setEditingItem] = useState(null)
     const [lastSaved, setLastSaved] = useState(null)
+    const [initialLoadDone, setInitialLoadDone] = useState(false)
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -73,9 +74,12 @@ export default function Home() {
     // Initialize formData when trackables change
     useEffect(() => {
         if (trackables.length > 0) {
-            const initialData = { mood: '' }
+            const initialData = { mood: formData.mood || '' }
             trackables.forEach(t => {
-                initialData[t.id] = formData[t.id] !== undefined ? formData[t.id] : (t.type === 'boolean' ? false : 0)
+                // Only set default if not already present (to preserve loaded data)
+                if (formData[t.id] === undefined) {
+                    initialData[t.id] = (t.type === 'boolean' ? false : 0)
+                }
             })
             setFormData(prev => ({ ...prev, ...initialData }))
         }
@@ -86,43 +90,83 @@ export default function Home() {
             const res = await fetch('/api/entries')
             const data = await res.json()
             if (Array.isArray(data)) {
+                // Find today's entry to restore state
+                const todayStr = new Date().toISOString().split('T')[0]
+                const todayEntry = data.find(e => new Date(e.date).toISOString().split('T')[0] === todayStr)
+
+                if (todayEntry && todayEntry.data) {
+                    setFormData(prev => ({ ...prev, ...todayEntry.data }))
+                }
+
                 const happyCount = data.filter(e => e.data?.mood === 'Happy').length
                 const total = data.length
                 const stability = total > 0 ? Math.round((happyCount / total) * 100) : 100
                 setStats({ total, stability })
             }
-        } catch (e) { console.error('Failed to fetch entries') }
+            setInitialLoadDone(true)
+        } catch (e) {
+            console.error('Failed to fetch entries')
+            setInitialLoadDone(true)
+        }
     }
 
     const handleInputChange = (id, value) => {
         setFormData(prev => ({ ...prev, [id]: value }))
     }
 
-    // Auto-Save Effect
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (Object.keys(formData).length > 1) { // More than just {mood: ''}
-                saveData(formData)
+    const handleSubmit = async (e) => {
+        if (e) e.preventDefault()
+
+        // Validation: Logic: Is there at least ONE thing filled?
+        // mood check
+        let hasMood = !!formData.mood
+
+        // habit check (skip mood and skip notes)
+        let hasHabit = false
+        Object.entries(formData).forEach(([key, val]) => {
+            if (key === 'mood' || key.endsWith('_note')) return
+            if (val !== 0 && val !== false && val !== '') {
+                hasHabit = true
             }
-        }, 1000)
-        return () => clearTimeout(timer)
-    }, [formData])
+        })
+
+        if (!hasMood && !hasHabit) {
+            window.alert('IDENTIFY_AT_LEAST_ONE_VIBE_TO_SYNC')
+            return
+        }
+
+        const success = await saveData(formData)
+        if (success) {
+            showToast('DATA_SYNCED_TO_CORE', 'success')
+            fetchEntries()
+        }
+    }
 
     // Separated Save Logic
     const saveData = async (dataToSave) => {
-        if (!dataToSave.mood && Object.keys(dataToSave).length <= 1) return
-
         setIsSaving(true)
         try {
-            await fetch('/api/entries', {
+            const res = await fetch('/api/entries', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ data: dataToSave })
             })
+
+            if (!res.ok) {
+                const errData = await res.json()
+                throw new Error(errData.error || 'SYNC_FAILED')
+            }
+
             updateGamification(dataToSave)
             setLastSaved(new Date())
-        } catch (e) { console.error('Auto-save failed') }
-        setIsSaving(false)
+            return true
+        } catch (e) {
+            console.error('Sync failed:', e)
+            showToast('SYNC_FAILED: CHECK_CONNECTION', 'xp')
+            return false
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     const updateGamification = async (currentData) => {
@@ -180,7 +224,7 @@ export default function Home() {
         }
         setTrackables(updated)
 
-        // Sync with MongoDB
+        // Sync with MongoDB - Send as raw array
         await fetch('/api/trackables', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -194,7 +238,7 @@ export default function Home() {
         if (window.confirm('DELETE THIS HABIT?')) {
             const updated = trackables.filter(t => t.id !== id)
             setTrackables(updated)
-            // Sync with MongoDB
+            // Sync with MongoDB - Send as raw array
             await fetch('/api/trackables', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -208,23 +252,6 @@ export default function Home() {
         setShowManager(true)
     }
 
-    const handleSubmit = async (e) => {
-        if (e) e.preventDefault()
-        if (!formData.mood) {
-            showToast('SELECT A MOOD FIRST!', 'xp')
-            return
-        }
-
-        setIsSaving(true)
-        try {
-            await saveData(formData)
-            showToast('NEURAL UPLINK COMPLETE!', 'info')
-            fetchEntries()
-        } catch (e) {
-            showToast('UPLINK FAILED', 'xp')
-        }
-        setIsSaving(false)
-    }
 
     const categories = [...new Set(trackables.map(t => t.category))]
     const leftCategories = categories.filter((_, i) => i % 2 === 0)
@@ -427,7 +454,7 @@ export default function Home() {
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
                         {lastSaved && (
                             <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--green)', marginBottom: '12px' }}>
-                                AUTOSAVED {lastSaved.toLocaleTimeString()}
+                                LAST_SYNC: {lastSaved.toLocaleTimeString()}
                             </span>
                         )}
 
@@ -568,8 +595,9 @@ export default function Home() {
                                 type="submit"
                                 disabled={isSaving}
                                 className="sync-btn"
+                                style={{ background: isSaving ? '#ccc' : 'var(--green)' }}
                             >
-                                {isSaving ? 'SYNCING...' : 'CONFIRM SYNC'}
+                                {isSaving ? 'SYNCING_TO_CORE...' : 'SYNC TO MOOD CORE'}
                             </button>
                             <div style={{ height: '40px' }}></div>
                         </div>

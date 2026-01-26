@@ -12,8 +12,15 @@ export async function GET() {
 
         const client = await clientPromise
         const db = client.db('mood_tracker')
+
+        // Query by string since that's what we store mostly, but fallback to ObjectId if needed
         const entries = await db.collection('entries')
-            .find({ userId: session.user.id })
+            .find({
+                $or: [
+                    { userId: session.user.id },
+                    { userId: new ObjectId(session.user.id) }
+                ]
+            })
             .sort({ date: -1 })
             .limit(30)
             .toArray()
@@ -43,7 +50,10 @@ export async function POST(request) {
 
         // UPSERT LOGIC per User
         const existing = await db.collection('entries').findOne({
-            userId: session.user.id,
+            $or: [
+                { userId: session.user.id },
+                { userId: new ObjectId(session.user.id) }
+            ],
             date: {
                 $gte: todayStart,
                 $lte: todayEnd
