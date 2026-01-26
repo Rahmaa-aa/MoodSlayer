@@ -1,10 +1,20 @@
-'use client'
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { Sidebar } from '../../components/Sidebar'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid } from 'recharts'
+
+// Dynamic imports for heavy charting components
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false })
+const LineChart = dynamic(() => import('recharts').then(mod => mod.LineChart), { ssr: false })
+const Line = dynamic(() => import('recharts').then(mod => mod.Line), { ssr: false })
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false })
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false })
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false })
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false })
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false })
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false })
+
 import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, CheckSquare, Square, Settings, Eye, EyeOff } from 'lucide-react'
 import { prepareData, calculateCorrelations } from '../../lib/ml/preprocessor'
-import { trainPredictor } from '../../lib/ml/engine'
 
 export default function CyclesPage() {
     const [history, setHistory] = useState([])
@@ -96,6 +106,7 @@ export default function CyclesPage() {
                     ...prepared,
                     features: [target, ...selectedIds]
                 }
+                const { trainPredictor } = await import('../../lib/ml/engine')
                 const pred = await trainPredictor(customPrepared, target)
                 setPrediction(pred)
             } catch (e) {

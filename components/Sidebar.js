@@ -42,7 +42,7 @@ export function Sidebar({ userStats, activePage }) {
                     className="sidebar-btn"
                     style={{ background: 'black', color: 'white', border: '3px solid white', fontSize: '0.65rem' }}
                 >
-                    <LogOut size={14} /> DISCONNECT_UPLINK
+                    <LogOut size={14} /> LOG OUT
                 </button>
                 <div style={{ marginTop: '8px' }}>
                     <p style={{ fontSize: '0.65rem', fontWeight: '900', color: 'white', textTransform: 'uppercase', margin: 0, opacity: 0.8 }}>System v5.4</p>

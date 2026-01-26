@@ -12,33 +12,41 @@ export default function SignInPage() {
     const [loading, setLoading] = useState(false)
     const router = useRouter()
 
+    // Handle errors from URL if redirected back
+    useState(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search)
+            if (params.get('error')) {
+                setError('INVALID_CREDENTIALS: ACCESS_DENIED')
+            }
+        }
+    }, [])
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
         setError('')
 
-        const result = await signIn('credentials', {
+        // Using default redirect: true helps browsers detect successful login
+        await signIn('credentials', {
             email,
             password,
-            redirect: false
+            callbackUrl: '/',
         })
-
-        if (result?.error) {
-            setError('INVALID_CREDENTIALS: ACCESS_DENIED')
-            setLoading(false)
-        } else {
-            router.push('/')
-        }
     }
 
     return (
         <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f7ff' }}>
             <div className="cyber-card" style={{ width: '400px', padding: 0, overflow: 'hidden' }}>
                 <div className="cyber-header" style={{ width: '100%', background: 'var(--pink)', color: 'white', padding: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <Shield size={24} /> ACCESS_PANEL
+                    <Shield size={24} /> SIGN IN
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <form
+                    method="POST"
+                    onSubmit={handleSubmit}
+                    style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
+                >
                     <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                         <h2 style={{ fontSize: '2.5rem', fontWeight: '900', fontStyle: 'italic', margin: 0, color: 'black' }}>LOGIN</h2>
                         <p style={{ fontSize: '0.6rem', fontWeight: '900', opacity: 0.5 }}>MOODSLAYER_SYSTEM_V5.4</p>
@@ -55,7 +63,10 @@ export default function SignInPage() {
                         <div style={{ display: 'flex', alignItems: 'center', border: '3px solid black', background: 'white' }}>
                             <div style={{ padding: '10px', background: '#eee', borderRight: '3px solid black' }}><User size={18} /></div>
                             <input
+                                name="email"
+                                id="email"
                                 type="email"
+                                autoComplete="username"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 style={{ flex: 1, border: 'none', padding: '10px', outline: 'none', fontWeight: 'bold' }}
@@ -69,7 +80,10 @@ export default function SignInPage() {
                         <div style={{ display: 'flex', alignItems: 'center', border: '3px solid black', background: 'white' }}>
                             <div style={{ padding: '10px', background: '#eee', borderRight: '3px solid black' }}><Key size={18} /></div>
                             <input
+                                name="password"
+                                id="password"
                                 type="password"
+                                autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 style={{ flex: 1, border: 'none', padding: '10px', outline: 'none', fontWeight: 'bold' }}
@@ -84,7 +98,7 @@ export default function SignInPage() {
                         className="sync-btn"
                         style={{ padding: '12px', marginTop: '10px' }}
                     >
-                        {loading ? 'AUTHENTICATING...' : 'INITIATE_SESSION'}
+                        {loading ? 'AUTHENTICATING...' : 'LOG IN'}
                     </button>
 
                     <div style={{ textAlign: 'center', marginTop: '16px' }}>
@@ -94,9 +108,6 @@ export default function SignInPage() {
                     </div>
                 </form>
 
-                <div className="sidebar-footer" style={{ background: 'black', color: 'var(--green)', padding: '10px', fontSize: '0.6rem', textAlign: 'center', fontFamily: 'monospace' }}>
-                    &gt; CONNECTION_STABLE // NO_ENCRYPTION_WARNING
-                </div>
             </div>
         </div>
     )
