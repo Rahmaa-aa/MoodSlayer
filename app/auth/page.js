@@ -23,7 +23,6 @@ export default function AuthPage() {
         const success = searchParams.get('success')
         if (success) {
             setMode('signin')
-            // Add a small success message logic if needed
         }
     }, [searchParams])
 
@@ -35,7 +34,7 @@ export default function AuthPage() {
         const res = await signIn('credentials', {
             email,
             password,
-            redirect: false, // Handle manually for smoother transition
+            redirect: false,
         })
 
         if (res?.error) {
@@ -67,7 +66,6 @@ export default function AuthPage() {
             const data = await res.json()
 
             if (res.ok) {
-                // Auto login after signup for best UX
                 await signIn('credentials', {
                     email,
                     password,
@@ -106,7 +104,7 @@ export default function AuthPage() {
                         <div className="cyber-header" style={{ position: 'absolute', top: '24px', left: '24px' }}>CORE_VIBE_SYSTEM</div>
 
                         <div style={{ marginTop: '24px' }}>
-                            <Logo width={160} height={160} />
+                            <Logo width={220} height={220} />
 
                             <h1 style={{ fontSize: '4.5rem', fontWeight: '900', fontStyle: 'italic', lineHeight: 0.9, marginTop: '24px', textTransform: 'uppercase', color: 'black' }}>
                                 MOOD<br /><span style={{ color: 'var(--pink)' }}>SLAYER</span>
@@ -139,146 +137,148 @@ export default function AuthPage() {
                 </div>
 
                 {/* AUTH BENTO BOX */}
-                <div className="cyber-card" style={{ padding: 0, overflow: 'hidden', height: 'fit-content' }}>
-                    <div className="cyber-header" style={{
-                        width: '100%',
-                        background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
-                        color: 'white',
-                        padding: '16px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        margin: 0
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '0.7rem', fontFamily: "'Press Start 2P', cursive" }}>
-                            <Zap size={16} /> {mode === 'signin' ? 'UPLINK_INITIALIZED' : 'ENROLLMENT_ACTIVE'}
-                        </div>
-                    </div>
-
-                    <div style={{ padding: '40px' }}>
-                        <div style={{ marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '2.5rem', fontWeight: '900', fontStyle: 'italic', margin: 0, color: 'black' }}>
-                                {mode === 'signin' ? 'LOGIN' : 'SIGN UP'}
-                            </h2>
-                            <p style={{ fontSize: '0.75rem', fontWeight: '900', color: '#666', textTransform: 'uppercase' }}>
-                                {mode === 'signin' ? 'IDENTIFY_YOURSELF' : 'JOIN_THE_MATRIX'}
-                            </p>
-                        </div>
-
-                        {error && (
-                            <div style={{ background: 'var(--pink)', color: 'white', padding: '12px', border: '3px solid black', fontWeight: '900', fontSize: '0.75rem', textAlign: 'center', marginBottom: '24px' }}>
-                                {error}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className="cyber-card" style={{ padding: 0, overflow: 'hidden', width: '100%', position: 'relative', boxShadow: '8px 8px 0px rgba(0,0,0,0.05)' }}>
+                        <div className="cyber-header" style={{
+                            width: '100%',
+                            background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
+                            color: 'white',
+                            padding: '16px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            margin: 0
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '0.7rem', fontFamily: "'Press Start 2P', cursive" }}>
+                                <Zap size={16} /> {mode === 'signin' ? 'UPLINK_INITIALIZED' : 'ENROLLMENT_ACTIVE'}
                             </div>
-                        )}
+                        </div>
 
-                        <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            {mode === 'signup' && (
+                        <div style={{ padding: '40px', paddingBottom: '60px' }}>
+                            <div style={{ marginBottom: '32px' }}>
+                                <h2 style={{ fontSize: '2.5rem', fontWeight: '900', fontStyle: 'italic', margin: 0, color: 'black' }}>
+                                    {mode === 'signin' ? 'LOGIN' : 'SIGN UP'}
+                                </h2>
+                                <p style={{ fontSize: '0.75rem', fontWeight: '900', color: '#666', textTransform: 'uppercase' }}>
+                                    {mode === 'signin' ? 'IDENTIFY_YOURSELF' : 'JOIN_THE_MATRIX'}
+                                </p>
+                            </div>
+
+                            {error && (
+                                <div style={{ background: 'var(--pink)', color: 'white', padding: '12px', border: '3px solid black', fontWeight: '900', fontSize: '0.75rem', textAlign: 'center', marginBottom: '24px' }}>
+                                    {error}
+                                </div>
+                            )}
+
+                            <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                {mode === 'signup' && (
+                                    <div>
+                                        <label className="control-label">USER_NAME</label>
+                                        <div className="input-field">
+                                            <div className="input-icon"><Edit3 size={18} /></div>
+                                            <input
+                                                type="text"
+                                                placeholder="What should we call you?"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div>
-                                    <label className="control-label">USER_NAME</label>
+                                    <label className="control-label">CORP_EMAIL</label>
                                     <div className="input-field">
-                                        <div className="input-icon"><Edit3 size={18} /></div>
+                                        <div className="input-icon"><User size={18} /></div>
                                         <input
-                                            type="text"
-                                            placeholder="What should we call you?"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
+                                            type="email"
+                                            placeholder="user@neural.lnk"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             required
                                         />
                                     </div>
                                 </div>
-                            )}
 
-                            <div>
-                                <label className="control-label">CORP_EMAIL</label>
-                                <div className="input-field">
-                                    <div className="input-icon"><User size={18} /></div>
-                                    <input
-                                        type="email"
-                                        placeholder="user@neural.lnk"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="control-label">ACCESS_SECRET</label>
-                                <div className="input-field">
-                                    <div className="input-icon"><Key size={18} /></div>
-                                    <input
-                                        type="password"
-                                        placeholder="********"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {mode === 'signup' && (
                                 <div>
-                                    <label className="control-label">VERIFY_SECRET</label>
+                                    <label className="control-label">ACCESS_SECRET</label>
                                     <div className="input-field">
                                         <div className="input-icon"><Key size={18} /></div>
                                         <input
                                             type="password"
                                             placeholder="********"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
                                             required
                                         />
                                     </div>
                                 </div>
-                            )}
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="sync-btn"
-                                style={{
-                                    width: '100%',
-                                    padding: '20px',
-                                    marginTop: '8px',
-                                    background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
-                                    color: 'white',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '12px',
-                                    fontSize: '1rem',
-                                    boxShadow: '6px 6px 0px black'
-                                }}
-                            >
-                                {loading ? 'PROCESSING...' : (
-                                    <>
-                                        {mode === 'signin' ? 'START UPLINK' : 'CREATE ACCOUNT'}
-                                        <ArrowRight size={20} />
-                                    </>
+                                {mode === 'signup' && (
+                                    <div>
+                                        <label className="control-label">VERIFY_SECRET</label>
+                                        <div className="input-field">
+                                            <div className="input-icon"><Key size={18} /></div>
+                                            <input
+                                                type="password"
+                                                placeholder="********"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
                                 )}
-                            </button>
-                        </form>
 
-                        <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                            <p style={{ fontSize: '0.8rem', fontWeight: '900' }}>
-                                {mode === 'signin' ? 'FIRST_TIME_HERE?' : 'ALREADY_HAVE_SECRET?'}
                                 <button
-                                    onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+                                    type="submit"
+                                    disabled={loading}
+                                    className="sync-btn"
                                     style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        color: mode === 'signin' ? 'var(--blue)' : 'var(--pink)',
-                                        fontWeight: '900',
-                                        cursor: 'pointer',
-                                        marginLeft: '8px',
-                                        textDecoration: 'underline',
-                                        fontFamily: 'inherit',
-                                        textTransform: 'uppercase'
+                                        width: '100%',
+                                        padding: '20px',
+                                        marginTop: '8px',
+                                        background: mode === 'signin' ? 'var(--pink)' : 'var(--blue)',
+                                        color: 'white',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '12px',
+                                        fontSize: '1rem',
+                                        boxShadow: '6px 6px 0px black'
                                     }}
                                 >
-                                    {mode === 'signin' ? 'REGISTER' : 'LOG_IN'}
+                                    {loading ? 'PROCESSING...' : (
+                                        <>
+                                            {mode === 'signin' ? 'START UPLINK' : 'CREATE ACCOUNT'}
+                                            <ArrowRight size={20} />
+                                        </>
+                                    )}
                                 </button>
-                            </p>
+                            </form>
+
+                            <div style={{ textAlign: 'center', marginTop: '32px' }}>
+                                <p style={{ fontSize: '0.8rem', fontWeight: '900' }}>
+                                    {mode === 'signin' ? 'FIRST_TIME_HERE?' : 'ALREADY_HAVE_SECRET?'}
+                                    <button
+                                        onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: mode === 'signin' ? 'var(--blue)' : 'var(--pink)',
+                                            fontWeight: '900',
+                                            cursor: 'pointer',
+                                            marginLeft: '8px',
+                                            textDecoration: 'underline',
+                                            fontFamily: 'inherit',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        {mode === 'signin' ? 'REGISTER' : 'LOG_IN'}
+                                    </button>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
