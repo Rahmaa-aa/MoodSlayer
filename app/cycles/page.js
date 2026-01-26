@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import { useUser } from '../../context/UserContext'
 import { Sidebar } from '../../components/Sidebar'
 
 // Dynamic imports for heavy charting components
@@ -18,6 +19,7 @@ import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, Che
 import { prepareData, calculateCorrelations } from '../../lib/ml/preprocessor'
 
 export default function CyclesPage() {
+    const { userStats } = useUser()
     const [history, setHistory] = useState([])
     const [trackables, setTrackables] = useState([])
     const [mounted, setMounted] = useState(false)

@@ -1,9 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Sidebar } from '../components/Sidebar'
+import { Sidebar } from '../../components/Sidebar'
 import { Settings, Shield, Palette, Zap } from 'lucide-react'
 
-import { useUser } from '../context/UserContext'
+import { useUser } from '../../context/UserContext'
 
 export default function SettingsPage() {
     const { userStats } = useUser()
