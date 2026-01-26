@@ -25,17 +25,12 @@ export function Sidebar({ userStats = { level: 1, xp: 0 }, activePage = 'Dashboa
 
             {/* Menu */}
             <nav className="sidebar-nav">
-                {menuItems.map((item, idx) => (
-                    <Link
-                        key={idx}
-                        href={item.href}
-                        className={`sidebar-btn ${activePage === item.label ? 'active' : ''}`}
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                        {item.icon}
-                        {item.label}
-                    </Link>
-                ))}
+                <Link href="/" className={`sidebar-btn ${activePage === 'Dashboard' ? 'active' : ''}`}>
+                    <Activity size={18} /> DASHBOARD
+                </Link>
+                <Link href="/cycles" className={`sidebar-btn ${activePage === 'Cycles' ? 'active' : ''}`}>
+                    <Zap size={18} /> CYCLES
+                </Link>
             </nav>
 
             {/* Footer */}
