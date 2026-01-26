@@ -159,8 +159,7 @@ export default function CyclesPage() {
     }
     const aura = getAura()
 
-    // userStats is only used for the initial Sidebar render, but Sidebar now uses session
-    const userStats = { level: 1, xp: 0 }
+
 
     // Group trackables by category for the selection UI
     const categories = [...new Set(trackables.map(t => t.category))]
