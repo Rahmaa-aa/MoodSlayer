@@ -19,7 +19,7 @@
 *   **Temporal Lag Logic**: Analyzes the "Memory Influence" of yesterday's actions on today's state.
 
 ### 2. Gamified Core
-*   **Progressive Leveling**: Gain XP for Every sync and habit completion.
+*   **Progressive Leveling**: Gain XP for every sync and habit completion.
 *   **Streak Mechanics**: Dynamic streak calculation derived from live database entries (not static flags).
 *   **Neural Unlocks**: Unlock specific dashboard capabilities as you rank up from Level 1 to Level 10.
 
@@ -35,37 +35,15 @@
 *   **Frontend**: Next.js 14 (App Router), Lucide React, Recharts.
 *   **Backend**: Next-Auth (v5), MongoDB (Atlas/Local), custom Service Layer.
 *   **ML Core**: TensorFlow.js (Sequential Model with Dropout), Pearson correlation engine.
-*   **Testing**: "Neural Cluster" persona seeding script (`scripts/seed_cluster.js`).
 
 ---
 
-## 👥 Neural Cluster (Test Accounts)
-For stress-testing the AI's pattern recognition, use these pre-seeded personas:
+## � Public Deployment Note
 
-- `monk@mood.com`: 100% Consistency.
-- `chaos@mood.com`: Random Data.
-- `glitch@mood.com`: Pattern breaks (Tests Anomalies).
-- `warrior@mood.com`: Weekly patterns (Tests Lags).
-*(Password for all: `password123`)*
-
----
-
-## 🚀 Getting Started
-
-1. **Spin up MongoDB**:
-   ```bash
-   docker-compose up -d
-   ```
-2. **Setup Env**:
-   Add `MONGODB_URI` and `AUTH_SECRET` to `.env.local`.
-3. **Seed the Cluster**:
-   ```bash
-   node scripts/seed_cluster.js
-   ```
-4. **Initiate Core**:
-   ```bash
-   npm run dev
-   ```
+This repository is optimized for private self-hosting. For security reasons, please ensure that:
+1. Your `.env.local` is never committed.
+2. You use unique secrets for Next-Auth.
+3. Database access is restricted to authorized IPs.
 
 ---
 🧬 **Stay Synced. Slayer.**
