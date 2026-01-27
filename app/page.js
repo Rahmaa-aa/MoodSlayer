@@ -400,6 +400,26 @@ export default function Home() {
                     />
                 )}
 
+                {/* TYPE: DATE */}
+                {item.type === 'date' && (
+                    <div style={{ marginBottom: '8px' }}>
+                        <label className="control-label" style={{ display: 'block', marginBottom: '8px' }}>{item.name}</label>
+                        <input
+                            type="date"
+                            className="sidebar-btn"
+                            style={{
+                                cursor: 'pointer',
+                                border: '3px solid black',
+                                width: '100%',
+                                fontSize: '1rem',
+                                padding: '12px'
+                            }}
+                            value={formData[item.id] || ''}
+                            onChange={(e) => handleInputChange(item.id, e.target.value)}
+                        />
+                    </div>
+                )}
+
                 {/* DAILY NOTES */}
                 {item.allowNotes && (
                     <div style={{ marginTop: '12px', marginLeft: '2px', marginRight: '2px', opacity: 0.8 }}>

@@ -17,6 +17,7 @@ const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.Cartesian
 
 import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, CheckSquare, Square, Settings, Eye, EyeOff } from 'lucide-react'
 import { prepareData, calculateCorrelations } from '../../lib/ml/preprocessor'
+import NeuralGrid from '../../components/NeuralGrid'
 
 export default function CyclesPage() {
     const { userStats } = useUser()
@@ -186,6 +187,8 @@ export default function CyclesPage() {
                         </button>
                     </div>
                 </header>
+
+                <NeuralGrid history={history} trackables={trackables} />
 
                 {isEditMode && (
                     <section className="cyber-card" style={{ background: 'var(--yellow)', padding: '20px' }}>

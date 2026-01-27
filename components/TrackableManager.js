@@ -179,6 +179,13 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                             >
                                 TEXT
                             </button>
+                            <button
+                                className={`toggle-btn ${type === 'date' ? 'active no' : ''}`}
+                                onClick={() => setType('date')}
+                                style={{ backgroundColor: type === 'date' ? 'var(--pink)' : 'white', color: type === 'date' ? 'white' : 'black' }}
+                            >
+                                DATE
+                            </button>
                         </div>
                     </div>
 
