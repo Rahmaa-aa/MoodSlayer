@@ -131,7 +131,7 @@ export default function Home() {
         })
 
         if (!hasMood && !hasHabit) {
-            window.alert('IDENTIFY_AT_LEAST_ONE_VIBE_TO_SYNC')
+            showToast('IDENTIFY_AT_LEAST_ONE_VIBE_TO_SYNC', 'warning')
             return
         }
 

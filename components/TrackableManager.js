@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Sparkles, Plus, Save } from 'lucide-react'
+import { showToast } from './Notifications'
 
 export function TrackableManager({ isOpen, onClose, onSave, existingCategories, initialData = null }) {
     const [name, setName] = useState('')
@@ -70,7 +71,7 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
     }
 
     const handleSave = () => {
-        if (!name || !category) return alert('FILL IT OUT BESTIE!')
+        if (!name || !category) return showToast('FILL IT OUT BESTIE!', 'warning')
         onSave({
             id: initialData?.id || name.toLowerCase().replace(/\s+/g, '_'),
             name,
