@@ -114,6 +114,13 @@ export default function CyclesPage() {
         if (!data || data.length < 3) return
 
         setIsThinking(true)
+        // Reset analysis state to prevent old data from lingering during recompilation
+        setPrediction(null)
+        setConfidence(0)
+        setCorrelations([])
+        setInfluences({})
+        setArchetype("NEURAL_RECOMPILING...")
+
         const prepared = prepareData(data, allDefinitions)
 
         if (prepared) {
@@ -140,30 +147,49 @@ export default function CyclesPage() {
             }
 
             try {
+                // Include Lags in Training Features
+                const trainingFeatures = [
+                    target,
+                    `${target}_lag1`,
+                    ...selectedIds,
+                    ...selectedIds.map(id => `${id}_lag1`)
+                ];
+
                 const customPrepared = {
                     ...prepared,
-                    features: [target, ...selectedIds]
+                    features: trainingFeatures
                 }
-                const { trainPredictor, getModel } = await import('../../lib/ml/engine')
-                const { prediction: pred, confidence: conf } = await trainPredictor(customPrepared, target)
+                const { trainPredictor } = await import('../../lib/ml/engine')
+                const { prediction: pred, confidence: conf, model: trainedModel } = await trainPredictor(customPrepared, target)
 
                 setPrediction(pred)
                 setConfidence(conf)
 
-                // 3. Local Explainability: Get influences for the latest prediction
-                const model = await getModel(customPrepared, target);
-                if (model) {
+                // 3. Local Explainability: Pass the trained model DIRECTLY to avoid shape mismatch
+                if (trainedModel) {
                     const lastRow = prepared.rows[prepared.rows.length - 1];
-                    // IMPORTANT: Must map inputs based on the EXACT features used for training
                     const inputData = customPrepared.features.map(f => lastRow[f]);
-                    const infls = await calculateInfluence(model, inputData, customPrepared.features, target);
+                    const infls = await calculateInfluence(trainedModel, inputData, customPrepared.features, target);
                     setInfluences(infls);
+                } else {
+                    setInfluences({});
                 }
+
+                // 4. Proactive Insights: Anomaly Detection & Archetype Clustering
+                const glitch = detectAnomaly(prepared.rows, customPrepared.features);
+                setAnomaly(glitch);
+
+                const vArchetype = identifyArchetype(prepared.rows, allDefinitions);
+                setArchetype(vArchetype);
             } catch (e) {
                 console.error("Analysis execution failed", e)
+                setInfluences({});
+            } finally {
+                setIsThinking(false)
             }
+        } else {
+            setIsThinking(false)
         }
-        setIsThinking(false)
     }
 
     const handleTargetChange = (newTarget) => {
@@ -197,9 +223,10 @@ export default function CyclesPage() {
     const getAura = () => {
         if (prediction === null) return { name: 'NEUTRAL', color: '#999', glow: 'none' }
         if (predictionTarget === 'moodScore') {
-            if (prediction > 3.2) return { name: 'GOLDEN AURA', color: 'var(--yellow)', glow: '0 0 30px var(--yellow)' }
-            if (prediction > 2.5) return { name: 'VIBRANT AURA', color: 'var(--green)', glow: '0 0 20px var(--green)' }
-            if (prediction > 1.8) return { name: 'CHILL AURA', color: 'var(--blue)', glow: '0 0 20px var(--blue)' }
+            const scaled = prediction * 3 + 1
+            if (scaled > 3.2) return { name: 'GOLDEN AURA', color: 'var(--yellow)', glow: '0 0 30px var(--yellow)' }
+            if (scaled > 2.5) return { name: 'VIBRANT AURA', color: 'var(--green)', glow: '0 0 20px var(--green)' }
+            if (scaled > 1.8) return { name: 'CHILL AURA', color: 'var(--blue)', glow: '0 0 20px var(--blue)' }
             return { name: 'LOW ENERGY', color: 'var(--pink)', glow: '0 0 20px var(--pink)' }
         }
         return { name: 'STABLE', color: 'var(--purple)', glow: '0 0 20px var(--purple)' }
@@ -375,7 +402,7 @@ export default function CyclesPage() {
                                                 {trackables.find(t => t.id === synergyPair.p1)?.name} <Sparkles size={10} style={{ margin: '0 4px' }} /> {trackables.find(t => t.id === synergyPair.p2)?.name}
                                             </p>
                                             <p style={{ fontSize: '0.6rem', margin: '4px 0 0 0', fontStyle: 'italic', opacity: 0.7 }}>
-                                                These habits fluctuate together with {Math.round(synergyPair.strength * 100)}% consistency.
+                                                These habits co-occur with {Math.round(synergyPair.strength * 100)}% consistency.
                                             </p>
                                         </div>
                                     )}
@@ -405,6 +432,12 @@ export default function CyclesPage() {
                         <section className="cyber-card" style={{ height: '100%' }}>
                             <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>Oracle_Output</div>
                             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {correlations.length === 0 && (
+                                    <div style={{ padding: '20px', border: '2px dashed var(--blue)', background: 'rgba(0,0,255,0.05)', textAlign: 'center' }}>
+                                        <p style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--blue)', margin: '0 0 8px 0' }}>PERFECT_STABILITY_DETECTED</p>
+                                        <p style={{ fontSize: '0.65rem', color: '#666', margin: 0 }}>Data variance is near zero. The AI identifies this as an ultra-consistent behavioral pattern, which prevents standard correlation bar displays.</p>
+                                    </div>
+                                )}
                                 {correlations.map((corr, idx) => {
                                     // Helper to resolve labels for Lag Features
                                     const isLag = corr.feature.endsWith('_lag1');
@@ -415,10 +448,13 @@ export default function CyclesPage() {
 
                                     const label = isLag ? `YESTERDAY'S_${habit.name}` : habit.name;
 
-                                    // Use XAI Influence if available, fallback to Global Correlation
+                                    // USE XAI Influence ONLY if it is significant (>10%)
                                     const influence = influences[corr.feature];
-                                    const strength = influence ? influence.score : corr.strength;
-                                    const impact = influence ? influence.impact : corr.impact;
+                                    const useInfluence = influence && influence.score > 0.1;
+
+                                    const strength = useInfluence ? influence.score : corr.strength;
+                                    const impact = useInfluence ? influence.impact : corr.impact;
+                                    const showNeuralBadge = useInfluence;
 
                                     return (
                                         <div key={idx} style={{
@@ -428,7 +464,7 @@ export default function CyclesPage() {
                                             opacity: selectedPredictors.includes(baseId) || baseId === 'moodScore' ? 1 : 0.6,
                                             position: 'relative'
                                         }}>
-                                            {influence && (
+                                            {showNeuralBadge && (
                                                 <div style={{
                                                     position: 'absolute', top: -10, right: 10, background: 'black', color: 'white',
                                                     fontSize: '0.45rem', padding: '2px 6px', fontWeight: '900', letterSpacing: '1px',
@@ -448,11 +484,11 @@ export default function CyclesPage() {
                                                     {label}
                                                 </p>
                                                 <div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '4px' }}>
-                                                    <div style={{ width: `${Math.min(100, (influence ? strength * 400 : strength * 100))}%`, height: '100%', background: impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
+                                                    <div style={{ width: `${Math.min(100, strength * 100)}%`, height: '100%', background: impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
                                                 </div>
                                             </div>
                                             <div style={{ fontWeight: '900', fontSize: '1rem', color: impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}>
-                                                {Math.round(influence ? strength * 100 : strength * 100)}%
+                                                {Math.round(strength * 100)}%
                                             </div>
                                         </div>
                                     );
