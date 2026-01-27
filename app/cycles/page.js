@@ -19,6 +19,9 @@ import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, Che
 import { prepareData, calculateCorrelations } from '../../lib/ml/preprocessor'
 import NeuralGrid from '../../components/NeuralGrid'
 
+import { calculateInfluence } from '../../lib/ml/xai'
+import { detectAnomaly, identifyArchetype } from '../../lib/ml/insights'
+
 export default function CyclesPage() {
     const { userStats } = useUser()
     const [history, setHistory] = useState([])
@@ -39,14 +42,20 @@ export default function CyclesPage() {
     // ML State
     const [correlations, setCorrelations] = useState([])
     const [prediction, setPrediction] = useState(null)
+    const [confidence, setConfidence] = useState(0)
     const [predictionTarget, setPredictionTarget] = useState('moodScore')
-    const [selectedPredictors, setSelectedPredictors] = useState([]) // New: Multi-habit selection
+    const [selectedPredictors, setSelectedPredictors] = useState([])
     const [isThinking, setIsThinking] = useState(false)
+    const [isDummyMode, setIsDummyMode] = useState(false)
+    const [influences, setInfluences] = useState({})
+    const [synergyPair, setSynergyPair] = useState(null)
+    const [anomaly, setAnomaly] = useState(null)
+    const [archetype, setArchetype] = useState("NEURAL_WAITING")
 
     useEffect(() => {
         setMounted(true)
 
-        // Load settings from localStorage (UI preferences are okay in localStorage)
+        // Load settings from localStorage
         const savedSettings = localStorage.getItem('mood_cycles_settings')
         if (savedSettings) {
             const parsed = JSON.parse(savedSettings)
@@ -54,34 +63,46 @@ export default function CyclesPage() {
             if (parsed.chartType) setChartType(parsed.chartType)
         }
 
-        // Load data from APIs
-        const loadData = async () => {
-            try {
-                // 1. Fetch Trackables
-                const resT = await fetch('/api/trackables')
-                const parsedTrackables = await resT.json()
-
-                if (Array.isArray(parsedTrackables) && parsedTrackables.length > 0) {
-                    setTrackables(parsedTrackables)
-                    setSelectedPredictors(parsedTrackables.map(t => t.id))
-                }
-
-                // 2. Fetch Entries and Run Analysis
-                const resE = await fetch('/api/entries')
-                const data = await resE.json()
-                if (Array.isArray(data)) {
-                    setHistory(data)
-                    if (parsedTrackables.length > 0) {
-                        runAnalysis(data, parsedTrackables, 'moodScore', parsedTrackables.map(t => t.id))
-                    }
-                }
-            } catch (e) {
-                console.error('Failed to load cycles data', e)
-            }
-        }
-
-        loadData()
+        refreshData(isDummyMode)
     }, [])
+
+    const refreshData = async (useDummy) => {
+        try {
+            // 1. Fetch Trackables
+            const resT = await fetch('/api/trackables')
+            const parsedTrackables = await resT.json()
+
+            if (Array.isArray(parsedTrackables) && parsedTrackables.length > 0) {
+                setTrackables(parsedTrackables)
+                setSelectedPredictors(parsedTrackables.map(t => t.id))
+            }
+
+            // 2. Fetch Entries
+            let data;
+            if (useDummy) {
+                const resD = await fetch('/dummy_ml_data.json')
+                data = await resD.json()
+            } else {
+                const resE = await fetch('/api/entries')
+                data = await resE.json()
+            }
+
+            if (Array.isArray(data)) {
+                setHistory(data)
+                if (parsedTrackables.length > 0) {
+                    runAnalysis(data, parsedTrackables, 'moodScore', parsedTrackables.map(t => t.id))
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load cycles data', e)
+        }
+    }
+
+    const toggleDummyMode = () => {
+        const nextMode = !isDummyMode
+        setIsDummyMode(nextMode)
+        refreshData(nextMode)
+    }
 
     useEffect(() => {
         if (mounted) {
@@ -93,28 +114,53 @@ export default function CyclesPage() {
         if (!data || data.length < 3) return
 
         setIsThinking(true)
-        // Filter definitions based on selection
-        const filteredDefinitions = allDefinitions.filter(d => selectedIds.includes(d.id))
-        const prepared = prepareData(data, allDefinitions) // Still prepare all for correlation matrix
+        const prepared = prepareData(data, allDefinitions)
 
         if (prepared) {
-            // 1. Calculate Correlations (Always show top 5 from all features)
-            const corrs = calculateCorrelations(prepared, target)
+            // 1. Calculate correlations FOR THE TARGET (Filtered by selection)
+            const corrs = calculateCorrelations(prepared, target, selectedIds)
             setCorrelations(corrs)
 
-            // 2. Run Prediction (Only using selected predictors)
+            // 2. Synergy Detection: Find high correlation between ANY two habits (not target)
+            if (selectedIds.length >= 2) {
+                const synergyResults = []
+                for (let i = 0; i < selectedIds.length; i++) {
+                    for (let j = i + 1; j < selectedIds.length; j++) {
+                        const s1 = selectedIds[i]
+                        const s2 = selectedIds[j]
+                        const c = calculateCorrelations(prepared, s1, [s2])
+                        if (c.length > 0 && c[0].strength > 0.4) {
+                            synergyResults.push({ p1: s1, p2: s2, strength: c[0].strength })
+                        }
+                    }
+                }
+                setSynergyPair(synergyResults.sort((a, b) => b.strength - a.strength)[0] || null)
+            } else {
+                setSynergyPair(null)
+            }
+
             try {
-                // We need to modify prepared data or trainPredictor to only use selected features
-                // For now, let's filter the 'features' in prepared to match selection
                 const customPrepared = {
                     ...prepared,
                     features: [target, ...selectedIds]
                 }
-                const { trainPredictor } = await import('../../lib/ml/engine')
-                const pred = await trainPredictor(customPrepared, target)
+                const { trainPredictor, getModel } = await import('../../lib/ml/engine')
+                const { prediction: pred, confidence: conf } = await trainPredictor(customPrepared, target)
+
                 setPrediction(pred)
+                setConfidence(conf)
+
+                // 3. Local Explainability: Get influences for the latest prediction
+                const model = await getModel(customPrepared, target);
+                if (model) {
+                    const lastRow = prepared.rows[prepared.rows.length - 1];
+                    // IMPORTANT: Must map inputs based on the EXACT features used for training
+                    const inputData = customPrepared.features.map(f => lastRow[f]);
+                    const infls = await calculateInfluence(model, inputData, customPrepared.features, target);
+                    setInfluences(infls);
+                }
             } catch (e) {
-                console.error("Prediction failed", e)
+                console.error("Analysis execution failed", e)
             }
         }
         setIsThinking(false)
@@ -178,6 +224,21 @@ export default function CyclesPage() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         {isThinking && <span className="text-xs font-bold animate-pulse text-pink">ANALYZING_PATTERNS...</span>}
+
+                        {/* DUMMY MODE TOGGLE */}
+                        <button
+                            onClick={toggleDummyMode}
+                            className="sidebar-btn"
+                            style={{
+                                width: 'auto', padding: '8px 16px',
+                                background: isDummyMode ? 'var(--pink)' : 'white',
+                                color: isDummyMode ? 'white' : 'black',
+                                borderStyle: isDummyMode ? 'solid' : 'dashed'
+                            }}
+                        >
+                            <Target size={16} /> {isDummyMode ? 'SYNTHETIC_ACTIVE' : 'LIVE_DATA'}
+                        </button>
+
                         <button
                             onClick={() => setIsEditMode(!isEditMode)}
                             className="sidebar-btn"
@@ -245,8 +306,11 @@ export default function CyclesPage() {
                     {/* COL 2: AURA & FORECASTER */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         {visibleWidgets.vibe && (
-                            <section className="cyber-card" style={{ textAlign: 'center', padding: '40px 20px', background: 'white' }}>
+                            <section className="cyber-card" style={{ textAlign: 'center', padding: '40px 20px', background: 'white', position: 'relative' }}>
                                 <div className="cyber-header" style={{ backgroundColor: 'black', color: 'white' }}>VIBE_PROJECTION</div>
+                                <div style={{ position: 'absolute', top: 12, right: 12, padding: '4px 8px', background: 'black', color: 'white', fontSize: '0.6rem', fontWeight: '900' }}>
+                                    {archetype.replace('_', ' ')}
+                                </div>
                                 <div style={{
                                     width: '140px', height: '140px', borderRadius: '50%', margin: '0 auto 24px',
                                     background: aura.color, boxShadow: aura.glow, border: '5px solid black',
@@ -264,11 +328,29 @@ export default function CyclesPage() {
                             <section className="cyber-card">
                                 <div className="cyber-header" style={{ backgroundColor: 'var(--yellow)', color: 'black' }}>Neural_Forecaster</div>
                                 <div style={{ padding: '20px' }}>
+
+                                    {/* ANOMALY ALERT */}
+                                    {anomaly && (
+                                        <div style={{
+                                            background: 'var(--pink)', color: 'white', padding: '16px', border: '3px solid black',
+                                            marginBottom: '20px', position: 'relative', boxShadow: '4px 4px 0px black'
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                <Activity size={18} className="animate-pulse" />
+                                                <span style={{ fontWeight: '900', fontSize: '0.8rem' }}>SYSTEM_GLITCH_DETECTED</span>
+                                            </div>
+                                            <p style={{ fontSize: '0.7rem', margin: 0 }}>
+                                                Unusual activity in <b>{trackables.find(t => t.id === anomaly.feature)?.name || anomaly.feature}</b> detected.
+                                                Deviation: {anomaly.zScore.toFixed(1)}σ ({anomaly.severity}).
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div style={{ marginBottom: '20px' }}>
-                                        <label style={{ fontSize: '0.7rem', fontWeight: '900', display: 'block', marginBottom: '8px', opacity: 0.7 }}>PRIMARY TARGET:</label>
+                                        <label style={{ fontSize: '0.65rem', fontWeight: '900', display: 'block', marginBottom: '8px', opacity: 0.7, letterSpacing: '1px' }}>PRIMARY_TARGET (The "Subject"):</label>
                                         <select
                                             className="sidebar-btn"
-                                            style={{ width: '100%', cursor: 'pointer', background: 'white', border: '3px solid black', fontWeight: '900' }}
+                                            style={{ width: '100%', cursor: 'pointer', background: 'white', border: '3px solid black', fontWeight: '900', textTransform: 'uppercase' }}
                                             value={predictionTarget}
                                             onChange={(e) => handleTargetChange(e.target.value)}
                                         >
@@ -279,10 +361,39 @@ export default function CyclesPage() {
                                         </select>
                                     </div>
 
-                                    <div style={{ background: '#111', color: 'var(--green)', padding: '20px', fontFamily: 'monospace', fontSize: '0.9rem', border: '3px solid black', boxShadow: 'inset 0 0 10px rgba(0,255,0,0.2)' }}>
-                                        <div style={{ marginBottom: '8px' }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
-                                        <div style={{ marginBottom: '8px' }}>&gt; target_prediction: <span style={{ color: 'white', fontWeight: 'bold' }}>{prediction !== null ? prediction.toFixed(2) : 'CALCULATING...'}</span></div>
-                                        <div>&gt; confidence_score: <span style={{ color: history.length > 7 ? 'var(--green)' : 'var(--pink)' }}>{history.length > 7 ? 'NOMINAL' : 'INSUFFICIENT_DATA'}</span></div>
+                                    {/* SYNERGY ALERT */}
+                                    {synergyPair && (
+                                        <div style={{
+                                            background: 'black', color: 'var(--green)', padding: '16px', border: '2px solid var(--green)',
+                                            marginBottom: '20px', position: 'relative'
+                                        }}>
+                                            <div style={{ position: 'absolute', top: 0, right: 0, padding: '4px 8px', background: 'var(--green)', color: 'black', fontSize: '0.6rem', fontWeight: '900' }}>
+                                                SYNERGY_DETECTED
+                                            </div>
+                                            <p style={{ fontSize: '0.7rem', margin: '0 0 4px 0', opacity: 0.8 }}>HIDDEN_LINK_FOUND:</p>
+                                            <p style={{ fontSize: '0.85rem', fontWeight: '900', margin: 0, textTransform: 'uppercase' }}>
+                                                {trackables.find(t => t.id === synergyPair.p1)?.name} <Sparkles size={10} style={{ margin: '0 4px' }} /> {trackables.find(t => t.id === synergyPair.p2)?.name}
+                                            </p>
+                                            <p style={{ fontSize: '0.6rem', margin: '4px 0 0 0', fontStyle: 'italic', opacity: 0.7 }}>
+                                                These habits fluctuate together with {Math.round(synergyPair.strength * 100)}% consistency.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div style={{ background: '#111', color: 'var(--green)', padding: '20px', fontFamily: 'monospace', fontSize: '0.85rem', border: '3px solid black', boxShadow: 'inset 0 0 10px rgba(0,255,0,0.1)', position: 'relative' }}>
+                                        {isThinking && (
+                                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '900', letterSpacing: '1px' }}>
+                                                NEURAL_RECOMPILING...
+                                            </div>
+                                        )}
+                                        <div style={{ marginBottom: '8px', opacity: 0.5 }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
+                                        <div style={{ marginBottom: '8px' }}>
+                                            &gt; target_prediction: <span style={{ color: 'white', fontWeight: 'bold' }}>
+                                                {prediction !== null ? (predictionTarget === 'moodScore' ? (prediction * 3 + 1).toFixed(2) : prediction.toFixed(2)) : '...'}
+                                            </span>
+                                        </div>
+                                        <div style={{ marginBottom: '8px' }}>&gt; neural_stability: <span style={{ color: confidence > 0.7 ? 'var(--green)' : 'var(--yellow)', fontWeight: 'bold' }}>{Math.round(confidence * 100)}%</span></div>
+                                        <div>&gt; status: <span style={{ color: confidence > 0.4 ? 'var(--green)' : 'var(--pink)' }}>{confidence > 0.4 ? 'NOMINAL' : 'COLD_START_RESTRICTION'}</span></div>
                                     </div>
                                 </div>
                             </section>
@@ -294,36 +405,67 @@ export default function CyclesPage() {
                         <section className="cyber-card" style={{ height: '100%' }}>
                             <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>Oracle_Output</div>
                             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {correlations.length === 0 && <p className="text-center opacity-50 py-10" style={{ fontSize: '0.8rem' }}>Waiting for neural uplink...</p>}
-                                {correlations.slice(0, 6).map((corr, idx) => (
-                                    <div key={idx} style={{
-                                        display: 'flex', alignItems: 'center', gap: '12px',
-                                        background: 'white', border: '2px solid black', padding: '12px',
-                                        boxShadow: '4px 4px 0px rgba(0,0,0,0.1)'
-                                    }}>
-                                        <div style={{
-                                            padding: '6px', background: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)',
-                                            border: '2px solid black'
+                                {correlations.map((corr, idx) => {
+                                    // Helper to resolve labels for Lag Features
+                                    const isLag = corr.feature.endsWith('_lag1');
+                                    const baseId = isLag ? corr.feature.replace('_lag1', '') : corr.feature;
+                                    const habit = baseId === 'moodScore' ? { name: 'MOOD' } : trackables.find(t => t.id === baseId);
+
+                                    if (!habit) return null;
+
+                                    const label = isLag ? `YESTERDAY'S_${habit.name}` : habit.name;
+
+                                    // Use XAI Influence if available, fallback to Global Correlation
+                                    const influence = influences[corr.feature];
+                                    const strength = influence ? influence.score : corr.strength;
+                                    const impact = influence ? influence.impact : corr.impact;
+
+                                    return (
+                                        <div key={idx} style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px',
+                                            background: 'white', border: '2px solid black', padding: '12px',
+                                            boxShadow: '4px 4px 0px rgba(0,0,0,0.1)',
+                                            opacity: selectedPredictors.includes(baseId) || baseId === 'moodScore' ? 1 : 0.6,
+                                            position: 'relative'
                                         }}>
-                                            {corr.impact === 'positive' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <p style={{ fontSize: '0.75rem', fontWeight: '900', margin: 0, textTransform: 'uppercase' }}>
-                                                {corr.feature === 'moodScore' ? 'MOOD' : trackables.find(t => t.id === corr.feature)?.name}
-                                            </p>
-                                            <div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '4px' }}>
-                                                <div style={{ width: `${Math.min(100, corr.strength * 100)}%`, height: '100%', background: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
+                                            {influence && (
+                                                <div style={{
+                                                    position: 'absolute', top: -10, right: 10, background: 'black', color: 'white',
+                                                    fontSize: '0.45rem', padding: '2px 6px', fontWeight: '900', letterSpacing: '1px',
+                                                    border: '1px solid black'
+                                                }}>
+                                                    NEURAL_WEIGHT
+                                                </div>
+                                            )}
+                                            <div style={{
+                                                padding: '6px', background: impact === 'positive' ? 'var(--green)' : 'var(--pink)',
+                                                border: '2px solid black'
+                                            }}>
+                                                {impact === 'positive' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <p style={{ fontSize: '0.7rem', fontWeight: '900', margin: 0, textTransform: 'uppercase', lineHeight: 1.1 }}>
+                                                    {label}
+                                                </p>
+                                                <div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '4px' }}>
+                                                    <div style={{ width: `${Math.min(100, (influence ? strength * 400 : strength * 100))}%`, height: '100%', background: impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
+                                                </div>
+                                            </div>
+                                            <div style={{ fontWeight: '900', fontSize: '1rem', color: impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}>
+                                                {Math.round(influence ? strength * 100 : strength * 100)}%
                                             </div>
                                         </div>
-                                        <div style={{ fontWeight: '900', fontSize: '1rem', color: corr.impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}>
-                                            {Math.round(corr.strength * 100)}%
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
 
                                 <div style={{ marginTop: '10px', padding: '12px', border: '1px dashed black', fontSize: '0.65rem', lineHeight: 1.4, opacity: 0.8 }}>
                                     <HelpCircle size={10} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                                    Higher percentages indicate a stronger relationship between the habit and your {predictionTarget === 'moodScore' ? 'mood' : 'target'}.
+                                    The Oracle identifies patterns by comparing your <b>Primary Target</b> against selected <b>Predictors</b> over the last 30 days.
+                                    {Object.keys(influences).length > 0 && (
+                                        <div style={{ marginTop: '8px', padding: '8px', background: '#f9f9f9', border: '1px solid #ddd' }}>
+                                            <b>EXPLAINER:</b> "Neural Weights" represent the direct influence each habit has on <i>tomorrow's specific prediction</i>, according to the neural network.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </section>

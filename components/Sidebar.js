@@ -1,4 +1,4 @@
-import { Activity, Zap, User, Settings, LogOut } from 'lucide-react'
+import { Activity, Zap, User, Settings, LogOut, Flame } from 'lucide-react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useUser } from '@/context/UserContext'
@@ -15,8 +15,18 @@ export function Sidebar({ activePage }) {
                     MOOD<br />SLAYER
                 </h1>
                 {session?.user?.name && (
-                    <div style={{ marginTop: '8px', padding: '4px 8px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid white' }}>
-                        USER_ID: {session.user.name.toUpperCase()}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
+                        <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid white' }}>
+                            USER_ID: {session.user.name.toUpperCase()}
+                        </div>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                            <div style={{ flex: 1, padding: '4px 8px', background: 'var(--blue)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid black', textAlign: 'center' }}>
+                                LVL_{userStats.level}
+                            </div>
+                            <div style={{ flex: 1, padding: '4px 8px', background: 'var(--pink)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid black', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                <Flame size={10} fill="white" /> {userStats.streak}D
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
