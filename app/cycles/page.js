@@ -46,7 +46,6 @@ export default function CyclesPage() {
     const [predictionTarget, setPredictionTarget] = useState('moodScore')
     const [selectedPredictors, setSelectedPredictors] = useState([])
     const [isThinking, setIsThinking] = useState(false)
-    const [isDummyMode, setIsDummyMode] = useState(false)
     const [influences, setInfluences] = useState({})
     const [synergyPair, setSynergyPair] = useState(null)
     const [anomaly, setAnomaly] = useState(null)
@@ -63,10 +62,10 @@ export default function CyclesPage() {
             if (parsed.chartType) setChartType(parsed.chartType)
         }
 
-        refreshData(isDummyMode)
+        refreshData()
     }, [])
 
-    const refreshData = async (useDummy) => {
+    const refreshData = async () => {
         try {
             // 1. Fetch Trackables
             const resT = await fetch('/api/trackables')
@@ -78,14 +77,8 @@ export default function CyclesPage() {
             }
 
             // 2. Fetch Entries
-            let data;
-            if (useDummy) {
-                const resD = await fetch('/dummy_ml_data.json')
-                data = await resD.json()
-            } else {
-                const resE = await fetch('/api/entries')
-                data = await resE.json()
-            }
+            const resE = await fetch('/api/entries')
+            const data = await resE.json()
 
             if (Array.isArray(data)) {
                 setHistory(data)
@@ -96,12 +89,6 @@ export default function CyclesPage() {
         } catch (e) {
             console.error('Failed to load cycles data', e)
         }
-    }
-
-    const toggleDummyMode = () => {
-        const nextMode = !isDummyMode
-        setIsDummyMode(nextMode)
-        refreshData(nextMode)
     }
 
     useEffect(() => {
@@ -251,20 +238,6 @@ export default function CyclesPage() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         {isThinking && <span className="text-xs font-bold animate-pulse text-pink">ANALYZING_PATTERNS...</span>}
-
-                        {/* DUMMY MODE TOGGLE */}
-                        <button
-                            onClick={toggleDummyMode}
-                            className="sidebar-btn"
-                            style={{
-                                width: 'auto', padding: '8px 16px',
-                                background: isDummyMode ? 'var(--pink)' : 'white',
-                                color: isDummyMode ? 'white' : 'black',
-                                borderStyle: isDummyMode ? 'solid' : 'dashed'
-                            }}
-                        >
-                            <Target size={16} /> {isDummyMode ? 'SYNTHETIC_ACTIVE' : 'LIVE_DATA'}
-                        </button>
 
                         <button
                             onClick={() => setIsEditMode(!isEditMode)}
