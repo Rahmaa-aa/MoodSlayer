@@ -2,31 +2,42 @@ import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
-import { calculateStreak, calculateXP, getLevel } from '@/lib/services/gamificationService'
+import { calculateStreak, calculateBestStreak, calculateXP, getLevel } from '@/lib/services/gamificationService'
 
 export async function GET(request) {
     try {
         const session = await auth()
         if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+        // Safety check for valid ObjectId-like strings
+        const isValidId = /^[0-9a-fA-F]{24}$/.test(session.user.id);
+
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
-        // 1. Get user and entries
-        let user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) })
-        if (!user) user = await db.collection('users').findOne({ _id: session.user.id })
+        // 1. Get user (handle both ObjectId and string ID)
+        let user = null;
+        if (isValidId) {
+            user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) });
+        }
+        if (!user) {
+            user = await db.collection('users').findOne({ _id: session.user.id });
+        }
 
         if (!user) {
-            console.error(`[STATS_SYNC] User not found for ID: ${session.user.id}`);
-            // Create minimal user if missing to prevent crash
+            console.warn(`[STATS_API] User not found for ID: ${session.user.id}. Creating fallback.`);
             user = { streak: 0, xp: 0, level: 1 };
         }
-        const entries = await db.collection('entries').find({
-            $or: [
-                { userId: session.user.id },
-                { userId: new ObjectId(session.user.id) }
-            ]
-        }).toArray()
+
+        // 2. Get entries (handle both ObjectId and string ID)
+        const entryQuery = {
+            $or: [{ userId: session.user.id }]
+        };
+        if (isValidId) {
+            entryQuery.$or.push({ userId: new ObjectId(session.user.id) });
+        }
+
+        const entries = await db.collection('entries').find(entryQuery).toArray();
 
         // 2. Calculate current real-time stats
 
