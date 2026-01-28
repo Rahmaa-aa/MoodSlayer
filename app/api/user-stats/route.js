@@ -13,15 +13,29 @@ export async function GET(request) {
         const db = client.db('mood_tracker')
 
         // 1. Get user and entries
-        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) })
+        let user = await db.collection('users').findOne({ _id: new ObjectId(session.user.id) })
+        if (!user) user = await db.collection('users').findOne({ _id: session.user.id })
+
+        if (!user) {
+            console.error(`[STATS_SYNC] User not found for ID: ${session.user.id}`);
+            // Create minimal user if missing to prevent crash
+            user = { streak: 0, xp: 0, level: 1 };
+        }
         const entries = await db.collection('entries').find({
-            userId: session.user.id
+            $or: [
+                { userId: session.user.id },
+                { userId: new ObjectId(session.user.id) }
+            ]
         }).toArray()
 
         // 2. Calculate current real-time stats
+        console.log(`[STATS_SYNC] Found ${entries.length} entries for user ${session.user.id}`);
+
         const currentStreak = calculateStreak(entries)
         const currentXP = calculateXP(entries)
         const currentLevel = getLevel(currentXP)
+
+        console.log(`[STATS_SYNC] Result: Lvl ${currentLevel}, XP ${currentXP}, Streak ${currentStreak}`);
 
         // 3. Update DB if inconsistent (Passive Sync)
         if (user.streak !== currentStreak || user.xp !== currentXP || user.level !== currentLevel) {

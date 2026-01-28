@@ -388,12 +388,12 @@ export default function CyclesPage() {
                                         )}
                                         <div style={{ marginBottom: '8px', opacity: 0.5 }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
                                         <div style={{ marginBottom: '8px' }}>
-                                            &gt; target_prediction: <span style={{ color: 'white', fontWeight: 'bold' }}>
-                                                {prediction !== null ? (predictionTarget === 'moodScore' ? (prediction * 3 + 1).toFixed(2) : prediction.toFixed(2)) : '...'}
+                                            &gt; tomorrow_outlook: <span style={{ color: 'white', fontWeight: 'bold' }}>
+                                                {prediction !== null ? (predictionTarget === 'moodScore' ? (prediction * 3 + 1).toFixed(2) : (prediction * 100).toFixed(0) + '%') : '...'}
                                             </span>
                                         </div>
-                                        <div style={{ marginBottom: '8px' }}>&gt; neural_stability: <span style={{ color: confidence > 0.7 ? 'var(--green)' : 'var(--yellow)', fontWeight: 'bold' }}>{Math.round(confidence * 100)}%</span></div>
-                                        <div>&gt; status: <span style={{ color: confidence > 0.4 ? 'var(--green)' : 'var(--pink)' }}>{confidence > 0.4 ? 'NOMINAL' : 'COLD_START_RESTRICTION'}</span></div>
+                                        <div style={{ marginBottom: '8px' }}>&gt; confidence_score: <span style={{ color: confidence > 0.7 ? 'var(--green)' : 'var(--yellow)', fontWeight: 'bold' }}>{Math.round(confidence * 100)}%</span></div>
+                                        <div>&gt; engine_state: <span style={{ color: confidence > 0.4 ? 'var(--green)' : 'var(--pink)' }}>{confidence > 0.4 ? 'READY' : 'COLLECTING_DATA'}</span></div>
                                     </div>
                                 </div>
                             </section>

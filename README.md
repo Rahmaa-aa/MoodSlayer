@@ -28,5 +28,35 @@
 3.  **Check the Oracle**: Visit the "Cycles" page to see your Aura and detailed habit breakdown.
 4.  **Optimize**: Use the AI's suggestions to focus on the habits that *actually* make you feel better.
 
+
+
+💎 Summary of XP/Level Logic
+While we're at it, here is how the rest of your "Elite" stats work:
+
+Logging In: +10 XP
+Picking a Mood: +5 XP bonus
+Tracking Habits: +2 XP for every habit you actually check off.
+Leveling Up: You gain a new level for every 100 XP you earn.
+
++ ### 🧠 Understanding the Forecaster
++ *   **Target Prediction**: The AI's guess for how you'll feel (1.0 to 4.0) or if you'll do a habit (0% to 100%) tomorrow.
++ *   **Neural Stability**: How "sure" the AI is. High stability (90%+) means the AI has detected a very strong, reliable pattern in your life.
++ *   **Status**: "NOMINAL" means the system is healthy and has enough data to be trusted.
+
+1. target_prediction: 0.97 (or 3.73)
+This is the AI's "Forecast" for tomorrow.
+
+For Mood: If you are tracking "Overall Mood," it scales to your 1–4 range. A 3.73 means the AI thinks you are going to have a near-perfect "Happy" day tomorrow based on what you've done lately.
+For Habits: If you select a habit (like "Gym"), a 0.97 means the AI is 97% certain you will complete that habit tomorrow.
+2. > neural_stability: 99%
+Think of this as the AI's Confidence Score.
+
+99% means the AI has a lot of history to look at and its internal "math" is fitting your patterns almost perfectly. It "knows" you very well.
+Lower scores (e.g. 40%) happen when you change your routine suddenly or don't have enough days logged yet. The AI is basically saying, "I'm still learning your rhythm, so don't 100% bet on my prediction yet."
+3. > status: NOMINAL
+This is a quick "Health Check" status:
+
+🟢 NOMINAL: Everything is perfect. The AI has enough data and a stable model.
+🟡 COLD_START_RESTRICTION: You haven't logged enough days yet (usually less than 15-20 days). The AI is giving you a prediction, but it's labeling it as a "beginner guess."
 ---
 🧬 **MoodSlayer: Decode Your Routine. Level Up Your Life.**
