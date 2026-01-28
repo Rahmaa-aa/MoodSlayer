@@ -1,0 +1,38 @@
+﻿[
+  {
+    "_id": "6977f4432a91a015305d15e0",
+    "name": "hih",
+    "level": 1,
+    "streak": 0
+  },
+  {
+    "_id": "6979391721b2108211c22c47",
+    "name": "The Stoic Monk",
+    "level": 8,
+    "streak": 1
+  },
+  {
+    "_id": "6979391721b2108211c22c4b",
+    "name": "The Stoic Monk",
+    "level": 30,
+    "streak": 30
+  },
+  {
+    "_id": "6979391721b2108211c22c4f",
+    "name": "Weekend Warrior",
+    "level": 6,
+    "streak": 30
+  },
+  {
+    "_id": "6979391721b2108211c22c53",
+    "name": "Glitch Entity",
+    "level": 6,
+    "streak": 30
+  },
+  {
+    "_id": "6979391721b2108211c22c58",
+    "name": "Vibe Shifter",
+    "level": 1,
+    "streak": 0
+  }
+]

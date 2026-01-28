@@ -5,7 +5,7 @@ export function Notifications() {
 
     useEffect(() => {
         const handleNewToast = (e) => {
-            const id = Date.now()
+            const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
             setToasts(prev => [...prev, { id, ...e.detail }])
             setTimeout(() => {
                 setToasts(prev => prev.filter(t => t.id !== id))

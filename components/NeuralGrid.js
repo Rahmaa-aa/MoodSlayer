@@ -28,7 +28,8 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
 
     const formatDateStr = (d) => {
         try {
-            return new Date(year, month, d).toISOString().split('T')[0]
+            const date = new Date(year, month, d)
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
         } catch (e) { return '' }
     }
 
@@ -37,7 +38,9 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
         if (!dateStr || !Array.isArray(history)) return null
         return history.find(e => {
             try {
-                return new Date(e.date).toISOString().split('T')[0] === dateStr
+                const date = new Date(e.date)
+                const entryDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+                return entryDateStr === dateStr
             } catch (err) { return false }
         })
     }
@@ -54,7 +57,13 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
         const mood = entry?.data?.mood
         const habitsCount = Object.keys(entry?.data || {}).filter(k => k !== 'mood' && !k.endsWith('_note') && entry?.data?.[k]).length
         const isSelected = selectedDay === d
-        const color = mood ? (moodColors[mood] || '#999') : '#fff'
+
+        let color = '#fff'
+        if (mood) {
+            color = moodColors[mood] || '#999'
+        } else if (entry) {
+            color = '#f0f0f0' // PARTAL_LOG: Entry exists but no mood check
+        }
 
         calendarDays.push(
             <div

@@ -15,7 +15,7 @@ const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { s
 const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false })
 const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false })
 
-import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, CheckSquare, Square, Settings, Eye, EyeOff } from 'lucide-react'
+import { Zap, Brain, Sparkles, TrendingUp, TrendingDown, Target, HelpCircle, CheckSquare, Square, Settings, Eye, EyeOff, Activity } from 'lucide-react'
 import { prepareData, calculateCorrelations } from '../../lib/ml/preprocessor'
 import NeuralGrid from '../../components/NeuralGrid'
 

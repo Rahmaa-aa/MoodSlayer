@@ -1,0 +1,6 @@
+﻿User: The Stoic Monk (6979391721b2108211c22c47)
+Entries found: 30
+Touch Grass (touch_grass): Unique = [1] | Count = 30
+Rotting Time (rotting_time): Unique = [0] | Count = 30
+Gym Log (gym_log): Unique = [1] | Count = 30
+Daily Mantra (daily_mantra): Unique = [1] | Count = 30

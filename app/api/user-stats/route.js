@@ -29,19 +29,23 @@ export async function GET(request) {
         }).toArray()
 
         // 2. Calculate current real-time stats
-        console.log(`[STATS_SYNC] Found ${entries.length} entries for user ${session.user.id}`);
+
 
         const currentStreak = calculateStreak(entries)
         const currentXP = calculateXP(entries)
         const currentLevel = getLevel(currentXP)
 
-        console.log(`[STATS_SYNC] Result: Lvl ${currentLevel}, XP ${currentXP}, Streak ${currentStreak}`);
 
-        // 3. Update DB if inconsistent (Passive Sync)
-        if (user.streak !== currentStreak || user.xp !== currentXP || user.level !== currentLevel) {
+        // 3. Update DB if stats have INCREASED (High-Water Mark Protection)
+        const updates = {};
+        if (currentStreak > (user.streak || 0)) updates.streak = currentStreak;
+        if (currentXP > (user.xp || 0)) updates.xp = currentXP;
+        if (currentLevel > (user.level || 1)) updates.level = currentLevel;
+
+        if (Object.keys(updates).length > 0) {
             await db.collection('users').updateOne(
                 { _id: new ObjectId(session.user.id) },
-                { $set: { streak: currentStreak, xp: currentXP, level: currentLevel } }
+                { $set: updates }
             )
         }
 
