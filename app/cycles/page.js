@@ -206,9 +206,13 @@ export default function CyclesPage() {
         habits: Object.keys(entry.data || {}).filter(k => k !== 'mood' && !k.endsWith('_note') && entry.data[k]).length
     })).reverse()
 
-    // Aura Logic
+    // Aura Logic: Data Integrity First
     const getAura = () => {
-        if (prediction === null) return { name: 'NEUTRAL', color: '#999', glow: 'none' }
+        if (prediction === null || confidence < 0.2) return { name: 'UNCERTAIN', color: '#666', glow: 'none' }
+
+        // If confidence is low, signal potential entropy
+        if (confidence < 0.5) return { name: 'ERRATIC_AURA', color: '#888', glow: 'inset 0 0 20px rgba(255,0,0,0.1)' }
+
         if (predictionTarget === 'moodScore') {
             const scaled = prediction * 3 + 1
             if (scaled > 3.2) return { name: 'GOLDEN AURA', color: 'var(--yellow)', glow: '0 0 30px var(--yellow)' }
@@ -389,11 +393,27 @@ export default function CyclesPage() {
                                         <div style={{ marginBottom: '8px', opacity: 0.5 }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
                                         <div style={{ marginBottom: '8px' }}>
                                             &gt; tomorrow_outlook: <span style={{ color: 'white', fontWeight: 'bold' }}>
-                                                {prediction !== null ? (predictionTarget === 'moodScore' ? (prediction * 3 + 1).toFixed(2) : (prediction * 100).toFixed(0) + '%') : '...'}
+                                                {(() => {
+                                                    if (prediction === null) return '...';
+                                                    if (predictionTarget === 'moodScore') return (prediction * 3 + 1).toFixed(2);
+
+                                                    const targetDef = trackables.find(t => String(t.id) === String(predictionTarget));
+                                                    const isNumber = targetDef?.type === 'number' || targetDef?.type === 'Number' || predictionTarget.includes('rotting');
+
+                                                    if (isNumber) {
+                                                        const val = predictionTarget === 'rotting_time' ? (prediction * 5) : (prediction * 10);
+                                                        return `${val.toFixed(1)} ${targetDef?.unit || 'UNITS'}`;
+                                                    }
+
+                                                    const pct = Math.round(prediction * 100);
+                                                    if (pct >= 80) return `${pct}% (YES)`;
+                                                    if (pct <= 20) return `${pct}% (NO)`;
+                                                    return `${pct}%`;
+                                                })()}
                                             </span>
                                         </div>
-                                        <div style={{ marginBottom: '8px' }}>&gt; confidence_score: <span style={{ color: confidence > 0.7 ? 'var(--green)' : 'var(--yellow)', fontWeight: 'bold' }}>{Math.round(confidence * 100)}%</span></div>
-                                        <div>&gt; engine_state: <span style={{ color: confidence > 0.4 ? 'var(--green)' : 'var(--pink)' }}>{confidence > 0.4 ? 'READY' : 'COLLECTING_DATA'}</span></div>
+                                        <div style={{ marginBottom: '8px' }}>&gt; confidence_score: <span style={{ color: confidence > 0.7 ? 'var(--green)' : 'var(--yellow)', fontWeight: 'bold' }}>{confidence < 0.4 ? 'UNCERTAIN' : Math.round(confidence * 100) + '%'}</span></div>
+                                        <div>&gt; engine_state: <span style={{ color: confidence > 0.4 ? 'var(--green)' : 'var(--pink)' }}>{confidence > 0.4 ? 'READY' : (confidence < 0.2 ? 'ENTROPY_DETECTED' : 'COLLECTING_DATA')}</span></div>
                                     </div>
                                 </div>
                             </section>
@@ -516,6 +536,6 @@ export default function CyclesPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }

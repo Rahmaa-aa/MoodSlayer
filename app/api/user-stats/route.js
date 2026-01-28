@@ -49,10 +49,11 @@ export async function GET(request) {
             )
         }
 
+        // 4. Return the HIGHER of calculated or stored stats
         const stats = {
-            level: currentLevel,
-            xp: currentXP,
-            streak: currentStreak
+            level: Math.max(currentLevel, user.level || 1),
+            xp: Math.max(currentXP, user.xp || 0),
+            streak: Math.max(currentStreak, user.streak || 0)
         }
 
         return NextResponse.json(stats)

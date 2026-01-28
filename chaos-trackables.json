@@ -1,0 +1,27 @@
+[
+  {
+    "id": "touch_grass",
+    "name": "Touch Grass",
+    "category": "Mental Health",
+    "type": "boolean"
+  },
+  {
+    "id": "rotting_time",
+    "name": "Rotting Time",
+    "category": "Self Care",
+    "type": "number",
+    "unit": "HRS"
+  },
+  {
+    "id": "gym_log",
+    "name": "Gym Log",
+    "category": "Fitness",
+    "type": "boolean"
+  },
+  {
+    "id": "daily_mantra",
+    "name": "Daily Mantra",
+    "category": "Mindfulness",
+    "type": "boolean"
+  }
+]
