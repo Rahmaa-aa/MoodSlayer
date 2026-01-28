@@ -24,14 +24,14 @@ This guide provides a detailed blueprint for verifying the advanced ML capabilit
     - **Oracle**: Bars will be erratic and low strength.
     - **Aura**: Will fluctuate wildly between colors.
 
-### 3. Weekend Warrior (`warrior@mood.com`)
+### 3. Weekend Warrior (`warrior@mood.com`)warrior123
 *   **Behavioral DNA**: 5 days of "Sad Gym-goer" followed by 2 days of "Happy Rotter".
 *   **Testing Goal**: Temporal Lag Recognition.
 *   **What to expect**:
     - **Oracle**: Look specifically for **YESTERDAY'S_ROTTING_TIME**. It should show a high positive correlation with Mood, as the "Happy" phase happens *after* the rot.
     - **Synergy Radar**: May detect a link between Gym (weekday) and lack of Rotting.
 
-### 4. Glitch Entity (`glitch@mood.com`)
+### 4. Glitch Entity (`glitch@mood.com`)glitch123
 *   **Behavioral DNA**: 20 days of perfect routine, followed by a sudden 7-day collapse into high rotting and zero activities.
 *   **Testing Goal**: Anomaly Detection.
 *   **What to expect**:

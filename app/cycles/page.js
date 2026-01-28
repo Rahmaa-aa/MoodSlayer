@@ -390,6 +390,25 @@ export default function CyclesPage() {
                                                 NEURAL_RECOMPILING...
                                             </div>
                                         )}
+                                        {anomaly && (
+                                            <div style={{
+                                                marginBottom: '12px',
+                                                border: '2px solid var(--pink)',
+                                                background: 'rgba(255, 0, 100, 0.1)',
+                                                padding: '8px',
+                                                fontSize: '0.7rem',
+                                                fontWeight: 'bold',
+                                                animation: anomaly.severity === 'CRITICAL' ? 'blink 1s infinite' : 'none'
+                                            }}>
+                                                <div style={{ color: 'var(--pink)', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                                    [SYSTEM_GLITCH_DETECTED]
+                                                </div>
+                                                <div style={{ color: 'white', opacity: 0.8 }}>
+                                                    SEVERITY: {anomaly.severity} (Z:{anomaly.zScore.toFixed(2)})<br />
+                                                    FEATURE: {trackables.find(t => t.id === anomaly.feature)?.name || anomaly.feature.toUpperCase()}
+                                                </div>
+                                            </div>
+                                        )}
                                         <div style={{ marginBottom: '8px', opacity: 0.5 }}>&gt; analyze --history --predictors={selectedPredictors.length}</div>
                                         <div style={{ marginBottom: '8px' }}>
                                             &gt; tomorrow_outlook: <span style={{ color: 'white', fontWeight: 'bold' }}>
