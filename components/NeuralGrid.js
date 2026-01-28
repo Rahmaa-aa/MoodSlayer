@@ -137,8 +137,48 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
                                     {Object.keys(selectedEntry.data || {}).filter(k => k !== 'mood' && !k.endsWith('_note') && selectedEntry.data?.[k]).map(hid => (
                                         <div key={hid} style={{ paddingLeft: '15px', color: '#ccc', marginBottom: '6px' }}>• {hid.toUpperCase()}</div>
                                     ))}
+                                    <div style={{ marginTop: '30px' }}>
+                                        <a
+                                            href={`/?date=${formatDateStr(selectedDay)}`}
+                                            style={{
+                                                display: 'block',
+                                                background: '#ff1493',
+                                                color: 'white',
+                                                textAlign: 'center',
+                                                padding: '12px',
+                                                fontWeight: '900',
+                                                textDecoration: 'none',
+                                                border: '3px solid white',
+                                                boxShadow: '4px 4px 0px #333'
+                                            }}
+                                        >
+                                            &gt; MODIFY_LOG
+                                        </a>
+                                    </div>
                                 </div>
-                            ) : <p style={{ opacity: 0.5, marginTop: '30px' }}>// NO_DATA_RECORDED</p>}
+                            ) : (
+                                <div style={{ marginTop: '25px' }}>
+                                    <p style={{ opacity: 0.5 }}>// NO_DATA_RECORDED</p>
+                                    <div style={{ marginTop: '30px' }}>
+                                        <a
+                                            href={`/?date=${formatDateStr(selectedDay)}`}
+                                            style={{
+                                                display: 'block',
+                                                background: '#444',
+                                                color: 'white',
+                                                textAlign: 'center',
+                                                padding: '12px',
+                                                fontWeight: '900',
+                                                textDecoration: 'none',
+                                                border: '3px solid #666',
+                                                boxShadow: '4px 4px 0px #000'
+                                            }}
+                                        >
+                                            &gt; INITIALIZE_LOG
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div style={{ height: '70%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.3, textAlign: 'center' }}>

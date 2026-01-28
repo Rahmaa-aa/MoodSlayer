@@ -19,8 +19,22 @@ const DragOverlay = dynamic(() => import('@dnd-kit/core').then(mod => mod.DragOv
 import { closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
+import { useRouter, useSearchParams } from 'next/navigation'
+
 export default function Home() {
+    return (
+        <React.Suspense fallback={<div className="app-shell" style={{ background: 'black', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>INITIALIZING_TEMPORAL_CORE...</div>}>
+            <HomeContent />
+        </React.Suspense>
+    )
+}
+
+function HomeContent() {
     const { userStats, setUserStats, refreshStats } = useUser()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const dateParam = searchParams.get('date')
+
     const [trackables, setTrackables] = useState([])
     const [formData, setFormData] = useState({ mood: '' })
     const [stats, setStats] = useState({ total: 0, stability: 100 })
@@ -28,11 +42,69 @@ export default function Home() {
     const [mounted, setMounted] = useState(false)
     const [showManager, setShowManager] = useState(false)
 
+    const [targetDate, setTargetDate] = useState(null)
+
     // Edit Mode State
     const [isEditMode, setIsEditMode] = useState(false)
     const [editingItem, setEditingItem] = useState(null)
     const [lastSaved, setLastSaved] = useState(null)
     const [initialLoadDone, setInitialLoadDone] = useState(false)
+
+    useEffect(() => {
+        const todayStr = new Date().toISOString().split('T')[0]
+        setTargetDate(dateParam || todayStr)
+    }, [dateParam])
+
+    useEffect(() => {
+        setMounted(true)
+        if (targetDate) {
+            loadInitialData()
+        }
+    }, [targetDate])
+
+    const loadInitialData = async () => {
+        try {
+            const resT = await fetch('/api/trackables')
+            const savedT = await resT.json()
+            if (Array.isArray(savedT)) {
+                setTrackables(savedT)
+            }
+            fetchEntries(targetDate)
+        } catch (e) {
+            console.error('Failed to load trackables', e)
+        }
+    }
+
+    const fetchEntries = async (dateToFind) => {
+        try {
+            const res = await fetch('/api/entries')
+            const data = await res.json()
+            if (Array.isArray(data)) {
+                // Find target day's entry to restore state
+                const entry = data.find(e => {
+                    const d = new Date(e.date)
+                    const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                    return dStr === dateToFind
+                })
+
+                if (entry && entry.data) {
+                    setFormData(prev => ({ ...prev, ...entry.data }))
+                } else {
+                    // Reset if no entry found for this date
+                    setFormData({ mood: '' })
+                }
+
+                const happyCount = data.filter(e => e.data?.mood === 'Happy').length
+                const total = data.length
+                const stability = total > 0 ? Math.round((happyCount / total) * 100) : 100
+                setStats({ total, stability })
+            }
+            setInitialLoadDone(true)
+        } catch (e) {
+            console.error('Failed to fetch entries')
+            setInitialLoadDone(true)
+        }
+    }
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -52,25 +124,6 @@ export default function Home() {
         { label: 'Energetic', icon: <Zap size={32} />, color: '#000', bg: 'var(--yellow)' },
     ]
 
-    useEffect(() => {
-        setMounted(true)
-
-        const loadInitialData = async () => {
-            try {
-                const resT = await fetch('/api/trackables')
-                const savedT = await resT.json()
-                if (Array.isArray(savedT)) {
-                    setTrackables(savedT)
-                }
-                fetchEntries()
-            } catch (e) {
-                console.error('Failed to load trackables', e)
-            }
-        }
-
-        loadInitialData()
-    }, [])
-
     // Initialize formData when trackables change
     useEffect(() => {
         if (trackables.length > 0) {
@@ -84,31 +137,6 @@ export default function Home() {
             setFormData(prev => ({ ...prev, ...initialData }))
         }
     }, [trackables])
-
-    const fetchEntries = async () => {
-        try {
-            const res = await fetch('/api/entries')
-            const data = await res.json()
-            if (Array.isArray(data)) {
-                // Find today's entry to restore state
-                const todayStr = new Date().toISOString().split('T')[0]
-                const todayEntry = data.find(e => new Date(e.date).toISOString().split('T')[0] === todayStr)
-
-                if (todayEntry && todayEntry.data) {
-                    setFormData(prev => ({ ...prev, ...todayEntry.data }))
-                }
-
-                const happyCount = data.filter(e => e.data?.mood === 'Happy').length
-                const total = data.length
-                const stability = total > 0 ? Math.round((happyCount / total) * 100) : 100
-                setStats({ total, stability })
-            }
-            setInitialLoadDone(true)
-        } catch (e) {
-            console.error('Failed to fetch entries')
-            setInitialLoadDone(true)
-        }
-    }
 
     const handleInputChange = (id, value) => {
         setFormData(prev => ({ ...prev, [id]: value }))
@@ -149,7 +177,10 @@ export default function Home() {
             const res = await fetch('/api/entries', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: dataToSave })
+                body: JSON.stringify({
+                    data: dataToSave,
+                    date: targetDate
+                })
             })
 
             if (!res.ok) {
@@ -467,8 +498,10 @@ export default function Home() {
                 {/* 1. DASHBOARD HEADER */}
                 <header className="dashboard-header">
                     <div className="header-title-group">
-                        <p style={{ fontWeight: '900', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase', fontSize: '0.65rem', opacity: 0.5 }}>DASHBOARD</p>
-                        <h2 style={{ fontSize: '2rem', fontWeight: '900', fontStyle: 'italic', textTransform: 'uppercase' }}>TODAY'S LOG</h2>
+                        <p style={{ fontWeight: '900', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase', fontSize: '0.65rem', opacity: 0.5 }}>{targetDate === new Date().toISOString().split('T')[0] ? 'DASHBOARD' : 'TEMPORAL_ARCHIVE'}</p>
+                        <h2 style={{ fontSize: '2rem', fontWeight: '900', fontStyle: 'italic', textTransform: 'uppercase' }}>
+                            {targetDate === new Date().toISOString().split('T')[0] ? "TODAY'S LOG" : `LOG_${targetDate}`}
+                        </h2>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
@@ -514,8 +547,16 @@ export default function Home() {
                             <Calendar size={20} />
                             <div>
                                 <p style={{ fontSize: '1rem', fontWeight: '900', textTransform: 'uppercase' }}>
-                                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                                    {targetDate && new Date(targetDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                                 </p>
+                                {targetDate !== new Date().toISOString().split('T')[0] && (
+                                    <button
+                                        onClick={() => router.push('/')}
+                                        style={{ background: 'black', color: 'white', border: 'none', padding: '2px 8px', fontSize: '0.6rem', fontWeight: '900', cursor: 'pointer', marginTop: '4px', display: 'block' }}
+                                    >
+                                        &gt; GO_TO_TODAY
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
