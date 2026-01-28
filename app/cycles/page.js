@@ -336,16 +336,19 @@ export default function CyclesPage() {
                                     {/* ANOMALY ALERT */}
                                     {anomaly && (
                                         <div style={{
-                                            background: 'var(--pink)', color: 'white', padding: '16px', border: '3px solid black',
-                                            marginBottom: '20px', position: 'relative', boxShadow: '4px 4px 0px black'
+                                            background: 'var(--pink)', color: 'white', padding: '20px', border: '4px solid black',
+                                            marginBottom: '20px', position: 'relative', boxShadow: '8px 8px 0px black'
                                         }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                                <Activity size={18} className="animate-pulse" />
-                                                <span style={{ fontWeight: '900', fontSize: '0.8rem' }}>SYSTEM_GLITCH_DETECTED</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <Activity size={20} className="animate-pulse" />
+                                                <span style={{ fontWeight: '900', fontSize: '1rem', letterSpacing: '2px' }}>[GLITCH_DETECTED]</span>
                                             </div>
-                                            <p style={{ fontSize: '0.7rem', margin: 0 }}>
-                                                Unusual activity in <b>{trackables.find(t => t.id === anomaly.feature)?.name || anomaly.feature}</b> detected.
-                                                Deviation: {anomaly.zScore.toFixed(1)}σ ({anomaly.severity}).
+                                            <p style={{ fontSize: '0.8rem', margin: '0 0 4px 0', fontWeight: 'bold' }}>
+                                                {anomaly.severity === 'CRITICAL' ? 'SYSTEM_COLLAPSE_IN_PROGRESS' : 'UNUSUAL_BEHAVIOR_SENSING'}
+                                            </p>
+                                            <p style={{ fontSize: '0.75rem', margin: 0, opacity: 0.9 }}>
+                                                Your <b>{trackables.find(t => t.id === anomaly.feature)?.name || (anomaly.feature === 'moodScore' ? 'Vibe equilibrium' : anomaly.feature)}</b> is deviating from your 30-day baseline.
+                                                The AI identifies this as a <b>{anomaly.severity}</b> anomaly.
                                             </p>
                                         </div>
                                     )}
@@ -401,11 +404,10 @@ export default function CyclesPage() {
                                                 animation: anomaly.severity === 'CRITICAL' ? 'blink 1s infinite' : 'none'
                                             }}>
                                                 <div style={{ color: 'var(--pink)', marginBottom: '4px', textTransform: 'uppercase' }}>
-                                                    [SYSTEM_GLITCH_DETECTED]
+                                                    [STATUS: {anomaly.severity === 'CRITICAL' ? 'EMERGENCY' : 'DEVIATING'}]
                                                 </div>
                                                 <div style={{ color: 'white', opacity: 0.8 }}>
-                                                    SEVERITY: {anomaly.severity} (Z:{anomaly.zScore.toFixed(2)})<br />
-                                                    FEATURE: {trackables.find(t => t.id === anomaly.feature)?.name || anomaly.feature.toUpperCase()}
+                                                    DIAGNOSTIC: {anomaly.feature === 'moodScore' ? 'Vibe Equilibrium' : (trackables.find(t => t.id === anomaly.feature)?.name || anomaly.feature)} is unstable.
                                                 </div>
                                             </div>
                                         )}
