@@ -23,9 +23,14 @@ export function Sidebar({ activePage }) {
                             <div style={{ flex: 1, padding: '4px 8px', background: 'var(--blue)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid black', textAlign: 'center' }}>
                                 LVL_{userStats.level}
                             </div>
-                            <div style={{ flex: 1, padding: '4px 8px', background: 'var(--pink)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid black', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            <div style={{ flex: 1, padding: '4px 8px', background: 'var(--pink)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid black', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} title="Current Streak">
                                 <Flame size={10} fill="white" /> {userStats.streak}D
                             </div>
+                            {userStats.bestStreak > userStats.streak && (
+                                <div style={{ flex: 1, padding: '4px 8px', background: 'black', color: 'var(--yellow)', fontWeight: '900', fontSize: '0.65rem', border: '1px solid black', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} title="Best Streak">
+                                    BEST_{userStats.bestStreak}D
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

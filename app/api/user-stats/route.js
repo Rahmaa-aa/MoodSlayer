@@ -32,6 +32,7 @@ export async function GET(request) {
 
 
         const currentStreak = calculateStreak(entries)
+        const bestStreak = calculateBestStreak(entries)
         const currentXP = calculateXP(entries)
         const currentLevel = getLevel(currentXP)
 
@@ -39,6 +40,7 @@ export async function GET(request) {
         // 3. Update DB if stats have INCREASED (High-Water Mark Protection)
         const updates = {};
         if (currentStreak > (user.streak || 0)) updates.streak = currentStreak;
+        if (bestStreak > (user.bestStreak || 0)) updates.bestStreak = bestStreak;
         if (currentXP > (user.xp || 0)) updates.xp = currentXP;
         if (currentLevel > (user.level || 1)) updates.level = currentLevel;
 
@@ -53,7 +55,8 @@ export async function GET(request) {
         const stats = {
             level: Math.max(currentLevel, user.level || 1),
             xp: Math.max(currentXP, user.xp || 0),
-            streak: Math.max(currentStreak, user.streak || 0)
+            streak: Math.max(currentStreak, user.streak || 0),
+            bestStreak: Math.max(bestStreak, user.bestStreak || 0)
         }
 
         return NextResponse.json(stats)
