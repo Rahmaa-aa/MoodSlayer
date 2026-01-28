@@ -406,9 +406,15 @@ export default function CyclesPage() {
                                                     }
 
                                                     const pct = Math.round(prediction * 100);
-                                                    if (pct >= 80) return `${pct}% (YES)`;
-                                                    if (pct <= 20) return `${pct}% (NO)`;
-                                                    return `${pct}%`;
+                                                    const color = pct >= 50 ? 'var(--green)' : 'var(--pink)';
+                                                    return (
+                                                        <>
+                                                            {pct}%
+                                                            <span style={{ color, fontSize: '0.7rem', marginLeft: '6px' }}>
+                                                                ({pct >= 50 ? 'YES' : 'NO'})
+                                                            </span>
+                                                        </>
+                                                    );
                                                 })()}
                                             </span>
                                         </div>
