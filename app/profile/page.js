@@ -20,11 +20,11 @@ export default function ProfilePage() {
 
     const UNLOCKS = [
         { level: 1, label: 'Neural Core', desc: 'Basic mood tracking enabled', unlocked: true },
-        { level: 2, label: 'Habit Stepper', desc: 'Numeric tracking unlocked', unlocked: userStats.level >= 2 },
-        { level: 3, label: 'Pattern Matrix', desc: 'Visual analytics unlocked', unlocked: userStats.level >= 3 },
-        { level: 4, label: 'The Oracle', desc: 'ML correlation analysis', unlocked: userStats.level >= 4 },
-        { level: 5, label: 'Aura Projection', desc: 'Predictive visuals unlocked', unlocked: userStats.level >= 5 },
-        { level: 10, label: 'Main Character', desc: 'Secret themes unlocked', unlocked: userStats.level >= 10 },
+        { level: 2, label: 'Habit Stepper', desc: 'Numeric tracking unlocked', unlocked: userStats.bestLevel >= 2 || userStats.level >= 2 },
+        { level: 3, label: 'Pattern Matrix', desc: 'Visual analytics unlocked', unlocked: userStats.bestLevel >= 3 || userStats.level >= 3 },
+        { level: 4, label: 'The Oracle', desc: 'ML correlation analysis', unlocked: userStats.bestLevel >= 4 || userStats.level >= 4 },
+        { level: 5, label: 'Aura Projection', desc: 'Predictive visuals unlocked', unlocked: userStats.bestLevel >= 5 || userStats.level >= 5 },
+        { level: 10, label: 'Main Character', desc: 'Secret themes unlocked', unlocked: userStats.bestLevel >= 10 || userStats.level >= 10 },
     ]
 
     return (

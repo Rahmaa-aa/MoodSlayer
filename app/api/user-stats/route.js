@@ -43,6 +43,7 @@ export async function GET(request) {
         if (bestStreak > (user.bestStreak || 0)) updates.bestStreak = bestStreak;
         if (currentXP > (user.xp || 0)) updates.xp = currentXP;
         if (currentLevel > (user.level || 1)) updates.level = currentLevel;
+        if (currentLevel > (user.bestLevel || 1)) updates.bestLevel = currentLevel;
 
         if (Object.keys(updates).length > 0) {
             await db.collection('users').updateOne(
@@ -56,7 +57,8 @@ export async function GET(request) {
             level: Math.max(currentLevel, user.level || 1),
             xp: Math.max(currentXP, user.xp || 0),
             streak: Math.max(currentStreak, user.streak || 0),
-            bestStreak: Math.max(bestStreak, user.bestStreak || 0)
+            bestStreak: Math.max(bestStreak, user.bestStreak || 0),
+            bestLevel: Math.max(currentLevel, user.bestLevel || user.level || 1)
         }
 
         return NextResponse.json(stats)
