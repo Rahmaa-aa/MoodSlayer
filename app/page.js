@@ -428,6 +428,7 @@ function HomeContent() {
                         value={formData[item.id]}
                         onChange={(val) => handleInputChange(item.id, val)}
                         suffix={item.unit || (item.name.includes('Time') ? 'MIN' : 'UNIT')}
+                        max={(item.unit === 'HRS' || item.name.toLowerCase().includes('time')) ? 24 : Infinity}
                     />
                 )}
 
@@ -656,7 +657,7 @@ function HomeContent() {
                                 type="submit"
                                 disabled={isSaving}
                                 className="sync-btn"
-                                style={{ background: isSaving ? '#ccc' : 'var(--green)' }}
+                                style={{ '--btn-bg': isSaving ? '#ccc' : 'var(--green)' }}
                             >
                                 {isSaving ? 'SYNCING_TO_CORE...' : 'SYNC TO MOOD CORE'}
                             </button>

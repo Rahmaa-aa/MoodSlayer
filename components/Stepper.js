@@ -1,6 +1,6 @@
 import { Minus, Plus } from 'lucide-react'
 
-export function Stepper({ value, onChange, label, suffix = '' }) {
+export function Stepper({ value, onChange, label, suffix = '', max = Infinity }) {
     // Ensure value is a number or empty string to allow typing
     const val = value === 0 ? 0 : (value || '')
 
@@ -12,20 +12,32 @@ export function Stepper({ value, onChange, label, suffix = '' }) {
         }
         const num = parseInt(newVal)
         if (!isNaN(num)) {
-            onChange(num)
+            onChange(Math.min(max, Math.max(0, num)))
         }
+    }
+
+    const increment = () => {
+        const current = parseInt(val) || 0
+        if (current < max) {
+            onChange(current + 1)
+        }
+    }
+
+    const decrement = () => {
+        const current = parseInt(val) || 0
+        onChange(Math.max(0, current - 1))
     }
 
     return (
         <div style={{ marginBottom: '24px' }}>
             <label className="control-label">
-                {label}
+                {label} {max !== Infinity && <span style={{ opacity: 0.5, fontSize: '0.6rem' }}>(MAX: {max})</span>}
             </label>
 
             <div className="stepper-group">
                 <button
                     type="button"
-                    onClick={() => onChange(Math.max(0, (parseInt(val) || 0) - 1))}
+                    onClick={decrement}
                     className="stepper-btn"
                 >
                     <Minus size={20} strokeWidth={4} />
@@ -39,13 +51,15 @@ export function Stepper({ value, onChange, label, suffix = '' }) {
                         onChange={handleInputChange}
                         className="w-full h-full text-center bg-transparent border-none outline-none font-black"
                         style={{ fontSize: '1.2rem', fontFamily: 'inherit', width: '100%' }}
+                        max={max}
+                        min={0}
                     />
                     <span className="stepper-suffix">{suffix}</span>
                 </div>
 
                 <button
                     type="button"
-                    onClick={() => onChange((parseInt(val) || 0) + 1)}
+                    onClick={increment}
                     className="stepper-btn"
                 >
                     <Plus size={20} strokeWidth={4} />
