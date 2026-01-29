@@ -205,11 +205,11 @@ export default function ElysiumPage() {
                                                         border: '2px solid black'
                                                     }}>{StatIcon}</div>
                                                     <div>
-                                                        <div style={{ fontSize: '0.6rem', fontWeight: '900', color: '#888', textTransform: 'uppercase' }}>{config.label}</div>
+                                                        <div style={{ fontSize: '0.7rem', fontWeight: '900', color: 'rgba(0,0,0,0.7)', textTransform: 'uppercase' }}>{config.label}</div>
                                                         <div style={{ fontSize: '1.4rem', fontWeight: '900' }}>LVL_{stat.level}</div>
                                                     </div>
                                                 </div>
-                                                <div style={{ fontSize: '0.65rem', fontWeight: '900', background: config.color, padding: '2px 8px', border: '2px solid black' }}>{progress}%</div>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: '900', background: config.color, color: config.color === 'var(--black)' ? 'white' : 'black', padding: '2px 8px', border: '2px solid black' }}>{progress}%</div>
                                             </div>
                                             <div style={{ width: '100%', height: '12px', background: '#eee', border: '2px solid black', position: 'relative' }}>
                                                 <div style={{ width: `${progress}%`, height: '100%', background: config.color, borderRight: '2px solid black' }} />
