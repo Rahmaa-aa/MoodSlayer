@@ -7,6 +7,7 @@ const UserContext = createContext()
 export function UserProvider({ children }) {
     const { data: session, status } = useSession()
     const [userStats, setUserStats] = useState({ level: 1, xp: 0, streak: 0 })
+    const [trackables, setTrackables] = useState([])
     const [loading, setLoading] = useState(true)
 
     const fetchStats = async () => {
@@ -17,8 +18,14 @@ export function UserProvider({ children }) {
                 if (data && !data.error) {
                     setUserStats(data)
                 }
+
+                const resT = await fetch('/api/trackables')
+                const savedT = await resT.json()
+                if (Array.isArray(savedT)) {
+                    setTrackables(savedT)
+                }
             } catch (e) {
-                console.error('Failed to fetch stats', e)
+                console.error('Failed to fetch stats or trackables', e)
             } finally {
                 setLoading(false)
             }
@@ -34,7 +41,7 @@ export function UserProvider({ children }) {
     const refreshStats = () => fetchStats()
 
     return (
-        <UserContext.Provider value={{ userStats, setUserStats, refreshStats, loading }}>
+        <UserContext.Provider value={{ userStats, setUserStats, trackables, setTrackables, refreshStats, loading }}>
             {children}
         </UserContext.Provider>
     )

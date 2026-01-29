@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
-import { calculateStreak, calculateBestStreak, calculateXP, getLevel } from '@/lib/services/gamificationService'
+import { calculateStreak, calculateBestStreak, calculateXP, getLevel, calculateRPGStats } from '@/lib/services/gamificationService'
 
 export async function GET(request) {
     try {
@@ -47,8 +47,12 @@ export async function GET(request) {
         const currentXP = calculateXP(entries)
         const currentLevel = getLevel(currentXP)
 
+        // 3. FETCH GOALS & CALC RPG STATS
+        const goals = await db.collection('goals').find({ userId: session.user.id }).toArray();
+        const { stats: rpgStats, goals: processedGoals } = calculateRPGStats(entries, goals);
 
-        // 3. Update DB if stats have INCREASED (High-Water Mark Protection)
+
+        // 4. Update DB if stats have INCREASED (High-Water Mark Protection)
         const updates = {};
         if (currentStreak > (user.streak || 0)) updates.streak = currentStreak;
         if (bestStreak > (user.bestStreak || 0)) updates.bestStreak = bestStreak;
@@ -63,13 +67,15 @@ export async function GET(request) {
             )
         }
 
-        // 4. Return the HIGHER of calculated or stored stats
+        // 5. Return the HIGHER of calculated or stored stats
         const stats = {
             level: Math.max(currentLevel, user.level || 1),
             xp: Math.max(currentXP, user.xp || 0),
             streak: Math.max(currentStreak, user.streak || 0),
             bestStreak: Math.max(bestStreak, user.bestStreak || 0),
-            bestLevel: Math.max(currentLevel, user.bestLevel || user.level || 1)
+            bestLevel: Math.max(currentLevel, user.bestLevel || user.level || 1),
+            rpgStats,
+            goals: processedGoals
         }
 
         return NextResponse.json(stats)

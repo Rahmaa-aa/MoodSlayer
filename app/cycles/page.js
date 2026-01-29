@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUser } from '../../context/UserContext'
 import { Sidebar } from '../../components/Sidebar'
+import { Notifications } from '../../components/Notifications'
 
 // Dynamic imports for heavy charting components
 const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false })
@@ -562,6 +563,7 @@ export default function CyclesPage() {
                         </div>
                     </div>
                 )}
+                <Notifications />
             </div>
         </div >
     )

@@ -1,13 +1,15 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { Smile, CloudRain, Moon, Zap, Calendar, Heart, Activity, Plus, Pencil, Trash2, Settings, Flame } from 'lucide-react'
+import { Smile, CloudRain, Moon, Zap, Calendar, Heart, Activity, Plus, Pencil, Trash2, Settings, Flame, Target, X } from 'lucide-react'
 import { Sidebar } from '../components/Sidebar'
 import { TrackableManager } from '../components/TrackableManager'
 import { RetroToggle } from '../components/RetroToggle'
 import { Stepper } from '../components/Stepper'
 import { Notifications, showToast } from '../components/Notifications'
 import { useUser } from '../context/UserContext'
+import { ElysiumStats } from '../components/ElysiumStats'
+import { GoalManager } from '../components/GoalManager'
 
 // Dynamic imports for performance (No DND needed on SSR)
 const DndContext = dynamic(() => import('@dnd-kit/core').then(mod => mod.DndContext), { ssr: false })
@@ -30,17 +32,17 @@ export default function Home() {
 }
 
 function HomeContent() {
-    const { userStats, setUserStats, refreshStats } = useUser()
+    const { userStats, setUserStats, trackables, setTrackables, refreshStats } = useUser()
     const router = useRouter()
     const searchParams = useSearchParams()
     const dateParam = searchParams.get('date')
 
-    const [trackables, setTrackables] = useState([])
     const [formData, setFormData] = useState({ mood: '' })
     const [stats, setStats] = useState({ total: 0, stability: 100 })
     const [isSaving, setIsSaving] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [showManager, setShowManager] = useState(false)
+    const [showGoalManager, setShowGoalManager] = useState(false)
 
     const [targetDate, setTargetDate] = useState(null)
 
@@ -64,14 +66,9 @@ function HomeContent() {
 
     const loadInitialData = async () => {
         try {
-            const resT = await fetch('/api/trackables')
-            const savedT = await resT.json()
-            if (Array.isArray(savedT)) {
-                setTrackables(savedT)
-            }
             fetchEntries(targetDate)
         } catch (e) {
-            console.error('Failed to load trackables', e)
+            console.error('Failed to load entries', e)
         }
     }
 
@@ -190,6 +187,7 @@ function HomeContent() {
 
             updateGamification(dataToSave)
             setLastSaved(new Date())
+            refreshStats()
             return true
         } catch (e) {
             console.error('Sync failed:', e)
@@ -515,15 +513,33 @@ function HomeContent() {
                         {/* EDIT MODE TOGGLE */}
                         <button
                             onClick={() => setIsEditMode(!isEditMode)}
+                            className={`sidebar-btn ${isEditMode ? 'active' : ''}`}
                             style={{
                                 background: isEditMode ? 'black' : 'white',
                                 color: isEditMode ? 'white' : 'black',
-                                border: '2px solid black', padding: '8px 12px',
-                                fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                                boxShadow: '4px 4px 0px black', height: 'fit-content'
+                                border: '3px solid black',
+                                fontSize: '0.65rem',
+                                fontWeight: '900',
+                                padding: '8px 16px',
+                                whiteSpace: 'nowrap',
+                                letterSpacing: '1px',
+                                boxShadow: '4px 4px 0px black'
                             }}
                         >
-                            <Settings size={16} strokeWidth={4} /> {isEditMode ? 'DONE' : 'EDIT MODE'}
+                            {isEditMode ? <X size={14} /> : <Settings size={14} />} EDIT MODE
+                        </button>
+
+                        <button
+                            onClick={() => setShowGoalManager(true)}
+                            className="sidebar-btn"
+                            style={{
+                                background: 'black', color: 'white', border: '3px solid white',
+                                padding: '8px 12px', boxSizing: 'border-box', height: 'fit-content',
+                                fontSize: '0.65rem', whiteSpace: 'nowrap', fontWeight: '900',
+                                letterSpacing: '1px'
+                            }}
+                        >
+                            <Target size={14} /> NEW QUEST
                         </button>
 
                         <button
@@ -531,13 +547,15 @@ function HomeContent() {
                                 setEditingItem(null)
                                 setShowManager(true)
                             }}
+                            className="sidebar-btn"
                             style={{
                                 background: 'var(--yellow)', border: '2px solid black', padding: '8px 12px',
-                                fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                                boxShadow: '4px 4px 0px black', height: 'fit-content', opacity: 1, position: 'relative', zIndex: 10
+                                fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                                boxShadow: '4px 4px 0px black', height: 'fit-content', opacity: 1, position: 'relative', zIndex: 10,
+                                fontSize: '0.65rem', whiteSpace: 'nowrap', letterSpacing: '1px'
                             }}
                         >
-                            <Plus size={16} strokeWidth={4} /> ADD HABIT
+                            <Plus size={14} strokeWidth={4} /> ADD HABIT
                         </button>
 
                         <div className="header-date-card">
@@ -618,6 +636,9 @@ function HomeContent() {
                         {/* RIGHT COLUMN */}
                         <div className="col-right">
 
+                            {/* ELYSIUM STATS (Skill-Sync Architecture) */}
+                            <ElysiumStats stats={userStats.rpgStats} goals={userStats.goals} />
+
                             {/* DYNAMIC RIGHT CATEGORIES */}
                             {rightCategories.map(cat => (
                                 <SortableContext
@@ -667,6 +688,13 @@ function HomeContent() {
                     </form>
                 </DndContext>
 
+                {showGoalManager && (
+                    <GoalManager
+                        trackables={trackables}
+                        onSave={refreshStats}
+                        onClose={() => setShowGoalManager(false)}
+                    />
+                )}
             </main>
         </div>
     )

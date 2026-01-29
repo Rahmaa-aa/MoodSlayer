@@ -1,4 +1,4 @@
-import { Activity, Zap, User, Settings, LogOut, Flame } from 'lucide-react'
+import { Activity, Zap, User, Settings, LogOut, Flame, Sword } from 'lucide-react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useUser } from '@/context/UserContext'
@@ -46,6 +46,9 @@ export function Sidebar({ activePage }) {
                 </Link>
                 <Link href="/profile" className={`sidebar-btn ${activePage === 'Profile' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <User size={18} /> PROFILE
+                </Link>
+                <Link href="/elysium" className={`sidebar-btn ${activePage === 'Elysium' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Sword size={18} /> ELYSIUM
                 </Link>
                 <Link href="/settings" className={`sidebar-btn ${activePage === 'Settings' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <Settings size={18} /> SETTINGS
