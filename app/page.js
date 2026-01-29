@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { Smile, CloudRain, Moon, Zap, Calendar, Heart, Activity, Plus, Pencil, Trash2, Settings, Flame, Target, X } from 'lucide-react'
+import { Smile, CloudRain, Moon, Zap, Calendar, Heart, Activity, Plus, Pencil, Trash2, Settings, Flame, Target, X, LifeBuoy, ShieldAlert, Sparkles } from 'lucide-react'
 import { Sidebar } from '../components/Sidebar'
 import { TrackableManager } from '../components/TrackableManager'
 import { RetroToggle } from '../components/RetroToggle'
@@ -497,11 +497,23 @@ function HomeContent() {
                 {/* 1. DASHBOARD HEADER */}
                 <header className="dashboard-header">
                     <div className="header-title-group">
-                        <p style={{ fontWeight: '900', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase', fontSize: '0.65rem', opacity: 0.5 }}>{targetDate === new Date().toISOString().split('T')[0] ? 'DASHBOARD' : 'TEMPORAL_ARCHIVE'}</p>
+                        <p style={{ fontWeight: '900', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase', fontSize: '0.65rem', opacity: 0.5 }}>
+                            {userStats.survivalMode ? 'SURVIVAL_PROTOCOL_ACTIVE' : (targetDate === new Date().toISOString().split('T')[0] ? 'DASHBOARD' : 'TEMPORAL_ARCHIVE')}
+                        </p>
                         <h2 style={{ fontSize: '2rem', fontWeight: '900', fontStyle: 'italic', textTransform: 'uppercase' }}>
-                            {targetDate === new Date().toISOString().split('T')[0] ? "TODAY'S LOG" : `LOG_${targetDate}`}
+                            {userStats.survivalMode ? "STAY_AFLOAT" : (targetDate === new Date().toISOString().split('T')[0] ? "TODAY'S LOG" : `LOG_${targetDate}`)}
                         </h2>
                     </div>
+
+                    {userStats.survivalMode && (
+                        <div style={{ background: 'var(--yellow)', border: '3px solid black', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '5px 5px 0px black' }}>
+                            <LifeBuoy size={24} className="spin-slow" />
+                            <div>
+                                <div style={{ fontSize: '0.7rem', fontWeight: '900' }}>NON-PUNITIVE_PROGRESS_ON</div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '900' }}>STREAK_SHIELDED_v2.1</div>
+                            </div>
+                        </div>
+                    )}
 
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
                         {lastSaved && (
@@ -558,9 +570,11 @@ function HomeContent() {
                             <Plus size={14} strokeWidth={4} /> ADD HABIT
                         </button>
 
-                        <div className="header-date-card">
+                        <div className="header-date-card" style={{ background: userStats.volitionShield ? 'white' : 'white', border: userStats.volitionShield ? '4px solid var(--blue)' : '4px solid black' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginRight: '8px', borderRight: '2px solid #ddd', paddingRight: '8px' }}>
-                                <span style={{ fontSize: '1.2rem', color: 'var(--pink)' }}><Flame size={20} fill="var(--pink)" /></span>
+                                <span style={{ fontSize: '1.2rem', color: userStats.volitionShield ? 'var(--blue)' : 'var(--pink)' }}>
+                                    {userStats.volitionShield ? <ShieldAlert size={20} /> : <Flame size={20} fill="var(--pink)" />}
+                                </span>
                                 <span style={{ fontSize: '0.7rem', fontWeight: '900', color: 'black' }}>{userStats.streak} DAY</span>
                             </div>
                             <Calendar size={20} />
@@ -580,6 +594,19 @@ function HomeContent() {
                         </div>
                     </div>
                 </header>
+
+                {/* Compassionate Message for Gaps */}
+                {targetDate === new Date().toISOString().split('T')[0] && !lastSaved && userStats.streak > 0 && (
+                    <div style={{ marginBottom: '24px', padding: '20px', background: 'white', border: '4px solid black', boxShadow: '10px 10px 0px var(--blue)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ width: '40px', height: '40px', background: 'var(--blue)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid black' }}>
+                            <Sparkles size={24} />
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: '900', fontSize: '1.2rem', textTransform: 'uppercase' }}>YOUR_PROGRESS_WAS_SAFELY_GUARDED_BESTIE.</div>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.7, fontWeight: '700' }}>System detected a gap in activity. Streaks were paused and preserved. Welcome back.</div>
+                        </div>
+                    </div>
+                )}
 
                 <DndContext
                     sensors={sensors}

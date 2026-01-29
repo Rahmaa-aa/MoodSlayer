@@ -40,11 +40,36 @@ export function UserProvider({ children }) {
 
     const refreshStats = () => fetchStats()
 
+    const toggleSurvivalMode = async () => {
+        const newState = !userStats.survivalMode;
+
+        // Optimistic update
+        setUserStats(prev => ({
+            ...prev,
+            survivalMode: newState,
+            volitionShield: newState // Enabling survival mode automatically activates the shield
+        }));
+
+        try {
+            await fetch('/api/user-stats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    survivalMode: newState,
+                    volitionShield: newState
+                })
+            });
+            refreshStats(); // Pull final calculated stats
+        } catch (e) {
+            console.error('Failed to toggle survival mode', e);
+        }
+    };
+
     return (
-        <UserContext.Provider value={{ userStats, setUserStats, trackables, setTrackables, refreshStats, loading }}>
+        <UserContext.Provider value={{ userStats, setUserStats, trackables, setTrackables, refreshStats, toggleSurvivalMode, loading }}>
             {children}
         </UserContext.Provider>
-    )
+    );
 }
 
 export function useUser() {

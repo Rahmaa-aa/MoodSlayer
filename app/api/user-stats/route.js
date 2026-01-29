@@ -26,7 +26,7 @@ export async function GET(request) {
 
         if (!user) {
             console.warn(`[STATS_API] User not found for ID: ${session.user.id}. Creating fallback.`);
-            user = { streak: 0, xp: 0, level: 1 };
+            user = { streak: 0, xp: 0, level: 1, survivalMode: false, volitionShield: false };
         }
 
         // 2. Get entries (handle both ObjectId and string ID)
@@ -42,14 +42,14 @@ export async function GET(request) {
         // 2. Calculate current real-time stats
 
 
-        const currentStreak = calculateStreak(entries)
+        const currentStreak = calculateStreak(entries, user.volitionShield)
         const bestStreak = calculateBestStreak(entries)
         const currentXP = calculateXP(entries)
         const currentLevel = getLevel(currentXP)
 
         // 3. FETCH GOALS & CALC RPG STATS
         const goals = await db.collection('goals').find({ userId: session.user.id }).toArray();
-        const { stats: rpgStats, goals: processedGoals } = calculateRPGStats(entries, goals);
+        const { stats: rpgStats, goals: processedGoals } = calculateRPGStats(entries, goals, user.survivalMode);
 
 
         // 4. Update DB if stats have INCREASED (High-Water Mark Protection)
@@ -74,6 +74,8 @@ export async function GET(request) {
             streak: Math.max(currentStreak, user.streak || 0),
             bestStreak: Math.max(bestStreak, user.bestStreak || 0),
             bestLevel: Math.max(currentLevel, user.bestLevel || user.level || 1),
+            survivalMode: user.survivalMode || false,
+            volitionShield: user.volitionShield || false,
             rpgStats,
             goals: processedGoals
         }
@@ -89,13 +91,17 @@ export async function POST(request) {
         const session = await auth()
         if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-        const { level, xp, streak } = await request.json()
+        const { level, xp, streak, survivalMode, volitionShield } = await request.json()
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
+        const updateData = { level, xp, streak, survivalMode, volitionShield }
+        // Clean undefined values
+        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key])
+
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user.id) },
-            { $set: { level, xp, streak } }
+            { $set: updateData }
         )
 
         return NextResponse.json({ status: 'success' })

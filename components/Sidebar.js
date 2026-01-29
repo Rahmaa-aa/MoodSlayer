@@ -1,11 +1,11 @@
-import { Activity, Zap, User, Settings, LogOut, Flame, Sword } from 'lucide-react'
+import { Activity, Zap, User, Settings, LogOut, Flame, Sword, LifeBuoy, HeartPulse } from 'lucide-react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useUser } from '@/context/UserContext'
 
 export function Sidebar({ activePage }) {
     const { data: session } = useSession()
-    const { userStats } = useUser()
+    const { userStats, toggleSurvivalMode } = useUser()
 
     return (
         <aside className="sidebar-panel">
@@ -38,6 +38,34 @@ export function Sidebar({ activePage }) {
 
             {/* Menu */}
             <nav className="sidebar-nav">
+                {/* Compassionate Toggle */}
+                <div style={{ marginBottom: '8px' }}>
+                    <button
+                        onClick={toggleSurvivalMode}
+                        className="sidebar-btn"
+                        style={{
+                            width: '100%',
+                            background: userStats.survivalMode ? 'var(--yellow)' : 'white',
+                            color: 'black',
+                            border: userStats.survivalMode ? '3px solid black' : '1px dashed rgba(0,0,0,0.2)',
+                            padding: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            transition: 'all 0.2s ease',
+                            boxShadow: userStats.survivalMode ? '4px 4px 0px black' : 'none',
+                            opacity: userStats.survivalMode ? 1 : 0.7
+                        }}
+                    >
+                        {userStats.survivalMode ? <LifeBuoy size={18} /> : <HeartPulse size={18} opacity={0.5} />}
+                        <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontSize: '0.6rem', fontWeight: '900', opacity: 0.8, color: 'black' }}>{userStats.survivalMode ? 'MODE: ACTIVE' : 'SYSTEM_STABLE'}</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: '900', color: 'black' }}>{userStats.survivalMode ? 'STRUGGLING_MODE' : "I'M STRUGGLING"}</div>
+                        </div>
+                    </button>
+                    <div style={{ height: '1px', background: 'rgba(0,0,0,0.1)', marginTop: '16px' }}></div>
+                </div>
+
                 <Link href="/" className={`sidebar-btn ${activePage === 'Dashboard' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <Activity size={18} /> DASHBOARD
                 </Link>
