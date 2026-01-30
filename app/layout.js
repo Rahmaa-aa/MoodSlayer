@@ -7,6 +7,8 @@ export const metadata = {
     description: 'Track your mood, period, and life patterns with a 90s twist.',
 }
 
+import { Sidebar } from '@/components/Sidebar'
+
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
@@ -17,7 +19,12 @@ export default function RootLayout({ children }) {
                 <div className="memphis-shape shape-3 float" style={{ animationDelay: '2s' }} />
                 <SessionWrapper>
                     <UserProvider>
-                        {children}
+                        <div className="app-shell">
+                            <Sidebar />
+                            <main className="main-content">
+                                {children}
+                            </main>
+                        </div>
                     </UserProvider>
                 </SessionWrapper>
             </body>

@@ -33,7 +33,7 @@ export function ElysiumStats({ stats, goals }) {
                                     {getIcon(RPG_STATS[key].icon)}
                                     {RPG_STATS[key].label}
                                 </span>
-                                <span style={{ color: RPG_STATS[key].color }}>LVL_{stat.level}</span>
+                                <span style={{ color: (RPG_STATS[key].color === 'var(--black)' || RPG_STATS[key].color === '#444' || RPG_STATS[key].color === '#050505') ? '#888' : RPG_STATS[key].color }}>LVL_{stat.level}</span>
                             </div>
                             <div style={{ width: '100%', height: '8px', background: '#222', border: '1px solid #444', position: 'relative' }}>
                                 <div

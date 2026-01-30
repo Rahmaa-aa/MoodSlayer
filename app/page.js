@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { Smile, CloudRain, Moon, Zap, Calendar, Heart, Activity, Plus, Pencil, Trash2, Settings, Flame, Target, X, LifeBuoy, ShieldAlert, Sparkles } from 'lucide-react'
-import { Sidebar } from '../components/Sidebar'
 import { TrackableManager } from '../components/TrackableManager'
 import { RetroToggle } from '../components/RetroToggle'
 import { Stepper } from '../components/Stepper'
@@ -477,9 +476,8 @@ function HomeContent() {
     if (!mounted) return null
 
     return (
-        <div className="app-shell">
+        <div className="page-container">
             <Notifications />
-            <Sidebar activePage="Dashboard" />
 
             <TrackableManager
                 isOpen={showManager}
@@ -492,237 +490,225 @@ function HomeContent() {
                 initialData={editingItem}
             />
 
-            <main className="main-content">
+            <header className="dashboard-header">
+                <div className="header-title-group">
+                    <p style={{ fontWeight: '900', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase', fontSize: '0.65rem', opacity: 0.5 }}>
+                        {userStats.survivalMode ? 'SURVIVAL_PROTOCOL_ACTIVE' : (targetDate === new Date().toISOString().split('T')[0] ? 'DASHBOARD' : 'TEMPORAL_ARCHIVE')}
+                    </p>
+                    <h2 style={{ fontSize: '2rem', fontWeight: '900', fontStyle: 'italic', textTransform: 'uppercase' }}>
+                        {userStats.survivalMode ? "STAY_AFLOAT" : (targetDate === new Date().toISOString().split('T')[0] ? "TODAY'S LOG" : `LOG_${targetDate}`)}
+                    </h2>
+                </div>
 
-                {/* 1. DASHBOARD HEADER */}
-                <header className="dashboard-header">
-                    <div className="header-title-group">
-                        <p style={{ fontWeight: '900', letterSpacing: '2px', marginBottom: '8px', textTransform: 'uppercase', fontSize: '0.65rem', opacity: 0.5 }}>
-                            {userStats.survivalMode ? 'SURVIVAL_PROTOCOL_ACTIVE' : (targetDate === new Date().toISOString().split('T')[0] ? 'DASHBOARD' : 'TEMPORAL_ARCHIVE')}
-                        </p>
-                        <h2 style={{ fontSize: '2rem', fontWeight: '900', fontStyle: 'italic', textTransform: 'uppercase' }}>
-                            {userStats.survivalMode ? "STAY_AFLOAT" : (targetDate === new Date().toISOString().split('T')[0] ? "TODAY'S LOG" : `LOG_${targetDate}`)}
-                        </h2>
-                    </div>
-
-                    {userStats.survivalMode && (
-                        <div style={{ background: 'var(--yellow)', border: '3px solid black', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '5px 5px 0px black' }}>
-                            <LifeBuoy size={24} className="spin-slow" />
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: '900' }}>NON-PUNITIVE_PROGRESS_ON</div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: '900' }}>STREAK_SHIELDED_v2.1</div>
-                            </div>
+                {userStats.survivalMode && (
+                    <div style={{ background: 'var(--yellow)', border: '3px solid black', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '5px 5px 0px black' }}>
+                        <LifeBuoy size={24} className="spin-slow" />
+                        <div>
+                            <div style={{ fontSize: '0.7rem', fontWeight: '900' }}>NON-PUNITIVE_PROGRESS_ON</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: '900' }}>STREAK_SHIELDED_v2.1</div>
                         </div>
+                    </div>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
+                    {lastSaved && (
+                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--green)', marginBottom: '12px' }}>
+                            LAST_SYNC: {lastSaved.toLocaleTimeString()}
+                        </span>
                     )}
 
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
-                        {lastSaved && (
-                            <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--green)', marginBottom: '12px' }}>
-                                LAST_SYNC: {lastSaved.toLocaleTimeString()}
+                    {/* EDIT MODE TOGGLE */}
+                    <button
+                        onClick={() => setIsEditMode(!isEditMode)}
+                        className={`sidebar-btn ${isEditMode ? 'active' : ''}`}
+                        style={{
+                            background: isEditMode ? 'black' : 'white',
+                            color: isEditMode ? 'white' : 'black',
+                            border: '3px solid black',
+                            fontSize: '0.65rem',
+                            fontWeight: '900',
+                            padding: '8px 16px',
+                            whiteSpace: 'nowrap',
+                            letterSpacing: '1px',
+                            boxShadow: '4px 4px 0px black'
+                        }}
+                    >
+                        {isEditMode ? <X size={14} /> : <Settings size={14} />} EDIT MODE
+                    </button>
+
+                    <button
+                        onClick={() => setShowGoalManager(true)}
+                        className="sidebar-btn"
+                        style={{
+                            background: 'black', color: 'white', border: '3px solid white',
+                            padding: '8px 12px', boxSizing: 'border-box', height: 'fit-content',
+                            fontSize: '0.65rem', whiteSpace: 'nowrap', fontWeight: '900',
+                            letterSpacing: '1px'
+                        }}
+                    >
+                        <Target size={14} /> NEW QUEST
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            setEditingItem(null)
+                            setShowManager(true)
+                        }}
+                        className="sidebar-btn"
+                        style={{
+                            background: 'var(--yellow)', border: '2px solid black', padding: '8px 12px',
+                            fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                            boxShadow: '4px 4px 0px black', height: 'fit-content', opacity: 1, position: 'relative', zIndex: 10,
+                            fontSize: '0.65rem', whiteSpace: 'nowrap', letterSpacing: '1px'
+                        }}
+                    >
+                        <Plus size={14} strokeWidth={4} /> ADD HABIT
+                    </button>
+
+                    <div className="header-date-card" style={{ background: userStats.volitionShield ? 'white' : 'white', border: userStats.volitionShield ? '4px solid var(--blue)' : '4px solid black' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginRight: '8px', borderRight: '2px solid #ddd', paddingRight: '8px' }}>
+                            <span style={{ fontSize: '1.2rem', color: userStats.volitionShield ? 'var(--blue)' : 'var(--pink)' }}>
+                                {userStats.volitionShield ? <ShieldAlert size={20} /> : <Flame size={20} fill="var(--pink)" />}
                             </span>
-                        )}
-
-                        {/* EDIT MODE TOGGLE */}
-                        <button
-                            onClick={() => setIsEditMode(!isEditMode)}
-                            className={`sidebar-btn ${isEditMode ? 'active' : ''}`}
-                            style={{
-                                background: isEditMode ? 'black' : 'white',
-                                color: isEditMode ? 'white' : 'black',
-                                border: '3px solid black',
-                                fontSize: '0.65rem',
-                                fontWeight: '900',
-                                padding: '8px 16px',
-                                whiteSpace: 'nowrap',
-                                letterSpacing: '1px',
-                                boxShadow: '4px 4px 0px black'
-                            }}
-                        >
-                            {isEditMode ? <X size={14} /> : <Settings size={14} />} EDIT MODE
-                        </button>
-
-                        <button
-                            onClick={() => setShowGoalManager(true)}
-                            className="sidebar-btn"
-                            style={{
-                                background: 'black', color: 'white', border: '3px solid white',
-                                padding: '8px 12px', boxSizing: 'border-box', height: 'fit-content',
-                                fontSize: '0.65rem', whiteSpace: 'nowrap', fontWeight: '900',
-                                letterSpacing: '1px'
-                            }}
-                        >
-                            <Target size={14} /> NEW QUEST
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setEditingItem(null)
-                                setShowManager(true)
-                            }}
-                            className="sidebar-btn"
-                            style={{
-                                background: 'var(--yellow)', border: '2px solid black', padding: '8px 12px',
-                                fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                                boxShadow: '4px 4px 0px black', height: 'fit-content', opacity: 1, position: 'relative', zIndex: 10,
-                                fontSize: '0.65rem', whiteSpace: 'nowrap', letterSpacing: '1px'
-                            }}
-                        >
-                            <Plus size={14} strokeWidth={4} /> ADD HABIT
-                        </button>
-
-                        <div className="header-date-card" style={{ background: userStats.volitionShield ? 'white' : 'white', border: userStats.volitionShield ? '4px solid var(--blue)' : '4px solid black' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginRight: '8px', borderRight: '2px solid #ddd', paddingRight: '8px' }}>
-                                <span style={{ fontSize: '1.2rem', color: userStats.volitionShield ? 'var(--blue)' : 'var(--pink)' }}>
-                                    {userStats.volitionShield ? <ShieldAlert size={20} /> : <Flame size={20} fill="var(--pink)" />}
-                                </span>
-                                <span style={{ fontSize: '0.7rem', fontWeight: '900', color: 'black' }}>{userStats.streak} DAY</span>
-                            </div>
-                            <Calendar size={20} />
-                            <div>
-                                <p style={{ fontSize: '1rem', fontWeight: '900', textTransform: 'uppercase' }}>
-                                    {targetDate && new Date(targetDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-                                </p>
-                                {targetDate !== new Date().toISOString().split('T')[0] && (
-                                    <button
-                                        onClick={() => router.push('/')}
-                                        style={{ background: 'black', color: 'white', border: 'none', padding: '2px 8px', fontSize: '0.6rem', fontWeight: '900', cursor: 'pointer', marginTop: '4px', display: 'block' }}
-                                    >
-                                        &gt; GO_TO_TODAY
-                                    </button>
-                                )}
-                            </div>
+                            <span style={{ fontSize: '0.7rem', fontWeight: '900', color: 'black' }}>{userStats.streak} DAY</span>
                         </div>
-                    </div>
-                </header>
-
-                {/* Compassionate Message for Gaps */}
-                {targetDate === new Date().toISOString().split('T')[0] && !lastSaved && userStats.streak > 0 && (
-                    <div style={{ marginBottom: '24px', padding: '20px', background: 'white', border: '4px solid black', boxShadow: '10px 10px 0px var(--blue)', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <div style={{ width: '40px', height: '40px', background: 'var(--blue)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid black' }}>
-                            <Sparkles size={24} />
-                        </div>
+                        <Calendar size={20} />
                         <div>
-                            <div style={{ fontWeight: '900', fontSize: '1.2rem', textTransform: 'uppercase' }}>YOUR_PROGRESS_WAS_SAFELY_GUARDED_BESTIE.</div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.7, fontWeight: '700' }}>System detected a gap in activity. Streaks were paused and preserved. Welcome back.</div>
+                            <p style={{ fontSize: '1rem', fontWeight: '900', textTransform: 'uppercase' }}>
+                                {targetDate && new Date(targetDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                            </p>
+                            {targetDate !== new Date().toISOString().split('T')[0] && (
+                                <button
+                                    onClick={() => router.push('/')}
+                                    style={{ background: 'black', color: 'white', border: 'none', padding: '2px 8px', fontSize: '0.6rem', fontWeight: '900', cursor: 'pointer', marginTop: '4px', display: 'block' }}
+                                >
+                                    &gt; GO_TO_TODAY
+                                </button>
+                            )}
                         </div>
                     </div>
-                )}
+                </div>
+            </header>
 
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragOver={handleDragOver}
-                    onDragEnd={handleDragEnd}
-                >
-                    <form onSubmit={handleSubmit} className="dashboard-row">
+            {/* Compassionate Message for Gaps */}
+            {targetDate === new Date().toISOString().split('T')[0] && !lastSaved && userStats.streak > 0 && (
+                <div style={{ marginBottom: '24px', padding: '20px', background: 'white', border: '4px solid black', boxShadow: '10px 10px 0px var(--blue)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '40px', height: '40px', background: 'var(--blue)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid black' }}>
+                        <Sparkles size={24} />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: '900', fontSize: '1.2rem', textTransform: 'uppercase' }}>YOUR_PROGRESS_WAS_SAFELY_GUARDED_BESTIE.</div>
+                        <div style={{ fontSize: '0.8rem', opacity: 0.7, fontWeight: '700' }}>System detected a gap in activity. Streaks were paused and preserved. Welcome back.</div>
+                    </div>
+                </div>
+            )}
 
-                        {/* LEFT COLUMN */}
-                        <div className="col-left">
-                            {/* 1. VIBE CHECK (Always First) */}
-                            <section className="cyber-card">
-                                <div className="cyber-header" style={{ backgroundColor: 'var(--green)', color: 'black' }}>Vibe Check</div>
-                                {/* MOOD GRID */}
-                                <div className="mood-grid">
-                                    {MOOD_OPTIONS.map(m => (
-                                        <button
-                                            key={m.label}
-                                            type="button"
-                                            onClick={() => handleInputChange('mood', m.label)}
-                                            className={`mood-btn ${formData.mood === m.label ? 'active' : ''}`}
-                                            style={{ backgroundColor: m.bg, color: m.color }}
-                                        >
-                                            <div style={{ background: 'rgba(0,0,0,0.1)', padding: '16px', borderRadius: '50%' }}>{m.icon}</div>
-                                            <span style={{ fontSize: '1.2rem', fontWeight: '900', textTransform: 'uppercase' }}>{m.label}</span>
-                                            {formData.mood === m.label && (
-                                                <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'black', padding: '4px', display: 'flex' }}>
-                                                    <Heart size={16} fill="white" color="white" />
-                                                </div>
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            </section>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+            >
+                <form onSubmit={handleSubmit} className="dashboard-row">
 
-                            {/* DYNAMIC LEFT CATEGORIES */}
-                            {leftCategories.map(cat => (
-                                <SortableContext
-                                    key={cat}
-                                    items={trackables.filter(t => t.category === cat).map(t => t.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    <section className="cyber-card">
-                                        <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>{cat}</div>
-                                        <div>
-                                            {trackables.filter(t => t.category === cat).map(item => renderTrackableItem(item))}
-                                        </div>
-                                    </section>
-                                </SortableContext>
-                            ))}
-                        </div>
+                    {/* LEFT COLUMN */}
+                    <div className="col-left">
+                        {/* 1. VIBE CHECK (Always First) */}
+                        <section className="cyber-card">
+                            <div className="cyber-header" style={{ backgroundColor: 'var(--green)', color: 'black' }}>Vibe Check</div>
+                            {/* MOOD GRID */}
+                            <div className="mood-grid">
+                                {MOOD_OPTIONS.map(m => (
+                                    <button
+                                        key={m.label}
+                                        type="button"
+                                        onClick={() => handleInputChange('mood', m.label)}
+                                        className={`mood-btn ${formData.mood === m.label ? 'active' : ''}`}
+                                        style={{ backgroundColor: m.bg, color: m.color }}
+                                    >
+                                        <div style={{ background: 'rgba(0,0,0,0.1)', padding: '16px', borderRadius: '50%' }}>{m.icon}</div>
+                                        <span style={{ fontSize: '1.2rem', fontWeight: '900', textTransform: 'uppercase' }}>{m.label}</span>
+                                        {formData.mood === m.label && (
+                                            <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'black', padding: '4px', display: 'flex' }}>
+                                                <Heart size={16} fill="white" color="white" />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
 
-                        {/* RIGHT COLUMN */}
-                        <div className="col-right">
-
-                            {/* ELYSIUM STATS (Skill-Sync Architecture) */}
-                            <ElysiumStats stats={userStats.rpgStats} goals={userStats.goals} />
-
-                            {/* DYNAMIC RIGHT CATEGORIES */}
-                            {rightCategories.map(cat => (
-                                <SortableContext
-                                    key={cat}
-                                    items={trackables.filter(t => t.category === cat).map(t => t.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    <section className="cyber-card">
-                                        <div className="cyber-header" style={{ backgroundColor: 'var(--blue)', color: 'white' }}>{cat}</div>
-                                        <div>
-                                            {trackables.filter(t => t.category === cat).map(item => renderTrackableItem(item))}
-                                        </div>
-                                    </section>
-                                </SortableContext>
-                            ))}
-
-                            {/* LOG (Always Last) */}
-                            <section className="cyber-card bg-black text-white" style={{ background: 'black', color: 'white' }}>
-                                <div className="cyber-header bg-white text-black" style={{ background: 'white', color: 'black' }}>Sys_Log</div>
-                                <div style={{ borderLeft: '4px solid #333', paddingLeft: '24px', marginLeft: '8px', display: 'flex', flexDirection: 'column', gap: '16px', fontFamily: 'monospace' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ opacity: 0.5 }}>CORE_STABILITY:</span>
-                                        <span style={{ color: 'var(--green)', fontWeight: '900', fontSize: '1.2rem' }}>{stats.stability}%</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ opacity: 0.5 }}>ENTRIES_LOGGED:</span>
-                                        <span style={{ color: 'var(--pink)', fontWeight: '900', fontSize: '1.2rem' }}>{stats.total}</span>
-                                    </div>
-                                    <div style={{ marginTop: '24px', padding: '16px', background: '#111', border: '1px solid #333', fontSize: '0.8rem', color: '#888' }}>
-                                        &gt; Waiting for input...<br />
-                                        &gt; Neural pathways online.
-                                    </div>
-                                </div>
-                            </section>
-
-                            <button
-                                type="submit"
-                                disabled={isSaving}
-                                className="sync-btn"
-                                style={{ '--btn-bg': isSaving ? '#ccc' : 'var(--green)' }}
+                        {/* DYNAMIC LEFT CATEGORIES */}
+                        {leftCategories.map(cat => (
+                            <SortableContext
+                                key={cat}
+                                items={trackables.filter(t => t.category === cat).map(t => t.id)}
+                                strategy={verticalListSortingStrategy}
                             >
-                                {isSaving ? 'SYNCING_TO_CORE...' : 'SYNC TO MOOD CORE'}
-                            </button>
-                            <div style={{ height: '40px' }}></div>
-                        </div>
+                                <section className="cyber-card">
+                                    <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>{cat}</div>
+                                    <div>
+                                        {trackables.filter(t => t.category === cat).map(item => renderTrackableItem(item))}
+                                    </div>
+                                </section>
+                            </SortableContext>
+                        ))}
+                    </div>
 
-                    </form>
-                </DndContext>
+                    {/* RIGHT COLUMN */}
+                    <div className="col-right">
 
-                {showGoalManager && (
-                    <GoalManager
-                        trackables={trackables}
-                        onSave={refreshStats}
-                        onClose={() => setShowGoalManager(false)}
-                    />
-                )}
-            </main>
+                        {/* ELYSIUM STATS (Skill-Sync Architecture) */}
+                        <ElysiumStats stats={userStats.rpgStats} goals={userStats.goals} />
+
+                        {/* DYNAMIC RIGHT CATEGORIES */}
+                        {rightCategories.map(cat => (
+                            <SortableContext
+                                key={cat}
+                                items={trackables.filter(t => t.category === cat).map(t => t.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <section className="cyber-card">
+                                    <div className="cyber-header" style={{ backgroundColor: 'var(--blue)', color: 'white' }}>{cat}</div>
+                                    <div>
+                                        {trackables.filter(t => t.category === cat).map(item => renderTrackableItem(item))}
+                                    </div>
+                                </section>
+                            </SortableContext>
+                        ))}
+
+                        {/* LOG (Always Last) */}
+                        <section className="cyber-card bg-black text-white" style={{ background: 'black', color: 'white' }}>
+                            <div className="cyber-header bg-white text-black" style={{ background: 'white', color: 'black' }}>Sys_Log</div>
+                            <div style={{ borderLeft: '4px solid #333', paddingLeft: '24px', marginLeft: '8px', display: 'flex', flexDirection: 'column', gap: '16px', fontFamily: 'monospace' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ opacity: 0.5 }}>CORE_STABILITY:</span>
+                                    <span style={{ color: 'var(--green)', fontWeight: '900', fontSize: '1.2rem' }}>{stats.stability}%</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ opacity: 0.5 }}>ENTRIES_LOGGED:</span>
+                                    <span style={{ color: 'var(--pink)', fontWeight: '900', fontSize: '1.2rem' }}>{stats.total}</span>
+                                </div>
+                                <div style={{ marginTop: '24px', padding: '16px', background: '#111', border: '1px solid #333', fontSize: '0.8rem', color: '#888' }}>
+                                    &gt; Waiting for input...<br />
+                                    &gt; Neural pathways online.
+                                </div>
+                            </div>
+                        </section>
+
+                        <button
+                            type="submit"
+                            disabled={isSaving}
+                            className="sync-btn"
+                            style={{ '--btn-bg': isSaving ? '#ccc' : 'var(--green)' }}
+                        >
+                            {isSaving ? 'SYNCING_TO_CORE...' : 'SYNC TO MOOD CORE'}
+                        </button>
+                        <div style={{ height: '40px' }}></div>
+                    </div>
+
+                </form>
+            </DndContext>
         </div>
     )
 }

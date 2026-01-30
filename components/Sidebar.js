@@ -1,20 +1,77 @@
-import { Activity, Zap, User, Settings, LogOut, Flame, Sword, LifeBuoy, HeartPulse } from 'lucide-react'
+'use client'
+import { Activity, Zap, User, Settings, LogOut, Flame, Sword, LifeBuoy, HeartPulse, PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useUser } from '@/context/UserContext'
+import { usePathname } from 'next/navigation'
 
-export function Sidebar({ activePage }) {
+export function Sidebar() {
+    const pathname = usePathname()
     const { data: session } = useSession()
-    const { userStats, toggleSurvivalMode } = useUser()
+    const { userStats, toggleSurvivalMode, isMiniSidebar: isMini, toggleSidebar: toggleMini } = useUser()
+
+    const activePage = {
+        '/': 'Dashboard',
+        '/cycles': 'Cycles',
+        '/profile': 'Profile',
+        '/elysium': 'Elysium',
+        '/settings': 'Settings'
+    }[pathname] || 'Dashboard'
+
+    if (pathname.startsWith('/auth')) return null;
 
     return (
-        <aside className="sidebar-panel">
+        <aside className="sidebar-panel" style={{ width: isMini ? '80px' : '240px', transition: 'width 0.3s ease' }}>
+            {/* Floating Toggle Handle */}
+            <button
+                onClick={toggleMini}
+                style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: '-16px',
+                    transform: 'translateY(-50%)',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    border: '3px solid black',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 100,
+                    boxShadow: '4px 4px 0px black',
+                    transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+                    e.currentTarget.style.background = 'var(--blue)';
+                    e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'black';
+                }}
+                title={isMini ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+                {isMini ? <ChevronRight size={18} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={3} />}
+            </button>
+
             {/* Header */}
-            <div className="sidebar-header">
-                <h1 style={{ fontSize: '1.8rem', fontStyle: 'italic', fontWeight: '900', lineHeight: 0.9, margin: 0, color: 'white' }}>
-                    MOOD<br />SLAYER
-                </h1>
-                {session?.user?.name && (
+            <div className="sidebar-header" style={{ padding: isMini ? '16px 8px' : '16px', overflow: 'hidden', position: 'relative' }}>
+                {!isMini ? (
+                    <h1 style={{ fontSize: '1.8rem', fontStyle: 'italic', fontWeight: '900', lineHeight: 0.9, margin: 0, color: 'white' }}>
+                        MOOD<br />SLAYER
+                    </h1>
+                ) : (
+                    <h1 style={{ fontSize: '1rem', fontStyle: 'italic', fontWeight: '900', lineHeight: 0.9, margin: 0, color: 'white', textAlign: 'center' }}>
+                        M<br />S
+                    </h1>
+                )}
+
+                {session?.user?.name && !isMini && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
                         <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid white' }}>
                             USER_ID: {session.user.name.toUpperCase()}
@@ -37,7 +94,7 @@ export function Sidebar({ activePage }) {
             </div>
 
             {/* Menu */}
-            <nav className="sidebar-nav">
+            <nav className="sidebar-nav" style={{ padding: isMini ? '16px 8px' : '16px' }}>
                 {/* Compassionate Toggle */}
                 <div style={{ marginBottom: '8px' }}>
                     <button
@@ -48,38 +105,42 @@ export function Sidebar({ activePage }) {
                             background: userStats.survivalMode ? 'var(--yellow)' : 'white',
                             color: 'black',
                             border: userStats.survivalMode ? '3px solid black' : '1px dashed rgba(0,0,0,0.2)',
-                            padding: '12px',
+                            padding: isMini ? '12px 0' : '12px',
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: isMini ? 'center' : 'flex-start',
                             gap: '12px',
                             transition: 'all 0.2s ease',
                             boxShadow: userStats.survivalMode ? '4px 4px 0px black' : 'none',
                             opacity: userStats.survivalMode ? 1 : 0.7
                         }}
+                        title={isMini ? (userStats.survivalMode ? 'SURVIVAL ON' : 'STABILIZING') : ''}
                     >
                         {userStats.survivalMode ? <LifeBuoy size={18} /> : <HeartPulse size={18} opacity={0.5} />}
-                        <div style={{ textAlign: 'left' }}>
-                            <div style={{ fontSize: '0.6rem', fontWeight: '900', opacity: 0.8, color: 'black' }}>{userStats.survivalMode ? 'MODE: ACTIVE' : 'SYSTEM_STABLE'}</div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: '900', color: 'black' }}>{userStats.survivalMode ? 'STRUGGLING_MODE' : "I'M STRUGGLING"}</div>
-                        </div>
+                        {!isMini && (
+                            <div style={{ textAlign: 'left' }}>
+                                <div style={{ fontSize: '0.6rem', fontWeight: '900', opacity: 0.8, color: 'black' }}>{userStats.survivalMode ? 'MODE: ACTIVE' : 'SYSTEM_STABLE'}</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '900', color: 'black' }}>{userStats.survivalMode ? 'STRUGGLING_MODE' : "I'M STRUGGLING"}</div>
+                            </div>
+                        )}
                     </button>
-                    <div style={{ height: '1px', background: 'rgba(0,0,0,0.1)', marginTop: '16px' }}></div>
+                    {!isMini && <div style={{ height: '1px', background: 'rgba(0,0,0,0.1)', marginTop: '16px' }}></div>}
                 </div>
 
-                <Link href="/" className={`sidebar-btn ${activePage === 'Dashboard' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Activity size={18} /> DASHBOARD
+                <Link href="/" className={`sidebar-btn ${activePage === 'Dashboard' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}>
+                    <Activity size={18} /> {!isMini && 'DASHBOARD'}
                 </Link>
-                <Link href="/cycles" className={`sidebar-btn ${activePage === 'Cycles' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Zap size={18} /> CYCLES
+                <Link href="/cycles" className={`sidebar-btn ${activePage === 'Cycles' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}>
+                    <Zap size={18} /> {!isMini && 'CYCLES'}
                 </Link>
-                <Link href="/profile" className={`sidebar-btn ${activePage === 'Profile' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <User size={18} /> PROFILE
+                <Link href="/profile" className={`sidebar-btn ${activePage === 'Profile' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}>
+                    <User size={18} /> {!isMini && 'PROFILE'}
                 </Link>
-                <Link href="/elysium" className={`sidebar-btn ${activePage === 'Elysium' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Sword size={18} /> ELYSIUM
+                <Link href="/elysium" className={`sidebar-btn ${activePage === 'Elysium' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}>
+                    <Sword size={18} /> {!isMini && 'ELYSIUM'}
                 </Link>
-                <Link href="/settings" className={`sidebar-btn ${activePage === 'Settings' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Settings size={18} /> SETTINGS
+                <Link href="/settings" className={`sidebar-btn ${activePage === 'Settings' ? 'active' : ''}`} style={{ textDecoration: 'none', color: 'inherit', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}>
+                    <Settings size={18} /> {!isMini && 'SETTINGS'}
                 </Link>
             </nav>
 
@@ -88,14 +149,16 @@ export function Sidebar({ activePage }) {
                 <button
                     onClick={() => signOut({ callbackUrl: '/auth/signin' })}
                     className="sidebar-btn"
-                    style={{ background: 'black', color: 'white', border: '3px solid white', fontSize: '0.65rem' }}
+                    style={{ background: 'black', color: 'white', border: '3px solid white', fontSize: '0.65rem', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}
                 >
-                    <LogOut size={14} /> LOG OUT
+                    <LogOut size={14} /> {!isMini && 'LOG OUT'}
                 </button>
-                <div style={{ marginTop: '8px' }}>
-                    <p style={{ fontSize: '0.65rem', fontWeight: '900', color: 'white', textTransform: 'uppercase', margin: 0, opacity: 0.8 }}>System v5.4</p>
-                    <p style={{ fontSize: '0.55rem', color: 'white', opacity: 0.5, margin: 0 }}>SECURE_SESSION_ACTIVE</p>
-                </div>
+                {!isMini && (
+                    <div style={{ marginTop: '8px' }}>
+                        <p style={{ fontSize: '0.65rem', fontWeight: '900', color: 'white', textTransform: 'uppercase', margin: 0, opacity: 0.8 }}>System v5.4</p>
+                        <p style={{ fontSize: '0.55rem', color: 'white', opacity: 0.5, margin: 0 }}>SECURE_SESSION_ACTIVE</p>
+                    </div>
+                )}
             </div>
         </aside>
     )

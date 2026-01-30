@@ -65,8 +65,45 @@ export function UserProvider({ children }) {
         }
     };
 
+    // Initialize as false for both server and client to avoid hydration mismatch
+    const [isMiniSidebar, setIsMiniSidebar] = useState(false)
+
+    // Sync isMiniSidebar with localStorage after mounting
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('mood_sidebar_mini')
+            if (saved !== null) {
+                setIsMiniSidebar(saved === 'true')
+            }
+
+            const handleStorageChanges = (e) => {
+                if (e.key === 'mood_sidebar_mini') {
+                    setIsMiniSidebar(e.newValue === 'true')
+                }
+            }
+            window.addEventListener('storage', handleStorageChanges)
+            return () => window.removeEventListener('storage', handleStorageChanges)
+        }
+    }, [])
+
+    const toggleSidebar = () => {
+        const newState = !isMiniSidebar
+        setIsMiniSidebar(newState)
+        localStorage.setItem('mood_sidebar_mini', newState)
+    }
+
     return (
-        <UserContext.Provider value={{ userStats, setUserStats, trackables, setTrackables, refreshStats, toggleSurvivalMode, loading }}>
+        <UserContext.Provider value={{
+            userStats,
+            setUserStats,
+            trackables,
+            setTrackables,
+            refreshStats,
+            toggleSurvivalMode,
+            isMiniSidebar,
+            toggleSidebar,
+            loading
+        }}>
             {children}
         </UserContext.Provider>
     );

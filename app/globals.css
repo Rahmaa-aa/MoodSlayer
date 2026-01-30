@@ -33,7 +33,7 @@ body {
 /* --- LAYOUT --- */
 .app-shell {
     display: flex;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
 }
 
@@ -41,16 +41,19 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 24px;
-    /* Reduced again from 32px */
+}
+
+.page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .dashboard-row {
     display: flex !important;
     gap: 24px;
-    /* Reduced again */
     width: 100%;
-    max-width: 1200px;
-    /* Constrain max width more */
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -73,12 +76,12 @@ body {
 /* --- SIDEBAR --- */
 .sidebar-panel {
     width: 240px;
-    /* Slightly smaller */
     background: white;
     border-right: 6px solid black;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    position: relative;
 }
 
 .sidebar-header {
@@ -156,6 +159,19 @@ body {
     display: inline-block;
     margin-bottom: 12px;
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.cyber-header.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cyber-header.clickable:hover {
+    filter: brightness(1.7);
+}
+
+.cyber-header.clickable:active {
+    transform: translateY(1px);
 }
 
 /* --- INPUTS: TOGGLES & STEPPERS --- */
