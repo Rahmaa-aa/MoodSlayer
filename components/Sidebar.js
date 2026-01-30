@@ -62,13 +62,27 @@ export function Sidebar() {
             {/* Header */}
             <div className="sidebar-header" style={{ padding: isMini ? '16px 8px' : '16px', overflow: 'hidden', position: 'relative' }}>
                 {!isMini ? (
-                    <h1 style={{ fontSize: '1.8rem', fontStyle: 'italic', fontWeight: '900', lineHeight: 0.9, margin: 0, color: 'white' }}>
-                        MOOD<br />SLAYER
-                    </h1>
+                    <img
+                        src="/logo.png"
+                        alt="MoodSlayer"
+                        style={{
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: '60px',
+                            objectFit: 'contain'
+                        }}
+                    />
                 ) : (
-                    <h1 style={{ fontSize: '1rem', fontStyle: 'italic', fontWeight: '900', lineHeight: 0.9, margin: 0, color: 'white', textAlign: 'center' }}>
-                        M<br />S
-                    </h1>
+                    <img
+                        src="/logo.png"
+                        alt="MS"
+                        style={{
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: '40px',
+                            objectFit: 'contain'
+                        }}
+                    />
                 )}
 
                 {session?.user?.name && !isMini && (
