@@ -60,30 +60,26 @@ export function Sidebar() {
             </button>
 
             {/* Header */}
-            <div className="sidebar-header" style={{ padding: isMini ? '16px 8px' : '16px', overflow: 'hidden', position: 'relative' }}>
-                {!isMini ? (
-                    <img
-                        src="/logo.png"
-                        alt="MoodSlayer"
-                        style={{
-                            width: '100%',
-                            height: 'auto',
-                            maxHeight: '60px',
-                            objectFit: 'contain'
-                        }}
-                    />
-                ) : (
-                    <img
-                        src="/logo.png"
-                        alt="MS"
-                        style={{
-                            width: '100%',
-                            height: 'auto',
-                            maxHeight: '40px',
-                            objectFit: 'contain'
-                        }}
-                    />
-                )}
+            <div className="sidebar-header" style={{
+                padding: isMini ? '12px 8px' : '20px 16px',
+                overflow: 'hidden',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: isMini ? '70px' : '100px'
+            }}>
+                <img
+                    src="/logo.png"
+                    alt="MoodSlayer"
+                    style={{
+                        width: isMini ? '45px' : '190px',
+                        height: 'auto',
+                        objectFit: 'contain',
+                        margin: '0 auto'
+                    }}
+                />
 
                 {session?.user?.name && !isMini && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
