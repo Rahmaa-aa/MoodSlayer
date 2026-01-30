@@ -61,14 +61,13 @@ export function Sidebar() {
 
             {/* Header */}
             <div className="sidebar-header" style={{
-                padding: isMini ? '12px 8px' : '20px 16px',
+                padding: isMini ? '16px 8px' : '16px',
                 overflow: 'hidden',
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: isMini ? '70px' : '100px'
+                gap: '8px'
             }}>
                 <img
                     src="/logo.png"
