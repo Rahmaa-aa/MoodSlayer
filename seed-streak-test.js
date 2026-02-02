@@ -17,6 +17,13 @@ async function seedTestUser() {
         const userIdString = new ObjectId().toString();
         const userId = new ObjectId(userIdString);
 
+        const trackables = [
+            { id: 'exercise', name: 'Exercise', type: 'boolean', category: 'PHYSICAL' },
+            { id: 'meditation', name: 'Meditation', type: 'boolean', category: 'MENTAL' },
+            { id: 'reading', name: 'Reading', type: 'boolean', category: 'MENTAL' },
+            { id: 'shower', name: 'Shower', type: 'boolean', category: 'SURVIVAL' }
+        ];
+
         // 1. Create User
         await users.deleteOne({ email });
         await users.insertOne({
@@ -30,6 +37,7 @@ async function seedTestUser() {
             bestStreak: 25,
             survivalMode: false,
             volitionShield: false,
+            trackables: trackables,
             createdAt: new Date()
         });
 
@@ -49,13 +57,15 @@ async function seedTestUser() {
             date.setDate(date.getDate() - i);
 
             testEntries.push({
-                userId: userIdString,
+                userId: userId, // Use ObjectId object
                 date: date,
                 createdAt: new Date(date), // Logged on time
                 data: {
                     mood: 'Chill',
                     exercise: true,
-                    meditation: true
+                    meditation: true,
+                    reading: i % 2 === 0,
+                    shower: true
                 }
             });
         }
