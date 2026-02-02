@@ -110,7 +110,7 @@ export default function AuthPage() {
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
+                        justifyContent: 'flex-start',
                         padding: '48px',
                         paddingBottom: '24px', // Reduced bottom padding to accommodate the blue bar
                         position: 'relative',
@@ -119,12 +119,12 @@ export default function AuthPage() {
                     }}>
                         <div className="cyber-header" style={{ position: 'absolute', top: '24px', left: '24px' }}>CORE_VIBE_SYSTEM</div>
 
-                        <div style={{ marginTop: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center', width: '100%' }}>
-                                <Logo width={280} height={280} />
+                        <div style={{ marginTop: '30px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
+                                <Logo width={220} height={100} />
                             </div>
 
-                            <div style={{ marginTop: '32px' }}>
+                            <div style={{ marginTop: '20px' }}>
                                 <p style={{ fontSize: '1.4rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.1 }}>
                                     MASTER YOUR PATTERNS.<br />SLAY YOUR VIBES.
                                 </p>
@@ -134,7 +134,7 @@ export default function AuthPage() {
                             </div>
                         </div>
 
-                        <div style={{ marginTop: '40px', display: 'flex', gap: '12px' }}>
+                        <div style={{ marginTop: '24px', marginBottom: '60px', display: 'flex', gap: '12px' }}>
                             <div className="tag-badge"><Activity size={14} /> ANALYTICS</div>
                             <div className="tag-badge"><Target size={14} /> PREDICTIONS</div>
                             <div className="tag-badge"><Zap size={14} /> MOTIVATION</div>
