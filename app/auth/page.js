@@ -120,11 +120,8 @@ export default function AuthPage() {
                         <div className="cyber-header" style={{ position: 'absolute', top: '24px', left: '24px' }}>CORE_VIBE_SYSTEM</div>
 
                         <div style={{ marginTop: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <Logo width={120} height={120} />
-                                <h1 style={{ fontSize: '3.5rem', fontWeight: '900', fontStyle: 'italic', lineHeight: 0.8, textTransform: 'uppercase', color: 'black', margin: 0 }}>
-                                    MOOD<br /><span style={{ color: 'var(--pink)' }}>SLAYER</span>
-                                </h1>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center', width: '100%' }}>
+                                <Logo width={280} height={280} />
                             </div>
 
                             <div style={{ marginTop: '32px' }}>

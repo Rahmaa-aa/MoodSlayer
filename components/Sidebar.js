@@ -1,5 +1,6 @@
 'use client'
 import { Activity, Zap, User, Settings, LogOut, Flame, Sword, LifeBuoy, HeartPulse, PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Logo } from './Logo'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
@@ -60,25 +61,16 @@ export function Sidebar() {
             </button>
 
             {/* Header */}
-            <div className="sidebar-header" style={{
-                padding: isMini ? '16px 8px' : '16px',
-                overflow: 'hidden',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                gap: '8px'
-            }}>
-                <img
-                    src="/logo.png"
-                    alt="MoodSlayer"
-                    style={{
-                        width: isMini ? '45px' : '190px',
-                        height: 'auto',
-                        objectFit: 'contain',
-                        margin: '0 auto'
-                    }}
-                />
+            <div className="sidebar-header" style={{ padding: isMini ? '16px 8px' : '16px', overflow: 'hidden', position: 'relative' }}>
+                {!isMini ? (
+                    <div style={{ padding: '10px 0' }}>
+                        <Logo width={160} height={60} />
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Logo width={40} height={40} />
+                    </div>
+                )}
 
                 {session?.user?.name && !isMini && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
