@@ -709,6 +709,14 @@ function HomeContent() {
 
                 </form>
             </DndContext>
+
+            {showGoalManager && (
+                <GoalManager
+                    trackables={trackables}
+                    onSave={refreshStats}
+                    onClose={() => setShowGoalManager(false)}
+                />
+            )}
         </div>
     )
 }
