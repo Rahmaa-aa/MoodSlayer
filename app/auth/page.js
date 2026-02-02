@@ -6,12 +6,13 @@ import { Logo } from '@/components/Logo'
 import { Zap, Shield, Key, User, Edit3, ArrowRight, Sparkles, Heart, Activity, Target } from 'lucide-react'
 
 export default function AuthPage() {
-    const [mode, setMode] = useState('signin') // 'signin' or 'signup'
+    const [mode, setMode] = useState('signin') // 'signin', 'signup', or 'reset'
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [name, setName] = useState('')
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -201,7 +202,11 @@ export default function AuthPage() {
                                 </div>
                             )}
 
-                            <form onSubmit={mode === 'signin' ? handleLogin : handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <form onSubmit={
+                                mode === 'signin' ? handleLogin :
+                                    mode === 'signup' ? handleSignUp :
+                                        handleResetRequest
+                            } style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {mode === 'signup' && (
                                     <div>
                                         <label className="control-label">USER_NAME</label>
@@ -232,19 +237,32 @@ export default function AuthPage() {
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="control-label">ACCESS_SECRET</label>
-                                    <div className="input-field">
-                                        <div className="input-icon"><Key size={18} /></div>
-                                        <input
-                                            type="password"
-                                            placeholder="********"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                        />
+                                {mode !== 'reset' && (
+                                    <div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                            <label className="control-label">ACCESS_SECRET</label>
+                                            {mode === 'signin' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setMode('reset')}
+                                                    style={{ background: 'none', border: 'none', color: '#666', fontSize: '0.65rem', fontWeight: '900', cursor: 'pointer', marginBottom: '4px', textDecoration: 'underline' }}
+                                                >
+                                                    FORGOT_SECRET?
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="input-field">
+                                            <div className="input-icon"><Key size={18} /></div>
+                                            <input
+                                                type="password"
+                                                placeholder="********"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {mode === 'signup' && (
                                     <div>
@@ -282,43 +300,76 @@ export default function AuthPage() {
                                 >
                                     {loading ? 'PROCESSING...' : (
                                         <>
-                                            {mode === 'signin' ? 'START UPLINK' : 'CREATE ACCOUNT'}
+                                            {mode === 'signin' ? 'START UPLINK' : mode === 'signup' ? 'CREATE ACCOUNT' : 'SEND RESET LINK'}
                                             <ArrowRight size={20} />
                                         </>
                                     )}
                                 </button>
+
+                                {mode === 'reset' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode('signin')}
+                                        className="sidebar-btn"
+                                        style={{ justifyContent: 'center', border: 'none', boxShadow: 'none', background: 'none' }}
+                                    >
+                                        RETURN_TO_LOGIN
+                                    </button>
+                                )}
                             </form>
 
-                            <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ flex: 1, height: '2px', background: '#ddd' }}></div>
-                                <span style={{ fontSize: '0.65rem', fontWeight: '900', color: '#999' }}>OR_USE_PROVIDER</span>
-                                <div style={{ flex: 1, height: '2px', background: '#ddd' }}></div>
-                            </div>
-
-                            <button
-                                onClick={handleGoogleSignIn}
-                                disabled={loading}
-                                className="sync-btn"
-                                style={{
-                                    width: '100%',
-                                    padding: '16px',
-                                    background: 'white',
+                            {success && (
+                                <div style={{
+                                    background: 'var(--green)',
                                     color: 'black',
+                                    padding: '16px',
                                     border: '3px solid black',
+                                    fontWeight: '900',
+                                    fontSize: '0.75rem',
+                                    textAlign: 'center',
+                                    marginTop: '24px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '12px',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '900',
-                                    boxShadow: '4px 4px 0px black'
-                                }}
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C9.03,19.27 6.59,16.8 6.59,13.23C6.59,9.66 9.04,7.19 12.19,7.19C13.91,7.19 15.6,7.74 16.85,8.8L18.72,6.93C16.9,5.2 14.56,4.45 12.19,4.45C7.36,4.45 3.39,8.15 3.39,13.23C3.39,18.31 7.36,22.01 12.19,22.01C16.29,22.01 21.38,19.1 21.38,13.23C21.38,12.56 21.35,11.1 21.35,11.1V11.1Z" />
-                                </svg>
-                                CONTINUE WITH GOOGLE
-                            </button>
+                                    gap: '12px'
+                                }}>
+                                    <Sparkles size={18} /> {success}
+                                </div>
+                            )}
+
+                            {mode !== 'reset' && (
+                                <>
+                                    <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ flex: 1, height: '2px', background: '#ddd' }}></div>
+                                        <span style={{ fontSize: '0.65rem', fontWeight: '900', color: '#999' }}>OR_USE_PROVIDER</span>
+                                        <div style={{ flex: 1, height: '2px', background: '#ddd' }}></div>
+                                    </div>
+
+                                    <button
+                                        onClick={handleGoogleSignIn}
+                                        disabled={loading}
+                                        className="sync-btn"
+                                        style={{
+                                            width: '100%',
+                                            padding: '16px',
+                                            background: 'white',
+                                            color: 'black',
+                                            border: '3px solid black',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '12px',
+                                            fontSize: '0.9rem',
+                                            fontWeight: '900',
+                                            boxShadow: '4px 4px 0px black'
+                                        }}
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C9.03,19.27 6.59,16.8 6.59,13.23C6.59,9.66 9.04,7.19 12.19,7.19C13.91,7.19 15.6,7.74 16.85,8.8L18.72,6.93C16.9,5.2 14.56,4.45 12.19,4.45C7.36,4.45 3.39,8.15 3.39,13.23C3.39,18.31 7.36,22.01 12.19,22.01C16.29,22.01 21.38,19.1 21.38,13.23C21.38,12.56 21.35,11.1 21.35,11.1V11.1Z" />
+                                        </svg>
+                                        CONTINUE WITH GOOGLE
+                                    </button>
+                                </>
+                            )}
 
                             <div style={{ textAlign: 'center', marginTop: '24px' }}>
                                 <p style={{ fontSize: '0.8rem', fontWeight: '900', margin: 0 }}>

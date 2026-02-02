@@ -77,6 +77,7 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
             let defaultCondition = { operator: '==', value: true }
             if (habit.type === 'number') defaultCondition = { operator: '>', value: 5 }
             if (habit.type === 'text' && habit.options?.length > 0) defaultCondition = { operator: '==', value: habit.options[0] }
+            if (habit.type === 'date') defaultCondition = { operator: '==', value: new Date().toISOString().split('T')[0] }
 
             setConditions({ ...conditions, [id]: defaultCondition })
         }
@@ -124,12 +125,12 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 1000, padding: '20px'
         }}>
-            <div className="cyber-card" style={{ width: '400px', maxWidth: '90%', background: 'white', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
+            <div className="cyber-card" style={{ width: '400px', maxWidth: '90%', background: 'var(--card-bg)', border: 'var(--card-border)', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <div className="cyber-header" style={{ marginBottom: 0, background: 'var(--purple)', color: 'white' }}>
                         {initialData ? 'EDIT_QUEST' : 'INITIALIZE_QUEST'}
                     </div>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-color)' }}><X size={24} /></button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -137,7 +138,7 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                     <button
                         onClick={handleInspire}
                         className="sidebar-btn"
-                        style={{ justifyContent: 'center', background: 'var(--yellow)', borderStyle: 'dashed' }}
+                        style={{ justifyContent: 'center', background: 'var(--yellow)', borderStyle: 'dashed', color: 'black' }}
                     >
                         <Sparkles size={16} /> QUEST INSPO ✨
                     </button>
@@ -150,7 +151,7 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                             onChange={(e) => setName(e.target.value)}
                             placeholder="e.g. Slay the Screen Demon"
                             className="sidebar-btn"
-                            style={{ width: '100%', cursor: 'text', border: '3px solid black' }}
+                            style={{ width: '100%', cursor: 'text', border: '3px solid black', background: 'var(--input-bg)', color: 'var(--text-color)' }}
                         />
                     </div>
 
@@ -163,10 +164,11 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                                     key={stat.id}
                                     onClick={() => setCategory(stat.id)}
                                     style={{
-                                        background: category === stat.id ? stat.color : 'white',
+                                        background: category === stat.id ? stat.color : 'var(--card-bg)',
                                         border: '3px solid black', padding: '8px 2px', fontSize: '0.6rem',
                                         fontWeight: '900', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-                                        boxShadow: category === stat.id ? 'inset 2px 2px 0px rgba(0,0,0,0.2)' : '3px 3px 0px black'
+                                        boxShadow: category === stat.id ? 'inset 2px 2px 0px rgba(0,0,0,0.2)' : '3px 3px 0px #000',
+                                        color: category === stat.id ? (stat.color === 'var(--yellow)' ? 'black' : 'white') : 'var(--text-color)'
                                     }}
                                 >
                                     {getIcon(stat.icon)}
@@ -188,10 +190,11 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                                             onClick={() => toggleHabit(t)}
                                             style={{
                                                 width: '100%', display: 'flex', justifyContent: 'space-between', padding: '10px',
-                                                background: isSelected ? 'var(--green)' : 'white',
+                                                background: isSelected ? 'var(--green)' : 'var(--card-bg)',
                                                 border: 'none', borderBottom: isSelected ? '2px solid black' : 'none',
                                                 cursor: 'pointer', textAlign: 'left',
-                                                fontSize: '0.75rem', fontWeight: '900'
+                                                fontSize: '0.75rem', fontWeight: '900',
+                                                color: isSelected ? 'black' : 'var(--text-color)'
                                             }}
                                         >
                                             <span>{t.name.toUpperCase()}</span>
@@ -199,19 +202,19 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                                         </button>
 
                                         {isSelected && conditions[t.id] && (
-                                            <div style={{ padding: '10px', background: '#f8f8f8', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                            <div style={{ padding: '10px', background: 'var(--input-bg)', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                                                 {/* BOOLEAN LOGIC */}
                                                 {t.type === 'boolean' && (
                                                     <div style={{ display: 'flex', gap: '4px' }}>
                                                         <button
                                                             onClick={() => updateCondition(t.id, 'value', true)}
                                                             className="badge"
-                                                            style={{ padding: '2px 6px', fontSize: '0.6rem', background: conditions[t.id].value === true ? 'black' : 'white', color: conditions[t.id].value === true ? 'white' : 'black', cursor: 'pointer' }}
+                                                            style={{ padding: '2px 6px', fontSize: '0.6rem', background: conditions[t.id].value === true ? 'var(--text-color)' : 'var(--card-bg)', color: conditions[t.id].value === true ? 'var(--bg-color)' : 'var(--text-color)', cursor: 'pointer' }}
                                                         >YES</button>
                                                         <button
                                                             onClick={() => updateCondition(t.id, 'value', false)}
                                                             className="badge"
-                                                            style={{ padding: '2px 6px', fontSize: '0.6rem', background: conditions[t.id].value === false ? 'black' : 'white', color: conditions[t.id].value === false ? 'white' : 'black', cursor: 'pointer' }}
+                                                            style={{ padding: '2px 6px', fontSize: '0.6rem', background: conditions[t.id].value === false ? 'var(--text-color)' : 'var(--card-bg)', color: conditions[t.id].value === false ? 'var(--bg-color)' : 'var(--text-color)', cursor: 'pointer' }}
                                                         >NO</button>
                                                     </div>
                                                 )}
@@ -222,17 +225,17 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                                                         <select
                                                             value={conditions[t.id].operator}
                                                             onChange={(e) => updateCondition(t.id, 'operator', e.target.value)}
-                                                            style={{ padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem' }}
+                                                            style={{ padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem', background: 'var(--card-bg)', color: 'var(--text-color)' }}
                                                         >
-                                                            <option value="<">&lt;</option>
-                                                            <option value=">">&gt;</option>
-                                                            <option value="==">=</option>
+                                                            <option value="<" style={{ background: 'var(--card-bg)' }}>&lt;</option>
+                                                            <option value=">" style={{ background: 'var(--card-bg)' }}>&gt;</option>
+                                                            <option value="==" style={{ background: 'var(--card-bg)' }}>=</option>
                                                         </select>
                                                         <input
                                                             type="number"
                                                             value={conditions[t.id].value}
                                                             onChange={(e) => updateCondition(t.id, 'value', e.target.value)}
-                                                            style={{ width: '40px', padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem' }}
+                                                            style={{ width: '40px', padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem', background: 'var(--card-bg)', color: 'var(--text-color)' }}
                                                         />
                                                         <span style={{ fontSize: '0.55rem', fontWeight: '900' }}>{t.unit}</span>
                                                     </div>
@@ -243,13 +246,23 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                                                     <select
                                                         value={conditions[t.id].value}
                                                         onChange={(e) => updateCondition(t.id, 'value', e.target.value)}
-                                                        style={{ padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem', maxWidth: '100px' }}
+                                                        style={{ padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem', maxWidth: '100px', background: 'var(--card-bg)', color: 'var(--text-color)' }}
                                                     >
                                                         {t.options?.map(opt => (
-                                                            <option key={opt} value={opt}>{opt.toUpperCase()}</option>
+                                                            <option key={opt} value={opt} style={{ background: 'var(--card-bg)' }}>{opt.toUpperCase()}</option>
                                                         ))}
-                                                        {!t.options && <option value="">ANY</option>}
+                                                        {!t.options && <option value="" style={{ background: 'var(--card-bg)' }}>ANY</option>}
                                                     </select>
+                                                )}
+
+                                                {/* DATE LOGIC */}
+                                                {t.type === 'date' && (
+                                                    <input
+                                                        type="date"
+                                                        value={conditions[t.id].value}
+                                                        onChange={(e) => updateCondition(t.id, 'value', e.target.value)}
+                                                        style={{ padding: '2px', border: '1px solid black', fontWeight: '900', fontSize: '0.65rem', background: 'var(--card-bg)', color: 'var(--text-color)' }}
+                                                    />
                                                 )}
                                             </div>
                                         )}
@@ -263,7 +276,7 @@ export function GoalManager({ trackables, onSave, onClose, initialData = null })
                         onClick={handleSave}
                         disabled={isSaving}
                         className="sync-btn"
-                        style={{ marginTop: '8px', padding: '12px', background: 'black', color: 'white', fontSize: '0.9rem' }}
+                        style={{ marginTop: '8px', padding: '12px', background: 'var(--text-color)', color: 'var(--bg-color)', fontSize: '0.9rem' }}
                     >
                         {isSaving ? 'BOOTING...' : initialData ? 'UPDATE_QUEST' : 'LAUNCH_QUEST'}
                     </button>

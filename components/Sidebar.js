@@ -35,7 +35,7 @@ export function Sidebar() {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    background: 'white',
+                    background: 'var(--card-bg)',
                     border: '3px solid black',
                     cursor: 'pointer',
                     display: 'flex',
@@ -43,6 +43,7 @@ export function Sidebar() {
                     justifyContent: 'center',
                     zIndex: 100,
                     boxShadow: '4px 4px 0px black',
+                    color: 'var(--text-color)',
                     transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={e => {
@@ -52,8 +53,8 @@ export function Sidebar() {
                 }}
                 onMouseLeave={e => {
                     e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.color = 'black';
+                    e.currentTarget.style.background = 'var(--card-bg)';
+                    e.currentTarget.style.color = 'var(--text-color)';
                 }}
                 title={isMini ? "Expand Sidebar" : "Collapse Sidebar"}
             >
@@ -74,7 +75,7 @@ export function Sidebar() {
 
                 {session?.user?.name && !isMini && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
-                        <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid white' }}>
+                        <div style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.2)', color: 'white', fontWeight: '900', fontSize: '0.65rem', border: '1px solid var(--white)' }}>
                             USER_ID: {session.user.name.toUpperCase()}
                         </div>
                         <div style={{ display: 'flex', gap: '4px' }}>
@@ -103,9 +104,9 @@ export function Sidebar() {
                         className="sidebar-btn"
                         style={{
                             width: '100%',
-                            background: userStats.survivalMode ? 'var(--yellow)' : 'white',
-                            color: 'black',
-                            border: userStats.survivalMode ? '3px solid black' : '1px dashed rgba(0,0,0,0.2)',
+                            background: userStats.survivalMode ? 'var(--yellow)' : 'var(--card-bg)',
+                            color: 'var(--text-color)',
+                            border: userStats.survivalMode ? '3px solid black' : '1px dashed var(--label-color)',
                             padding: isMini ? '12px 0' : '12px',
                             display: 'flex',
                             alignItems: 'center',
@@ -120,8 +121,8 @@ export function Sidebar() {
                         {userStats.survivalMode ? <LifeBuoy size={18} /> : <HeartPulse size={18} opacity={0.5} />}
                         {!isMini && (
                             <div style={{ textAlign: 'left' }}>
-                                <div style={{ fontSize: '0.6rem', fontWeight: '900', opacity: 0.8, color: 'black' }}>{userStats.survivalMode ? 'MODE: ACTIVE' : 'SYSTEM_STABLE'}</div>
-                                <div style={{ fontSize: '0.75rem', fontWeight: '900', color: 'black' }}>{userStats.survivalMode ? 'STRUGGLING_MODE' : "I'M STRUGGLING"}</div>
+                                <div style={{ fontSize: '0.6rem', fontWeight: '900', opacity: 0.8, color: userStats.survivalMode ? 'black' : 'var(--text-color)' }}>{userStats.survivalMode ? 'MODE: ACTIVE' : 'SYSTEM_STABLE'}</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '900', color: userStats.survivalMode ? 'black' : 'var(--text-color)' }}>{userStats.survivalMode ? 'STRUGGLING_MODE' : "I'M STRUGGLING"}</div>
                             </div>
                         )}
                     </button>

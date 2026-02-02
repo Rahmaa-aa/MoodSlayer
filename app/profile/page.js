@@ -45,19 +45,19 @@ export default function ProfilePage() {
                         <div className="cyber-header" style={{ background: 'var(--blue)', color: 'white' }}>Rank_Status</div>
                         <div style={{ padding: '32px', textAlign: 'center' }}>
                             <div style={{
-                                width: '120px', height: '120px', borderRadius: '50%', background: 'white', border: '5px solid black',
+                                width: '120px', height: '120px', borderRadius: '50%', background: 'var(--card-bg)', border: '5px solid black',
                                 margin: '0 auto 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 boxShadow: '10px 10px 0px var(--blue)'
                             }}>
-                                <span style={{ fontSize: '0.8rem', fontWeight: '900', opacity: 0.5 }}>LEVEL</span>
-                                <span style={{ fontSize: '3rem', fontWeight: '900', lineHeight: 1 }}>{userStats.level}</span>
+                                <span style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--blue)', opacity: 0.8 }}>LEVEL</span>
+                                <span style={{ fontSize: '3rem', fontWeight: '900', lineHeight: 1, color: 'var(--text-color)' }}>{userStats.level}</span>
                             </div>
                             <div style={{ marginBottom: '16px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem', fontWeight: '900' }}>
                                     <span>XP PROGRESS</span>
                                     <span>{userStats.xp} / {nextLevelXP}</span>
                                 </div>
-                                <div style={{ width: '100%', height: '24px', background: 'white', border: '3px solid black', position: 'relative' }}>
+                                <div style={{ width: '100%', height: '24px', background: 'var(--input-bg)', border: '3px solid black', position: 'relative' }}>
                                     <div style={{
                                         width: `${progress}%`, height: '100%', background: 'var(--blue)',
                                         transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -101,7 +101,7 @@ export default function ProfilePage() {
                         {UNLOCKS.map((u, i) => (
                             <div key={i} style={{
                                 display: 'flex', alignItems: 'center', gap: '16px', padding: '16px',
-                                background: u.unlocked ? 'white' : '#f0f0f0',
+                                background: u.unlocked ? 'var(--card-bg)' : 'var(--input-bg)',
                                 border: '3px solid black',
                                 boxShadow: u.unlocked ? '4px 4px 0px black' : 'none',
                                 opacity: u.unlocked ? 1 : 0.6,

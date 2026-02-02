@@ -23,10 +23,11 @@ function SortableQuestItem({ goal, onEdit, onDelete, isEditMode }) {
         transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
         transition,
         zIndex: isDragging ? 100 : 1,
-        background: isDragging ? '#fff' : '#fcfcfc',
-        padding: '16px', border: '2px solid black',
+        background: isDragging ? 'var(--blue)' : 'var(--card-bg)',
+        padding: '16px', border: '3px solid black',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         boxShadow: isDragging ? '8px 8px 0px black' : `inset 4px 0 0 ${RPG_STATS[goal.category]?.color || 'black'}`,
+        color: isDragging ? 'white' : 'var(--text-color)',
         marginBottom: '12px',
         cursor: 'default',
         opacity: isDragging ? 0.8 : 1,
@@ -64,8 +65,8 @@ function SortableQuestItem({ goal, onEdit, onDelete, isEditMode }) {
                     </div>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '80px', height: '6px', background: '#ddd', border: '1px solid black' }}>
-                        <div style={{ width: `${goal.percent}%`, height: '100%', background: 'black' }} />
+                    <div style={{ width: '80px', height: '6px', background: 'var(--input-bg)', border: '1px solid black' }}>
+                        <div style={{ width: `${goal.percent}%`, height: '100%', background: 'var(--text-color)' }} />
                     </div>
                     <div style={{ fontSize: '1rem', fontWeight: '900' }}>{Math.round(goal.percent)}%</div>
                 </div>
@@ -137,15 +138,15 @@ export default function ElysiumPage() {
                         onClick={() => setIsEditMode(!isEditMode)}
                         className={`sidebar-btn ${isEditMode ? 'active' : ''}`}
                         style={{
-                            background: isEditMode ? 'black' : 'white',
-                            color: isEditMode ? 'white' : 'black',
+                            background: isEditMode ? 'var(--text-color)' : 'var(--card-bg)',
+                            color: isEditMode ? 'var(--bg-color)' : 'var(--text-color)',
                             border: '3px solid black',
                             fontSize: '0.65rem',
                             fontWeight: '900',
                             padding: '8px 16px',
                             whiteSpace: 'nowrap',
                             letterSpacing: '1px',
-                            boxShadow: '4px 4px 0px black'
+                            boxShadow: '4px 4px 0px var(--btn-shadow)'
                         }}
                     >
                         {isEditMode ? <X size={14} /> : <Settings size={14} />} EDIT MODE
@@ -159,7 +160,7 @@ export default function ElysiumPage() {
                         className="sidebar-btn"
                         style={{
                             background: 'var(--yellow)', color: 'black', border: '3px solid black',
-                            padding: '8px 16px', fontWeight: '900', boxShadow: '4px 4px 0px black',
+                            padding: '8px 16px', fontWeight: '900', boxShadow: '4px 4px 0px var(--btn-shadow)',
                             height: 'fit-content', width: 'fit-content',
                             flexShrink: 0, whiteSpace: 'nowrap', fontSize: '0.65rem', letterSpacing: '1px'
                         }}
@@ -197,18 +198,18 @@ export default function ElysiumPage() {
 
                                 return (
                                     <div key={key} style={{
-                                        background: 'white', border: '3px solid black', padding: '20px',
+                                        background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px',
                                         position: 'relative', overflow: 'hidden', boxShadow: '4px 4px 0px rgba(0,0,0,0.05)'
                                     }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                 <div style={{
-                                                    width: '40px', height: '40px', background: 'black', color: 'white',
+                                                    width: '40px', height: '40px', background: 'var(--text-color)', color: 'var(--bg-color)',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     border: '2px solid black'
                                                 }}>{StatIcon}</div>
                                                 <div>
-                                                    <div style={{ fontSize: '0.7rem', fontWeight: '900', color: (config.color === 'var(--black)' || config.color === '#444' || config.color === '#111') ? '#888' : 'rgba(0,0,0,0.7)', textTransform: 'uppercase' }}>{config.label}</div>
+                                                    <div style={{ fontSize: '0.7rem', fontWeight: '900', color: (config.color === 'var(--black)' || config.color === '#444' || config.color === '#111') ? '#888' : 'var(--label-color)', textTransform: 'uppercase' }}>{config.label}</div>
                                                     <div style={{ fontSize: '1.4rem', fontWeight: '900' }}>LVL_{stat.level}</div>
                                                 </div>
                                             </div>
@@ -221,7 +222,7 @@ export default function ElysiumPage() {
                                                 border: '2px solid black'
                                             }}>{progress}%</div>
                                         </div>
-                                        <div style={{ width: '100%', height: '12px', background: '#eee', border: '2px solid black', position: 'relative' }}>
+                                        <div style={{ width: '100%', height: '12px', background: 'var(--input-bg)', border: '2px solid black', position: 'relative' }}>
                                             <div style={{ width: `${progress}%`, height: '100%', background: config.color, borderRight: '2px solid black' }} />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
@@ -235,7 +236,7 @@ export default function ElysiumPage() {
                     </section>
 
                     {/* QUESTS SECTION WITH DND */}
-                    <section className="cyber-card" style={{ background: 'white', border: '3px solid black' }}>
+                    <section className="cyber-card" style={{ background: 'var(--card-bg)', border: 'var(--card-border)' }}>
                         <div className="cyber-header" style={{ background: 'var(--blue)' }}>CURRENT_OBJECTIVES</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '15px' }}>
                             {userStats.goals && userStats.goals.length > 0 ? (
@@ -273,7 +274,7 @@ export default function ElysiumPage() {
                             width: '32px',
                             height: '32px',
                             borderRadius: '50%',
-                            background: 'white',
+                            background: 'var(--card-bg)',
                             border: '3px solid black',
                             cursor: 'pointer',
                             display: 'flex',
@@ -312,11 +313,11 @@ export default function ElysiumPage() {
                             </div>
                         </section>
 
-                        <section className="cyber-card" style={{ background: 'white', border: '3px solid black' }}>
+                        <section className="cyber-card" style={{ background: 'var(--card-bg)', border: 'var(--card-border)' }}>
                             <div className="cyber-header">UNLOCK_TREE</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {unlockables.map(u => (
-                                    <div key={u.id} style={{ padding: '12px', border: '2px solid black', background: u.unlocked ? 'white' : '#f0f0f0', opacity: u.unlocked ? 1 : 0.5, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div key={u.id} style={{ padding: '12px', border: '2px solid black', background: u.unlocked ? 'var(--card-bg)' : 'var(--input-bg)', opacity: u.unlocked ? 1 : 0.5, display: 'flex', alignItems: 'center', gap: '12px' }}>
                                         <div style={{ color: u.unlocked ? 'var(--yellow)' : '#ccc' }}>{u.unlocked ? <Crown size={18} fill="var(--yellow)" /> : <Shield size={18} />}</div>
                                         <div>
                                             <div style={{ fontSize: '0.75rem', fontWeight: '900' }}>{u.label}</div>

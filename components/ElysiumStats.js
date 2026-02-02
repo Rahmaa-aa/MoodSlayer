@@ -18,8 +18,8 @@ export function ElysiumStats({ stats, goals }) {
     }
 
     return (
-        <section className="cyber-card" style={{ background: '#050505', color: 'white', border: '3px solid white' }}>
-            <div className="cyber-header" style={{ background: 'white', color: 'black' }}>ELYSIUM_STATS</div>
+        <section className="cyber-card" style={{ background: 'var(--card-bg)', color: 'var(--text-color)', border: 'var(--card-border)' }}>
+            <div className="cyber-header" style={{ background: 'var(--text-color)', color: 'var(--bg-color)' }}>ELYSIUM_STATS</div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' }}>
                 {Object.keys(RPG_STATS).map(key => {
@@ -35,7 +35,7 @@ export function ElysiumStats({ stats, goals }) {
                                 </span>
                                 <span style={{ color: (RPG_STATS[key].color === 'var(--black)' || RPG_STATS[key].color === '#444' || RPG_STATS[key].color === '#050505') ? '#888' : RPG_STATS[key].color }}>LVL_{stat.level}</span>
                             </div>
-                            <div style={{ width: '100%', height: '8px', background: '#222', border: '1px solid #444', position: 'relative' }}>
+                            <div style={{ width: '100%', height: '8px', background: 'var(--input-bg)', border: '1px solid var(--grid-color)', position: 'relative' }}>
                                 <div
                                     style={{
                                         width: `${progress}%`,
@@ -52,10 +52,10 @@ export function ElysiumStats({ stats, goals }) {
 
             {goals && goals.length > 0 && (
                 <div style={{ marginTop: '24px', borderTop: '1px solid #333', paddingTop: '16px' }}>
-                    <div className="control-label" style={{ color: 'white', opacity: 0.6, fontSize: '0.6rem' }}>ACTIVE_QUESTS</div>
+                    <div style={{ color: 'var(--text-color)', opacity: 0.6, fontSize: '0.6rem' }}>ACTIVE_QUESTS</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
                         {goals.map(goal => (
-                            <div key={goal._id} style={{ background: '#111', padding: '8px', borderLeft: `4px solid ${RPG_STATS[goal.category]?.color || 'white'}` }}>
+                            <div key={goal._id} style={{ background: 'var(--input-bg)', padding: '8px', borderLeft: `4px solid ${RPG_STATS[goal.category]?.color || 'var(--text-color)'}` }}>
                                 <div style={{ fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '4px' }}>
                                     {goal.name}
                                 </div>
@@ -63,8 +63,8 @@ export function ElysiumStats({ stats, goals }) {
                                     <span>PROGRESS: {Math.round(goal.percent)}%</span>
                                     <span>LVL_{goal.currentLevel} / {goal.targetLevel}</span>
                                 </div>
-                                <div style={{ width: '100%', height: '4px', background: '#000', marginTop: '4px' }}>
-                                    <div style={{ width: `${goal.percent}%`, height: '100%', background: 'white' }} />
+                                <div style={{ width: '100%', height: '4px', background: 'var(--black)', marginTop: '4px' }}>
+                                    <div style={{ width: `${goal.percent}%`, height: '100%', background: 'var(--white)' }} />
                                 </div>
                             </div>
                         ))}

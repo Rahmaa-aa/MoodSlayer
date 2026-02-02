@@ -247,7 +247,7 @@ export default function CyclesPage() {
                     <button
                         onClick={() => setIsEditMode(!isEditMode)}
                         className="sidebar-btn"
-                        style={{ width: 'auto', padding: '8px 16px', background: isEditMode ? 'var(--yellow)' : 'white' }}
+                        style={{ width: 'auto', padding: '8px 16px', background: isEditMode ? 'var(--yellow)' : 'var(--btn-bg)', color: isEditMode ? 'black' : 'var(--text-color)' }}
                     >
                         <Settings size={16} /> {isEditMode ? 'SAVE_CONFIG' : 'CUSTOMISE'}
                     </button>
@@ -284,16 +284,16 @@ export default function CyclesPage() {
             </section>
 
             {isEditMode && (
-                <section className="cyber-card" style={{ background: 'var(--yellow)', padding: '20px' }}>
+                <section className="cyber-card" style={{ background: 'var(--yellow)', padding: '20px', color: 'black' }}>
                     <div className="cyber-header" style={{ background: 'black', color: 'white' }}>Layout_Config</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
                         {Object.keys(visibleWidgets).map(key => (
-                            <button key={key} onClick={() => toggleWidget(key)} className="sidebar-btn" style={{ gap: '8px' }}>
+                            <button key={key} onClick={() => toggleWidget(key)} className="sidebar-btn" style={{ gap: '8px', background: visibleWidgets[key] ? 'var(--blue)' : 'var(--card-bg)', color: visibleWidgets[key] ? 'white' : 'var(--text-color)' }}>
                                 {visibleWidgets[key] ? <Eye size={16} /> : <EyeOff size={16} />}
                                 {key.toUpperCase()}
                             </button>
                         ))}
-                        <button onClick={() => setChartType(chartType === 'step' ? 'monotone' : 'step')} className="sidebar-btn" style={{ gap: '8px', background: 'white' }}>
+                        <button onClick={() => setChartType(chartType === 'step' ? 'monotone' : 'step')} className="sidebar-btn" style={{ gap: '8px', background: 'var(--card-bg)' }}>
                             <Zap size={16} /> {chartType.toUpperCase()}_LINES
                         </button>
                     </div>
@@ -322,7 +322,7 @@ export default function CyclesPage() {
                                 width: '32px',
                                 height: '32px',
                                 borderRadius: '50%',
-                                background: 'white',
+                                background: 'var(--card-bg)',
                                 border: '3px solid black',
                                 cursor: 'pointer',
                                 display: 'flex',
@@ -370,7 +370,7 @@ export default function CyclesPage() {
                                                         style={{
                                                             display: 'flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none',
                                                             cursor: 'pointer', textAlign: 'left', padding: '4px 0',
-                                                            color: selectedPredictors.includes(t.id) ? 'black' : '#999',
+                                                            color: selectedPredictors.includes(t.id) ? 'var(--text-color)' : 'var(--label-color)',
                                                             fontWeight: selectedPredictors.includes(t.id) ? '900' : 'normal',
                                                             fontSize: '0.85rem'
                                                         }}
@@ -391,7 +391,7 @@ export default function CyclesPage() {
                 {/* COL 2: AURA & FORECASTER */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {visibleWidgets.vibe && (
-                        <section className="cyber-card" style={{ textAlign: 'center', padding: '40px 20px', background: 'white', position: 'relative' }}>
+                        <section className="cyber-card" style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--card-bg)', position: 'relative' }}>
                             <div className="cyber-header" style={{ backgroundColor: 'black', color: 'white' }}>VIBE_PROJECTION</div>
                             <div style={{ position: 'absolute', top: 12, right: 12, padding: '4px 8px', background: 'black', color: 'white', fontSize: '0.6rem', fontWeight: '900' }}>
                                 {archetype.replace('_', ' ')}
@@ -438,7 +438,7 @@ export default function CyclesPage() {
                                     <label style={{ fontSize: '0.65rem', fontWeight: '900', display: 'block', marginBottom: '8px', opacity: 0.7, letterSpacing: '1px' }}>PRIMARY_TARGET (The "Subject"):</label>
                                     <select
                                         className="sidebar-btn"
-                                        style={{ width: '100%', cursor: 'pointer', background: 'white', border: '3px solid black', fontWeight: '900', textTransform: 'uppercase' }}
+                                        style={{ width: '100%', cursor: 'pointer', background: 'var(--input-bg)', border: '3px solid black', fontWeight: '900', textTransform: 'uppercase' }}
                                         value={predictionTarget}
                                         onChange={(e) => handleTargetChange(e.target.value)}
                                     >
@@ -560,10 +560,11 @@ export default function CyclesPage() {
                                 return (
                                     <div key={idx} style={{
                                         display: 'flex', alignItems: 'center', gap: '12px',
-                                        background: 'white', border: '2px solid black', padding: '12px',
+                                        background: 'var(--card-bg)', border: '2px solid black', padding: '12px',
                                         boxShadow: '4px 4px 0px rgba(0,0,0,0.1)',
                                         opacity: selectedPredictors.includes(baseId) || baseId === 'moodScore' ? 1 : 0.6,
-                                        position: 'relative'
+                                        position: 'relative',
+                                        color: 'var(--text-color)'
                                     }}>
                                         {showNeuralBadge && (
                                             <div style={{
@@ -584,7 +585,7 @@ export default function CyclesPage() {
                                             <p style={{ fontSize: '0.7rem', fontWeight: '900', margin: 0, textTransform: 'uppercase', lineHeight: 1.1 }}>
                                                 {label}
                                             </p>
-                                            <div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '4px' }}>
+                                            <div style={{ width: '100%', height: '4px', background: 'var(--input-bg)', marginTop: '4px' }}>
                                                 <div style={{ width: `${Math.min(100, strength * 100)}%`, height: '100%', background: impact === 'positive' ? 'var(--green)' : 'var(--pink)' }}></div>
                                             </div>
                                         </div>
@@ -599,7 +600,7 @@ export default function CyclesPage() {
                                 <HelpCircle size={10} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
                                 The Oracle identifies patterns by comparing your <b>Primary Target</b> against selected <b>Predictors</b> over the last 30 days.
                                 {Object.keys(influences).length > 0 && (
-                                    <div style={{ marginTop: '8px', padding: '8px', background: '#f9f9f9', border: '1px solid #ddd' }}>
+                                    <div style={{ marginTop: '8px', padding: '8px', background: 'var(--input-bg)', border: '1px solid black' }}>
                                         <b>EXPLAINER:</b> "Neural Weights" represent the direct influence each habit has on <i>tomorrow's specific prediction</i>, according to the neural network.
                                     </div>
                                 )}
@@ -613,14 +614,14 @@ export default function CyclesPage() {
             {visibleWidgets.charts && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div className="cyber-card">
-                        <div className="cyber-header" style={{ background: 'white', borderBottom: '3px solid black', color: 'black' }}>Mood_Waveform</div>
+                        <div className="cyber-header" style={{ background: 'var(--card-bg)', borderBottom: '3px solid black', color: 'var(--text-color)' }}>Mood_Waveform</div>
                         <div style={{ height: '200px', padding: '16px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-color)" />
                                     <XAxis dataKey="date" hide />
                                     <YAxis domain={[0, 4]} hide />
-                                    <Tooltip contentStyle={{ border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
+                                    <Tooltip contentStyle={{ background: 'var(--card-bg)', color: 'var(--text-color)', border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
                                     <Line type={chartType} dataKey="moodScore" stroke="var(--pink)" strokeWidth={4} dot={false} />
                                 </LineChart>
                             </ResponsiveContainer>
@@ -628,14 +629,14 @@ export default function CyclesPage() {
                     </div>
 
                     <div className="cyber-card">
-                        <div className="cyber-header" style={{ background: 'white', borderBottom: '3px solid black', color: 'black' }}>Habit_Velocity</div>
+                        <div className="cyber-header" style={{ background: 'var(--card-bg)', borderBottom: '3px solid black', color: 'var(--text-color)' }}>Habit_Velocity</div>
                         <div style={{ height: '200px', padding: '16px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-color)" />
                                     <XAxis dataKey="date" hide />
                                     <YAxis hide />
-                                    <Tooltip contentStyle={{ border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
+                                    <Tooltip contentStyle={{ background: 'var(--card-bg)', color: 'var(--text-color)', border: '2px solid black', boxShadow: '4px 4px 0px black' }} />
                                     <Bar dataKey="habits" fill="var(--green)" />
                                 </BarChart>
                             </ResponsiveContainer>

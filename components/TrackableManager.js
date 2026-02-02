@@ -89,13 +89,13 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
             position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
             background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
-            <div className="cyber-card" style={{ width: '400px', maxWidth: '90%', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="cyber-card" style={{ width: '400px', maxWidth: '90%', position: 'relative', maxHeight: '90vh', overflowY: 'auto', background: 'var(--card-bg)' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <div className="cyber-header" style={{ marginBottom: 0, background: 'var(--purple)', color: 'white' }}>
                         {initialData ? 'EDIT TRACKABLE' : 'ADD NEW TRACKABLE'}
                     </div>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-color)' }}>
                         <X size={24} />
                     </button>
                 </div>
@@ -107,7 +107,7 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                     <button
                         onClick={handleInspire}
                         className="sidebar-btn"
-                        style={{ justifyContent: 'center', background: 'var(--yellow)', borderStyle: 'dashed' }}
+                        style={{ justifyContent: 'center', background: 'var(--yellow)', borderStyle: 'dashed', color: 'black' }}
                     >
                         <Sparkles size={16} /> INSPIRE ME ✨
                     </button>
@@ -120,7 +120,7 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="e.g. Crochet"
-                            style={{ cursor: 'text', border: '3px solid black' }}
+                            style={{ cursor: 'text', border: 'var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-color)' }}
                         />
                     </div>
 
@@ -132,14 +132,15 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                                 <select
                                     className="sidebar-btn"
                                     value={category}
+                                    style={{ background: 'var(--input-bg)', color: 'var(--text-color)' }}
                                     onChange={(e) => {
                                         if (e.target.value === 'NEW') setIsNewCat(true)
                                         else setCategory(e.target.value)
                                     }}
                                 >
-                                    <option value="">SELECT...</option>
-                                    {existingCategories.map(c => <option key={c} value={c}>{c}</option>)}
-                                    <option value="NEW">+ CREATE NEW</option>
+                                    <option value="" style={{ background: 'var(--card-bg)' }}>SELECT...</option>
+                                    {existingCategories.map(c => <option key={c} value={c} style={{ background: 'var(--card-bg)' }}>{c}</option>)}
+                                    <option value="NEW" style={{ background: 'var(--card-bg)' }}>+ CREATE NEW</option>
                                 </select>
                             </div>
                         ) : (
@@ -149,9 +150,10 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                     placeholder="NEW CATEGORY NAME"
+                                    style={{ background: 'var(--input-bg)', color: 'var(--text-color)', border: 'var(--input-border)' }}
                                     autoFocus
                                 />
-                                <button onClick={() => setIsNewCat(false)} className="sidebar-btn" style={{ width: 'auto' }}><X size={16} /></button>
+                                <button onClick={() => setIsNewCat(false)} className="sidebar-btn" style={{ width: 'auto', background: 'var(--card-bg)', color: 'var(--text-color)', border: 'var(--input-border)' }}><X size={16} /></button>
                             </div>
                         )}
                     </div>
@@ -163,27 +165,28 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                             <button
                                 className={`toggle-btn ${type === 'boolean' ? 'active yes' : ''}`}
                                 onClick={() => setType('boolean')}
+                                style={{ backgroundColor: type === 'boolean' ? 'var(--green)' : 'var(--card-bg)', color: type === 'boolean' ? 'black' : 'var(--text-color)' }}
                             >
                                 YES/NO
                             </button>
                             <button
                                 className={`toggle-btn ${type === 'number' ? 'active no' : ''}`}
                                 onClick={() => setType('number')}
-                                style={{ backgroundColor: type === 'number' ? 'var(--blue)' : 'white', color: type === 'number' ? 'white' : 'black' }}
+                                style={{ backgroundColor: type === 'number' ? 'var(--blue)' : 'var(--card-bg)', color: type === 'number' ? 'white' : 'var(--text-color)' }}
                             >
                                 NUMBER
                             </button>
                             <button
                                 className={`toggle-btn ${type === 'text' ? 'active no' : ''}`}
                                 onClick={() => setType('text')}
-                                style={{ backgroundColor: type === 'text' ? 'black' : 'white', color: type === 'text' ? 'white' : 'black' }}
+                                style={{ backgroundColor: type === 'text' ? 'var(--black)' : 'var(--card-bg)', color: type === 'text' ? 'var(--white)' : 'var(--text-color)' }}
                             >
                                 TEXT
                             </button>
                             <button
                                 className={`toggle-btn ${type === 'date' ? 'active no' : ''}`}
                                 onClick={() => setType('date')}
-                                style={{ backgroundColor: type === 'date' ? 'var(--pink)' : 'white', color: type === 'date' ? 'white' : 'black' }}
+                                style={{ backgroundColor: type === 'date' ? 'var(--pink)' : 'var(--card-bg)', color: type === 'date' ? 'var(--white)' : 'var(--text-color)' }}
                             >
                                 DATE
                             </button>
@@ -199,7 +202,7 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                                 value={unit}
                                 onChange={(e) => setUnit(e.target.value)}
                                 placeholder="e.g. MIN, KM, PGS"
-                                style={{ cursor: 'text', border: '3px solid black' }}
+                                style={{ cursor: 'text', border: 'var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-color)' }}
                                 maxLength={5}
                             />
                         </div>
@@ -215,7 +218,7 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                                     value={currentOption}
                                     onChange={(e) => setCurrentOption(e.target.value)}
                                     placeholder="e.g. Leg Day"
-                                    style={{ cursor: 'text', border: '3px solid black' }}
+                                    style={{ cursor: 'text', border: 'var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-color)' }}
                                     onKeyDown={(e) => e.key === 'Enter' && handleAddOption()}
                                 />
                                 <button onClick={handleAddOption} className="sidebar-btn" style={{ width: 'auto', background: 'var(--green)' }}>
@@ -225,8 +228,8 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {options.map((opt, idx) => (
                                     <span key={idx} style={{
-                                        background: 'black', color: 'white', padding: '4px 8px',
-                                        fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px'
+                                        background: 'var(--black)', color: 'var(--white)', padding: '4px 8px',
+                                        fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid black'
                                     }}>
                                         {opt}
                                         <X size={12} style={{ cursor: 'pointer' }} onClick={() => removeOption(idx)} />
@@ -253,7 +256,7 @@ export function TrackableManager({ isOpen, onClose, onSave, existingCategories, 
                     <button
                         onClick={handleSave}
                         className="sync-btn"
-                        style={{ marginTop: '16px', fontSize: '1rem', padding: '16px' }}
+                        style={{ marginTop: '16px', fontSize: '1rem', padding: '16px', background: 'var(--text-color)', color: 'var(--bg-color)' }}
                     >
                         SAVE TRACKABLE
                     </button>

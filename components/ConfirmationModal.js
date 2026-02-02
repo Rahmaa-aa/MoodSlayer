@@ -27,7 +27,7 @@ export function ConfirmationModal({
             zIndex: 10000, animation: 'fadeIn 0.15s ease-out'
         }}>
             <div style={{
-                width: '420px', background: 'white', border: '4px solid black',
+                width: '420px', background: 'var(--card-bg)', border: '4px solid black',
                 boxShadow: '10px 10px 0px black', position: 'relative',
                 overflow: 'hidden'
             }}>
@@ -47,7 +47,7 @@ export function ConfirmationModal({
 
                 <div style={{ padding: '32px' }}>
                     <p style={{
-                        fontSize: '0.9rem', fontWeight: '800', color: 'black',
+                        fontSize: '0.9rem', fontWeight: '800', color: 'var(--text-color)',
                         lineHeight: 1.5, margin: '0 0 32px 0', textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                     }}>
@@ -59,7 +59,7 @@ export function ConfirmationModal({
                             onClick={onCancel}
                             className="sidebar-btn"
                             style={{
-                                background: 'white', color: 'black', border: '3px solid black',
+                                background: 'var(--btn-bg)', color: 'var(--text-color)', border: '3px solid black',
                                 padding: '14px', fontWeight: '900', fontSize: '0.7rem',
                                 boxShadow: '4px 4px 0px rgba(0,0,0,0.1)', cursor: 'pointer'
                             }}

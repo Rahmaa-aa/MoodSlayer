@@ -8,6 +8,7 @@ export function UserProvider({ children }) {
     const { data: session, status } = useSession()
     const [userStats, setUserStats] = useState({ level: 1, xp: 0, streak: 0 })
     const [trackables, setTrackables] = useState([])
+    const [theme, setTheme] = useState('y2k')
     const [loading, setLoading] = useState(true)
 
     const fetchStats = async () => {
@@ -68,17 +69,27 @@ export function UserProvider({ children }) {
     // Initialize as false for both server and client to avoid hydration mismatch
     const [isMiniSidebar, setIsMiniSidebar] = useState(false)
 
-    // Sync isMiniSidebar with localStorage after mounting
+    // Sync theme and sidebar with localStorage after mounting
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('mood_sidebar_mini')
-            if (saved !== null) {
-                setIsMiniSidebar(saved === 'true')
+            const savedMini = localStorage.getItem('mood_sidebar_mini')
+            if (savedMini !== null) setIsMiniSidebar(savedMini === 'true')
+
+            const savedTheme = localStorage.getItem('mood_theme')
+            if (savedTheme) {
+                setTheme(savedTheme)
+                document.documentElement.setAttribute('data-theme', savedTheme)
+            } else {
+                document.documentElement.setAttribute('data-theme', 'y2k')
             }
 
             const handleStorageChanges = (e) => {
                 if (e.key === 'mood_sidebar_mini') {
                     setIsMiniSidebar(e.newValue === 'true')
+                }
+                if (e.key === 'mood_theme') {
+                    setTheme(e.newValue)
+                    document.documentElement.setAttribute('data-theme', e.newValue)
                 }
             }
             window.addEventListener('storage', handleStorageChanges)
@@ -92,6 +103,12 @@ export function UserProvider({ children }) {
         localStorage.setItem('mood_sidebar_mini', newState)
     }
 
+    const changeTheme = (newTheme) => {
+        setTheme(newTheme)
+        localStorage.setItem('mood_theme', newTheme)
+        document.documentElement.setAttribute('data-theme', newTheme)
+    }
+
     return (
         <UserContext.Provider value={{
             userStats,
@@ -102,6 +119,8 @@ export function UserProvider({ children }) {
             toggleSurvivalMode,
             isMiniSidebar,
             toggleSidebar,
+            theme,
+            changeTheme,
             loading
         }}>
             {children}

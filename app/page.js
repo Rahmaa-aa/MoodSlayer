@@ -335,7 +335,7 @@ function HomeContent() {
             <button
                 type="button"
                 onClick={() => handleEditStart(item)}
-                style={{ background: 'var(--yellow)', border: '2px solid black', cursor: 'pointer', padding: '4px' }}
+                style={{ background: 'var(--yellow)', border: '2px solid black', cursor: 'pointer', padding: '4px', color: 'black' }}
             >
                 <Pencil size={12} />
             </button>
@@ -390,8 +390,8 @@ function HomeContent() {
                                             style={{
                                                 flex: '1 0 auto',
                                                 minWidth: '80px',
-                                                background: isSelected ? 'var(--green)' : 'white',
-                                                color: 'black',
+                                                background: isSelected ? 'var(--green)' : 'var(--card-bg)',
+                                                color: isSelected ? 'black' : 'var(--text-color)',
                                                 border: '3px solid black', padding: '12px 16px', fontSize: '0.9rem',
                                                 cursor: 'pointer', fontWeight: '900', textTransform: 'uppercase',
                                                 boxShadow: isSelected ? 'inset 3px 3px 0px rgba(0,0,0,0.2)' : '3px 3px 0px black',
@@ -409,7 +409,7 @@ function HomeContent() {
                         {(!item.options || item.options.length === 0) && (
                             <input
                                 className="sidebar-btn"
-                                style={{ cursor: 'text', border: '3px solid black', width: '100%', fontSize: '1rem' }}
+                                style={{ cursor: 'text', border: '3px solid black', width: '100%', fontSize: '1rem', background: 'var(--input-bg)', color: 'var(--text-color)' }}
                                 value={formData[item.id] || ''}
                                 onChange={(e) => handleInputChange(item.id, e.target.value)}
                                 placeholder="..."
@@ -441,7 +441,9 @@ function HomeContent() {
                                 border: '3px solid black',
                                 width: '100%',
                                 fontSize: '1rem',
-                                padding: '12px'
+                                padding: '12px',
+                                background: 'var(--input-bg)',
+                                color: 'var(--text-color)'
                             }}
                             value={formData[item.id] || ''}
                             onChange={(e) => handleInputChange(item.id, e.target.value)}
@@ -460,8 +462,8 @@ function HomeContent() {
                             className="sidebar-btn"
                             style={{
                                 width: '100%', minHeight: '50px', fontSize: '0.85rem',
-                                border: '2px solid black', resize: 'vertical', background: 'white',
-                                padding: '8px', fontFamily: 'inherit', boxShadow: 'none'
+                                border: '2px solid black', resize: 'vertical', background: 'var(--input-bg)',
+                                padding: '8px', fontFamily: 'inherit', boxShadow: 'none', color: 'var(--text-color)'
                             }}
                             placeholder={`...`}
                             value={formData[`${item.id}_note`] || ''}
@@ -501,7 +503,7 @@ function HomeContent() {
                 </div>
 
                 {userStats.survivalMode && (
-                    <div style={{ background: 'var(--yellow)', border: '3px solid black', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '5px 5px 0px black' }}>
+                    <div style={{ background: 'var(--yellow)', border: '3px solid black', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '5px 5px 0px black', color: 'black' }}>
                         <LifeBuoy size={24} className="spin-slow" />
                         <div>
                             <div style={{ fontSize: '0.7rem', fontWeight: '900' }}>NON-PUNITIVE_PROGRESS_ON</div>
@@ -522,8 +524,8 @@ function HomeContent() {
                         onClick={() => setIsEditMode(!isEditMode)}
                         className={`sidebar-btn ${isEditMode ? 'active' : ''}`}
                         style={{
-                            background: isEditMode ? 'black' : 'white',
-                            color: isEditMode ? 'white' : 'black',
+                            background: isEditMode ? 'var(--text-color)' : 'var(--card-bg)',
+                            color: isEditMode ? 'var(--bg-color)' : 'var(--text-color)',
                             border: '3px solid black',
                             fontSize: '0.65rem',
                             fontWeight: '900',
@@ -540,10 +542,10 @@ function HomeContent() {
                         onClick={() => setShowGoalManager(true)}
                         className="sidebar-btn"
                         style={{
-                            background: 'black', color: 'white', border: '3px solid white',
+                            background: 'var(--text-color)', color: 'var(--bg-color)', border: '3px solid black',
                             padding: '8px 12px', boxSizing: 'border-box', height: 'fit-content',
                             fontSize: '0.65rem', whiteSpace: 'nowrap', fontWeight: '900',
-                            letterSpacing: '1px'
+                            letterSpacing: '1px', boxShadow: '4px 4px 0px var(--btn-shadow)'
                         }}
                     >
                         <Target size={14} /> NEW QUEST
@@ -558,19 +560,19 @@ function HomeContent() {
                         style={{
                             background: 'var(--yellow)', border: '2px solid black', padding: '8px 12px',
                             fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                            boxShadow: '4px 4px 0px black', height: 'fit-content', opacity: 1, position: 'relative', zIndex: 10,
-                            fontSize: '0.65rem', whiteSpace: 'nowrap', letterSpacing: '1px'
+                            boxShadow: '4px 4px 0px var(--btn-shadow)', height: 'fit-content', opacity: 1, position: 'relative', zIndex: 10,
+                            fontSize: '0.65rem', whiteSpace: 'nowrap', letterSpacing: '1px', color: 'black'
                         }}
                     >
                         <Plus size={14} strokeWidth={4} /> ADD HABIT
                     </button>
 
-                    <div className="header-date-card" style={{ background: userStats.volitionShield ? 'white' : 'white', border: userStats.volitionShield ? '4px solid var(--blue)' : '4px solid black' }}>
+                    <div className="header-date-card" style={{ background: 'var(--card-bg)', border: userStats.volitionShield ? '4px solid var(--blue)' : '4px solid black' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginRight: '8px', borderRight: '2px solid #ddd', paddingRight: '8px' }}>
                             <span style={{ fontSize: '1.2rem', color: userStats.volitionShield ? 'var(--blue)' : 'var(--pink)' }}>
                                 {userStats.volitionShield ? <ShieldAlert size={20} /> : <Flame size={20} fill="var(--pink)" />}
                             </span>
-                            <span style={{ fontSize: '0.7rem', fontWeight: '900', color: 'black' }}>{userStats.streak} DAY</span>
+                            <span style={{ fontSize: '0.7rem', fontWeight: '900', color: 'var(--text-color)' }}>{userStats.streak} DAY</span>
                         </div>
                         <Calendar size={20} />
                         <div>
@@ -592,7 +594,7 @@ function HomeContent() {
 
             {/* Compassionate Message for Gaps */}
             {targetDate === new Date().toISOString().split('T')[0] && !lastSaved && userStats.streak > 0 && (
-                <div style={{ marginBottom: '24px', padding: '20px', background: 'white', border: '4px solid black', boxShadow: '10px 10px 0px var(--blue)', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ marginBottom: '24px', padding: '20px', background: 'var(--card-bg)', border: '4px solid black', boxShadow: '10px 10px 0px var(--blue)', display: 'flex', alignItems: 'center', gap: '20px' }}>
                     <div style={{ width: '40px', height: '40px', background: 'var(--blue)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid black' }}>
                         <Sparkles size={24} />
                     </div>
