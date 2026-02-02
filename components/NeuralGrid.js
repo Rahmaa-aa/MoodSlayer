@@ -132,7 +132,7 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
                             <p style={{ color: '#ff1493', fontWeight: 'bold' }}>&gt; DATA_RECALL --DATE={formatDateStr(selectedDay)}</p>
                             {selectedEntry ? (
                                 <div style={{ marginTop: '25px' }}>
-                                    <p>MOOD: <span style={{ color: moodColors[selectedEntry.data?.mood] || '#fff' }}>{selectedEntry.data?.mood?.toUpperCase() || 'NULL'}</span></p>
+                                    <p>MOOD: <span style={{ color: moodColors[selectedEntry.data?.mood] || '#fff' }}>{selectedEntry.data?.mood?.toString().toUpperCase() || 'NULL'}</span></p>
                                     <p style={{ color: '#1493ff', marginTop: '15px', marginBottom: '10px' }}>HABITS:</p>
                                     {Object.keys(selectedEntry.data || {}).filter(k => k !== 'mood' && !k.endsWith('_note') && selectedEntry.data?.[k]).map(hid => (
                                         <div key={hid} style={{ paddingLeft: '15px', color: '#ccc', marginBottom: '6px' }}>• {hid.toUpperCase()}</div>
