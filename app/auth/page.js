@@ -119,25 +119,25 @@ export default function AuthPage() {
                     }}>
                         <div className="cyber-header" style={{ position: 'absolute', top: '24px', left: '24px' }}>CORE_VIBE_SYSTEM</div>
 
-                        <div style={{ marginTop: '30px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
-                                <Logo width={220} height={100} />
+                        <div style={{ marginTop: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', justifyContent: 'center', width: '100%', marginBottom: '10px' }}>
+                                <Logo width={380} height={150} />
                             </div>
 
-                            <div style={{ marginTop: '20px' }}>
+                            <div style={{ marginTop: '10px' }}>
                                 <p style={{ fontSize: '1.4rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.1 }}>
                                     MASTER YOUR PATTERNS.<br />SLAY YOUR VIBES.
                                 </p>
-                                <p style={{ fontSize: '1rem', fontWeight: '600', opacity: 0.6, marginTop: '12px', maxWidth: '420px', lineHeight: 1.4 }}>
+                                <p style={{ fontSize: '1rem', fontWeight: '600', opacity: 0.6, marginTop: '8px', maxWidth: '420px', lineHeight: 1.4 }}>
                                     The neural hub for your daily life. Track, predict, and optimize your world with absolute precision.
                                 </p>
                             </div>
                         </div>
 
-                        <div style={{ marginTop: '24px', marginBottom: '60px', display: 'flex', gap: '12px' }}>
-                            <div className="tag-badge"><Activity size={14} /> ANALYTICS</div>
-                            <div className="tag-badge"><Target size={14} /> PREDICTIONS</div>
-                            <div className="tag-badge"><Zap size={14} /> MOTIVATION</div>
+                        <div style={{ marginTop: '20px', marginBottom: '40px', display: 'flex', gap: '8px' }}>
+                            <div className="tag-badge" style={{ padding: '6px 10px' }}><Activity size={14} /> ANALYTICS</div>
+                            <div className="tag-badge" style={{ padding: '6px 10px' }}><Target size={14} /> PREDICTIONS</div>
+                            <div className="tag-badge" style={{ padding: '6px 10px' }}><Zap size={14} /> MOTIVATION</div>
                         </div>
 
                         {/* INTEGRATED ACCENT BANNER (formerly the "Blue Part") */}
