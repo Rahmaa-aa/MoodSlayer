@@ -52,9 +52,9 @@ export async function GET(request) {
         const { stats: rpgStats, goals: processedGoals } = calculateRPGStats(entries, goals, user.survivalMode);
 
 
-        // 4. Update DB if stats have INCREASED (High-Water Mark Protection)
+        // 4. Update DB (Current streak reflects reality, others are protected)
         const updates = {};
-        if (currentStreak > (user.streak || 0)) updates.streak = currentStreak;
+        if (currentStreak !== (user.streak || 0)) updates.streak = currentStreak;
         if (bestStreak > (user.bestStreak || 0)) updates.bestStreak = bestStreak;
         if (currentXP > (user.xp || 0)) updates.xp = currentXP;
         if (currentLevel > (user.level || 1)) updates.level = currentLevel;
@@ -67,11 +67,11 @@ export async function GET(request) {
             )
         }
 
-        // 5. Return the HIGHER of calculated or stored stats
+        // 5. Return stats (Current streak is raw, others are maximums)
         const stats = {
             level: Math.max(currentLevel, user.level || 1),
             xp: Math.max(currentXP, user.xp || 0),
-            streak: Math.max(currentStreak, user.streak || 0),
+            streak: currentStreak,
             bestStreak: Math.max(bestStreak, user.bestStreak || 0),
             bestLevel: Math.max(currentLevel, user.bestLevel || user.level || 1),
             survivalMode: user.survivalMode || false,
