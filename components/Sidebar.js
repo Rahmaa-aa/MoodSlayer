@@ -148,7 +148,7 @@ export function Sidebar() {
             {/* Auth Footer */}
             <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <button
-                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                    onClick={() => signOut({ callbackUrl: '/auth' })}
                     className="sidebar-btn"
                     style={{ background: 'black', color: 'white', border: '3px solid white', fontSize: '0.65rem', justifyContent: isMini ? 'center' : 'flex-start', padding: isMini ? '12px 0' : '10px 12px' }}
                 >

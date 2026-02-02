@@ -80,6 +80,10 @@ export default function AuthPage() {
             setLoading(false)
         }
     }
+    const handleGoogleSignIn = () => {
+        setLoading(true)
+        signIn('google', { callbackUrl: '/' })
+    }
 
     return (
         <div className="landing-container" style={{
@@ -284,6 +288,37 @@ export default function AuthPage() {
                                     )}
                                 </button>
                             </form>
+
+                            <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ flex: 1, height: '2px', background: '#ddd' }}></div>
+                                <span style={{ fontSize: '0.65rem', fontWeight: '900', color: '#999' }}>OR_USE_PROVIDER</span>
+                                <div style={{ flex: 1, height: '2px', background: '#ddd' }}></div>
+                            </div>
+
+                            <button
+                                onClick={handleGoogleSignIn}
+                                disabled={loading}
+                                className="sync-btn"
+                                style={{
+                                    width: '100%',
+                                    padding: '16px',
+                                    background: 'white',
+                                    color: 'black',
+                                    border: '3px solid black',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '12px',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '900',
+                                    boxShadow: '4px 4px 0px black'
+                                }}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C9.03,19.27 6.59,16.8 6.59,13.23C6.59,9.66 9.04,7.19 12.19,7.19C13.91,7.19 15.6,7.74 16.85,8.8L18.72,6.93C16.9,5.2 14.56,4.45 12.19,4.45C7.36,4.45 3.39,8.15 3.39,13.23C3.39,18.31 7.36,22.01 12.19,22.01C16.29,22.01 21.38,19.1 21.38,13.23C21.38,12.56 21.35,11.1 21.35,11.1V11.1Z" />
+                                </svg>
+                                CONTINUE WITH GOOGLE
+                            </button>
 
                             <div style={{ textAlign: 'center', marginTop: '24px' }}>
                                 <p style={{ fontSize: '0.8rem', fontWeight: '900', margin: 0 }}>

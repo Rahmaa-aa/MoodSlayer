@@ -21,7 +21,12 @@ export const authConfig = {
             const isAuthPage = nextUrl.pathname.startsWith('/auth')
             const isPublicAsset = nextUrl.pathname.includes('.') || nextUrl.pathname.startsWith('/api/auth')
 
-            if (isAuthPage || isPublicAsset) return true
+            if (isPublicAsset) return true
+
+            if (isAuthPage) {
+                if (isLoggedIn) return Response.redirect(new URL('/', nextUrl))
+                return true
+            }
 
             return isLoggedIn
         },
