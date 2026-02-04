@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
+import { auth } from '@/auth'
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
     try {
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
         const config = await db.collection('configs').findOne({ type: 'trackables' })
@@ -32,6 +34,7 @@ export async function GET() {
 export async function POST(request) {
     try {
         const body = await request.json()
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
 import bcrypt from 'bcryptjs'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request) {
     try {
@@ -10,6 +11,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
         }
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 

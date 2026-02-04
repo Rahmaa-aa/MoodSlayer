@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
 import bcrypt from 'bcryptjs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(request) {
     try {
@@ -15,6 +15,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'INVALID_INPUT_DATA' }, { status: 400 })
         }
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 

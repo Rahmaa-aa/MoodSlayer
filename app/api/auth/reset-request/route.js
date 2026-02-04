@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
 import crypto from 'crypto'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request) {
     try {
         const { email } = await request.json()
         if (!email) return NextResponse.json({ error: 'EMAIL_REQUIRED' }, { status: 400 })
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
         const user = await db.collection('users').findOne({ email })

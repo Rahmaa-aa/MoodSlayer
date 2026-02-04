@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
     try {
         const session = await auth()
         if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
         const goals = await db.collection('goals').find({ userId: session.user.id }).toArray()
@@ -30,6 +31,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
         }
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
@@ -60,6 +62,7 @@ export async function PATCH(request) {
         const { id, ...updates } = await request.json()
         if (!id) return NextResponse.json({ error: 'Missing goal id' }, { status: 400 })
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
@@ -82,6 +85,7 @@ export async function DELETE(request) {
         const { id } = await request.json()
         if (!id) return NextResponse.json({ error: 'Missing goal id' }, { status: 400 })
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 

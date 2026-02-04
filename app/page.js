@@ -6,8 +6,6 @@ import { TrackableManager } from '../components/TrackableManager'
 import { RetroToggle } from '../components/RetroToggle'
 import { Stepper } from '../components/Stepper'
 import { Notifications, showToast } from '../components/Notifications'
-// Deployment Sync: 2026-02-04
-import { Suspense } from 'react'
 import { useUser } from '../context/UserContext'
 import { ElysiumStats } from '../components/ElysiumStats'
 import { GoalManager } from '../components/GoalManager'

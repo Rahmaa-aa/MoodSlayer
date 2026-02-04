@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
     try {
@@ -10,6 +10,7 @@ export async function GET() {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
@@ -39,6 +40,7 @@ export async function POST(request) {
         }
 
         const body = await request.json()
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
@@ -49,7 +51,6 @@ export async function POST(request) {
         const todayStart = new Date(dateStr)
         todayStart.setHours(0, 0, 0, 0)
         const todayEnd = new Date(dateStr)
-        todayEnd.setHours(23, 59, 59, 999)
         todayEnd.setHours(23, 59, 59, 999)
 
         // UPSERT LOGIC per User

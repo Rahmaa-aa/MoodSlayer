@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
+export const dynamic = 'force-dynamic'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
 import { calculateStreak, calculateBestStreak, calculateXP, getLevel, calculateRPGStats } from '@/lib/services/gamificationService'
@@ -12,6 +12,7 @@ export async function GET(request) {
         // Safety check for valid ObjectId-like strings
         const isValidId = /^[0-9a-fA-F]{24}$/.test(session.user.id);
 
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
@@ -40,8 +41,6 @@ export async function GET(request) {
         const entries = await db.collection('entries').find(entryQuery).toArray();
 
         // 2. Calculate current real-time stats
-
-
         const currentStreak = calculateStreak(entries, user.volitionShield)
         const bestStreak = calculateBestStreak(entries)
         const currentXP = calculateXP(entries)
@@ -92,6 +91,7 @@ export async function POST(request) {
         if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
         const { level, xp, streak, survivalMode, volitionShield } = await request.json()
+        const clientPromise = (await import('@/lib/mongodb')).default
         const client = await clientPromise
         const db = client.db('mood_tracker')
 
