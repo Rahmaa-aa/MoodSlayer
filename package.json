@@ -24,12 +24,15 @@
     "lucide-react": "^0.563.0",
     "mongodb": "^6.13.0",
     "mongoose": "^8.10.0",
-    "next": "^16.1.4",
-    "next-auth": "^5.0.0-beta.30",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-is": "^19.2.3",
-    "recharts": "^3.7.0",
-    "tailwind-merge": "^3.4.0"
+    "next": "^15.1.0",
+    "next-auth": "5.0.0-beta.30",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-is": "^19.0.0",
+    "recharts": "^2.15.0",
+    "tailwind-merge": "^3.0.0"
+  },
+  "overrides": {
+    "mongodb": "$mongodb"
   }
 }
