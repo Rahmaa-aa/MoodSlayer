@@ -9,6 +9,7 @@ import { Notifications, showToast } from '../components/Notifications'
 import { useUser } from '../context/UserContext'
 import { ElysiumStats } from '../components/ElysiumStats'
 import { GoalManager } from '../components/GoalManager'
+import { CycleTracker } from '../components/CycleTracker'
 
 // Dynamic imports for performance (No DND needed on SSR)
 const DndContext = dynamic(() => import('@dnd-kit/core').then(mod => mod.DndContext), { ssr: false })
@@ -31,7 +32,7 @@ export default function Home() {
 }
 
 function HomeContent() {
-    const { userStats, setUserStats, trackables, setTrackables, refreshStats } = useUser()
+    const { userStats, setUserStats, trackables, setTrackables, refreshStats, loading } = useUser()
     const router = useRouter()
     const searchParams = useSearchParams()
     const dateParam = searchParams.get('date')
@@ -55,6 +56,13 @@ function HomeContent() {
         const todayStr = new Date().toISOString().split('T')[0]
         setTargetDate(dateParam || todayStr)
     }, [dateParam])
+
+    // Redirect to onboarding if not completed
+    useEffect(() => {
+        if (!loading && userStats.onboardingComplete === false) {
+            router.push('/onboarding')
+        }
+    }, [userStats.onboardingComplete, loading, router])
 
     useEffect(() => {
         setMounted(true)
@@ -659,6 +667,15 @@ function HomeContent() {
 
                     {/* RIGHT COLUMN */}
                     <div className="col-right">
+
+                        {/* CYCLE TRACKER (only if tracking enabled) */}
+                        <CycleTracker
+                            tracksCycle={userStats.tracksCycle}
+                            lastPeriodStart={userStats.lastPeriodStart}
+                            cycleLength={userStats.cycleLength}
+                            isEditMode={isEditMode}
+                            onUpdate={refreshStats}
+                        />
 
                         {/* ELYSIUM STATS (Skill-Sync Architecture) */}
                         <ElysiumStats stats={userStats.rpgStats} goals={userStats.goals} />

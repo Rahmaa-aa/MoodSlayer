@@ -76,7 +76,14 @@ export async function GET(request) {
             survivalMode: user.survivalMode || false,
             volitionShield: user.volitionShield || false,
             rpgStats,
-            goals: processedGoals
+            goals: processedGoals,
+            // Onboarding profile fields
+            onboardingComplete: user.onboardingComplete !== false, // undefined = true (existing users)
+            primaryGoal: user.primaryGoal || 'mood',
+            tracksCycle: user.tracksCycle || false,
+            cycleLength: user.cycleLength || 28,
+            lastPeriodStart: user.lastPeriodStart || null,
+            timezone: user.timezone || null
         }
 
         return NextResponse.json(stats)

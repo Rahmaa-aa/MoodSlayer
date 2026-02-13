@@ -1,12 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Settings, Shield, Palette, Zap, User, Key, Save, AlertCircle, CheckCircle2, Moon, Sun, Monitor, RefreshCcw } from 'lucide-react'
+import { Settings, Shield, Palette, Zap, User, Key, Save, AlertCircle, CheckCircle2, Moon, Sun, Monitor, RefreshCcw, Heart } from 'lucide-react'
 import { useUser } from '../../context/UserContext'
 import { useSession } from 'next-auth/react'
 import { Notifications, showToast } from '../../components/Notifications'
 
 export default function SettingsPage() {
-    const { userStats, setUserStats, theme, changeTheme } = useUser()
+    const { userStats, setUserStats, theme, changeTheme, refreshStats } = useUser()
     const { data: session, update: updateSession } = useSession()
     const [mounted, setMounted] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -17,12 +17,53 @@ export default function SettingsPage() {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
 
+    // Cycle tracking state
+    const [tracksCycle, setTracksCycle] = useState(false)
+    const [cycleLength, setCycleLength] = useState(28)
+    const [lastPeriodStart, setLastPeriodStart] = useState('')
+    const [cycleSaving, setCycleSaving] = useState(false)
+
     useEffect(() => {
         setMounted(true)
         if (session?.user?.name) {
             setNewName(session.user.name)
         }
-    }, [session])
+        // Initialize cycle fields from userStats
+        if (userStats) {
+            setTracksCycle(userStats.tracksCycle || false)
+            setCycleLength(userStats.cycleLength || 28)
+            if (userStats.lastPeriodStart) {
+                setLastPeriodStart(new Date(userStats.lastPeriodStart).toISOString().split('T')[0])
+            }
+        }
+    }, [session, userStats])
+
+    const handleSaveCycle = async () => {
+        setCycleSaving(true)
+        try {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const res = await fetch('/api/onboarding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tracksCycle,
+                    cycleLength: tracksCycle ? cycleLength : 28,
+                    lastPeriodStart: tracksCycle && lastPeriodStart ? lastPeriodStart : null,
+                    timezone
+                })
+            })
+            if (res.ok) {
+                showToast('RHYTHM_SETTINGS_SYNCED', 'success')
+                refreshStats()
+            } else {
+                showToast('SYNC_FAILED', 'error')
+            }
+        } catch (e) {
+            showToast('NETWORK_ERROR', 'error')
+        } finally {
+            setCycleSaving(false)
+        }
+    }
 
     const handleUpdateName = async () => {
         setIsSaving(true)
@@ -205,6 +246,118 @@ export default function SettingsPage() {
                                     {error || success}
                                 </div>
                             )}
+                        </div>
+                    </section>
+
+                    {/* BODY RHYTHM MODULE */}
+                    <section className="cyber-card">
+                        <div className="cyber-header" style={{ background: 'var(--pink)', color: 'white' }}>Body_Rhythm</div>
+                        <div style={{ padding: '8px' }}>
+                            <p style={{ fontSize: '0.65rem', fontWeight: '900', marginBottom: '16px', opacity: 0.6 }}>CYCLE_TRACKING_ENGINE — BOOSTS ML ACCURACY BY 10-25%</p>
+
+                            {/* Toggle */}
+                            <button
+                                onClick={() => setTracksCycle(!tracksCycle)}
+                                className="sidebar-btn"
+                                style={{
+                                    width: '100%',
+                                    padding: '16px',
+                                    justifyContent: 'space-between',
+                                    background: tracksCycle ? 'var(--pink)' : 'var(--btn-bg)',
+                                    color: tracksCycle ? 'white' : 'var(--text-color)',
+                                    marginBottom: '16px'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <Moon size={16} />
+                                    BODY_RHYTHM_TRACKING
+                                </div>
+                                <div style={{
+                                    width: '40px',
+                                    height: '22px',
+                                    borderRadius: '11px',
+                                    background: tracksCycle ? 'rgba(255,255,255,0.3)' : '#e2e8f0',
+                                    border: '2px solid ' + (tracksCycle ? 'rgba(255,255,255,0.5)' : 'black'),
+                                    position: 'relative',
+                                    transition: 'all 0.2s ease'
+                                }}>
+                                    <div style={{
+                                        width: '14px',
+                                        height: '14px',
+                                        borderRadius: '50%',
+                                        background: tracksCycle ? 'white' : '#94a3b8',
+                                        position: 'absolute',
+                                        top: '2px',
+                                        left: tracksCycle ? '20px' : '2px',
+                                        transition: 'left 0.2s ease'
+                                    }} />
+                                </div>
+                            </button>
+
+                            {tracksCycle && (
+                                <div style={{ border: '2px solid var(--label-color)', padding: '16px', marginBottom: '16px', background: 'var(--bg-color)' }}>
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <label className="control-label">LAST_PERIOD_START</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', border: '2px solid black', background: 'var(--input-bg)' }}>
+                                            <div style={{ padding: '10px', borderRight: '2px solid black', display: 'flex', alignItems: 'center' }}>
+                                                <Heart size={14} color="var(--pink)" />
+                                            </div>
+                                            <input
+                                                type="date"
+                                                value={lastPeriodStart}
+                                                onChange={(e) => setLastPeriodStart(e.target.value)}
+                                                max={new Date().toISOString().split('T')[0]}
+                                                style={{
+                                                    flex: 1,
+                                                    border: 'none',
+                                                    padding: '10px',
+                                                    outline: 'none',
+                                                    fontWeight: '700',
+                                                    fontSize: '0.85rem',
+                                                    fontFamily: 'inherit',
+                                                    background: 'transparent'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="control-label">CYCLE_LENGTH (DAYS)</label>
+                                        <input
+                                            type="number"
+                                            min={18}
+                                            max={90}
+                                            value={cycleLength}
+                                            onChange={(e) => setCycleLength(e.target.value)}
+                                            onBlur={() => {
+                                                const n = parseInt(cycleLength) || 28
+                                                setCycleLength(Math.max(18, Math.min(90, n)))
+                                            }}
+                                            className="sidebar-btn"
+                                            style={{
+                                                width: '100%',
+                                                cursor: 'text',
+                                                background: 'var(--input-bg)',
+                                                fontSize: '1rem',
+                                                fontWeight: '800'
+                                            }}
+                                        />
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6rem', fontWeight: '700', opacity: 0.5, marginTop: '4px' }}>
+                                            <span>18–90 days supported</span>
+                                            <span>Irregular? Just log each period when it starts.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleSaveCycle}
+                                disabled={cycleSaving}
+                                className="sidebar-btn"
+                                style={{ width: '100%', background: 'var(--text-color)', color: 'var(--bg-color)', justifyContent: 'center', opacity: cycleSaving ? 0.5 : 1 }}
+                            >
+                                <Save size={14} /> {cycleSaving ? 'SYNCING...' : 'SYNC_RHYTHM'}
+                            </button>
                         </div>
                     </section>
                 </div>

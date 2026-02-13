@@ -24,7 +24,7 @@ export async function POST(request) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        // Create user
+        // Create user with onboarding profile fields
         const result = await db.collection('users').insertOne({
             name,
             email,
@@ -32,7 +32,13 @@ export async function POST(request) {
             createdAt: new Date(),
             level: 1,
             xp: 0,
-            streak: 0
+            streak: 0,
+            onboardingComplete: false,
+            primaryGoal: 'mood',
+            tracksCycle: false,
+            cycleLength: 28,
+            lastPeriodStart: null,
+            timezone: null
         })
 
         return NextResponse.json({ status: 'success', userId: result.insertedId }, { status: 201 })
