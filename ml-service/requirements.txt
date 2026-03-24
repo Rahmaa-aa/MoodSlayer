@@ -1,0 +1,14 @@
+fastapi==0.115.0
+uvicorn[standard]==0.34.0
+pymongo==4.10.1
+python-dotenv==1.0.1
+scikit-learn==1.6.1
+pandas==2.2.3
+numpy==2.2.2
+textblob==0.18.0.post0
+imbalanced-learn==0.13.0
+joblib==1.4.2
+# shap — install manually if your Python version supports it:
+#   pip install shap
+# On Python 3.13, SHAP C extensions may fail to compile.
+# The explainer module handles SHAP absence gracefully.
