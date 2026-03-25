@@ -26,6 +26,15 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
     const daysInMonth = new Date(year, month + 1, 0).getDate()
     const firstDay = new Date(year, month, 1).getDay()
 
+    // Future date guard
+    const today = new Date()
+    const todayYear = today.getFullYear()
+    const todayMonth = today.getMonth()
+    const todayDay = today.getDate()
+    const isCurrentMonth = year === todayYear && month === todayMonth
+    const isFutureMonth = year > todayYear || (year === todayYear && month > todayMonth)
+    const canGoForward = !isCurrentMonth && !isFutureMonth
+
     const formatDateStr = (d) => {
         try {
             const date = new Date(year, month, d)
@@ -57,6 +66,7 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
         const mood = entry?.data?.mood
         const habitsCount = Object.keys(entry?.data || {}).filter(k => k !== 'mood' && !k.endsWith('_note') && entry?.data?.[k]).length
         const isSelected = selectedDay === d
+        const isFutureDay = (isCurrentMonth && d > todayDay) || isFutureMonth
 
         let color = '#fff'
         if (mood) {
@@ -68,7 +78,7 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
         calendarDays.push(
             <div
                 key={d}
-                onClick={() => setSelectedDay(isSelected ? null : d)}
+                onClick={() => !isFutureDay && setSelectedDay(isSelected ? null : d)}
                 style={{
                     aspectRatio: '1',
                     border: '2px solid black',
@@ -76,13 +86,14 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    background: color,
+                    background: isFutureDay ? 'rgba(0,0,0,0.05)' : color,
                     boxShadow: isSelected ? `0 0 20px ${color}` : '4px 4px 0px rgba(0,0,0,0.05)',
-                    cursor: 'pointer',
+                    cursor: isFutureDay ? 'not-allowed' : 'pointer',
                     position: 'relative',
                     zIndex: isSelected ? 20 : 1,
                     transform: isSelected ? 'scale(1.05)' : 'none',
-                    transition: 'all 0.1s'
+                    transition: 'all 0.1s',
+                    opacity: isFutureDay ? 0.35 : 1,
                 }}
             >
                 <span style={{ fontSize: '1rem', fontWeight: '900', color: mood ? 'white' : 'black', textShadow: mood ? '1px 1px 2px black' : 'none' }}>{d}</span>
@@ -108,7 +119,7 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
                     <span style={{ background: '#ffff00', color: 'black', padding: '6px 20px', fontWeight: '900', fontSize: '0.85rem', border: '3px solid black', minWidth: '180px', textAlign: 'center' }}>
                         {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()}
                     </span>
-                    <button onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ background: 'white', border: '2px solid black', cursor: 'pointer', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ChevronRight size={20} color="black" /></button>
+                    <button onClick={() => canGoForward && setViewDate(new Date(year, month + 1, 1))} style={{ background: canGoForward ? 'white' : '#333', border: '2px solid black', cursor: canGoForward ? 'pointer' : 'not-allowed', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: canGoForward ? 1 : 0.3 }}><ChevronRight size={20} color={canGoForward ? 'black' : '#666'} /></button>
                 </div>
             </div>
 
@@ -161,17 +172,20 @@ export default function NeuralGrid({ history = [], trackables = [] }) {
                                     <p style={{ opacity: 0.5 }}>// NO_DATA_RECORDED</p>
                                     <div style={{ marginTop: '30px' }}>
                                         <a
-                                            href={`/?date=${formatDateStr(selectedDay)}`}
+                                            href={(() => { const ds = formatDateStr(selectedDay); const selDate = new Date(year, month, selectedDay); return selDate > today ? '#' : `/?date=${ds}` })()}
+                                            onClick={(e) => { const selDate = new Date(year, month, selectedDay); if (selDate > today) e.preventDefault() }}
                                             style={{
                                                 display: 'block',
-                                                background: '#444',
+                                                background: (() => { const selDate = new Date(year, month, selectedDay); return selDate > today ? '#222' : '#444' })(),
                                                 color: 'white',
                                                 textAlign: 'center',
                                                 padding: '12px',
                                                 fontWeight: '900',
                                                 textDecoration: 'none',
                                                 border: '3px solid #666',
-                                                boxShadow: '4px 4px 0px #000'
+                                                boxShadow: '4px 4px 0px #000',
+                                                cursor: (() => { const selDate = new Date(year, month, selectedDay); return selDate > today ? 'not-allowed' : 'pointer' })(),
+                                                opacity: (() => { const selDate = new Date(year, month, selectedDay); return selDate > today ? 0.4 : 1 })(),
                                             }}
                                         >
                                             &gt; INITIALIZE_LOG

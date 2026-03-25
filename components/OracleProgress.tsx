@@ -82,31 +82,35 @@ export default function OracleProgress({ prediction, loading }: OracleProgressPr
   return (
     <div style={{
       background: 'var(--card-bg)',
-      border: 'var(--card-border)',
-      borderRadius: 16,
-      padding: '20px',
+      border: '3px solid black',
+      padding: 0,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: 16,
       position: 'relative',
       overflow: 'hidden',
+      boxShadow: '4px 4px 0px black',
     }}>
-      {/* Header */}
+      {/* Header bar — matches cyber-header */}
       <div style={{
+        width: '100%',
+        background: 'black',
+        color: config.color,
+        padding: '8px 12px',
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        fontFamily: 'var(--font-heading, "Space Grotesk", sans-serif)',
-        fontSize: 12,
+        fontFamily: '"VT323", monospace',
+        fontSize: 14,
         fontWeight: 700,
         letterSpacing: 2,
         textTransform: 'uppercase',
-        color: config.color,
       }}>
         <TierIcon size={14} />
         {config.label}
       </div>
+
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: '100%' }}>
 
       {/* Progress Ring */}
       <div style={{ position: 'relative', width: size, height: size }}>
@@ -180,9 +184,9 @@ export default function OracleProgress({ prediction, loading }: OracleProgressPr
       {prediction?.tip && (
         <p style={{
           margin: 0,
-          padding: '8px 12px',
-          borderRadius: 8,
-          background: `color-mix(in srgb, ${config.color} 10%, transparent)`,
+          padding: '8px 10px',
+          background: 'rgba(0,0,0,0.05)',
+          border: `2px solid ${config.color}`,
           fontSize: 11,
           color: 'var(--text-color)',
           opacity: 0.8,
@@ -211,13 +215,12 @@ export default function OracleProgress({ prediction, loading }: OracleProgressPr
                 alignItems: 'center',
                 gap: 4,
                 padding: '4px 8px',
-                borderRadius: 20,
                 background: reached
-                  ? `color-mix(in srgb, ${TIER_CONFIG[m.tier].color} 20%, transparent)`
+                  ? 'black'
                   : 'var(--btn-bg)',
-                border: `1px solid ${reached ? TIER_CONFIG[m.tier].color : 'var(--grid-color)'}`,
+                border: `2px solid ${reached ? TIER_CONFIG[m.tier].color : 'var(--panel-edge)'}`,
                 fontSize: 10,
-                fontWeight: 600,
+                fontWeight: 900,
                 color: reached ? TIER_CONFIG[m.tier].color : 'var(--label-color)',
                 fontFamily: '"VT323", monospace',
                 letterSpacing: 1,
@@ -229,6 +232,7 @@ export default function OracleProgress({ prediction, loading }: OracleProgressPr
             </div>
           )
         })}
+      </div>
       </div>
     </div>
   )
