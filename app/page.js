@@ -195,6 +195,10 @@ function HomeContent() {
             updateGamification(dataToSave)
             setLastSaved(new Date())
             refreshStats()
+
+            // Fire-and-forget: trigger ML retrain after saving new data
+            fetch('/api/ml/train', { method: 'POST' }).catch(() => {})
+
             return true
         } catch (e) {
             console.error('Sync failed:', e)

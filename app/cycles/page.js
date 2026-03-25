@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUser } from '../../context/UserContext'
 import { Notifications } from '../../components/Notifications'
+import OracleProgress from '../../components/OracleProgress'
+import PredictionCard from '../../components/PredictionCard'
 
 // Dynamic imports for heavy charting components
 const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false })
@@ -55,6 +57,10 @@ export default function CyclesPage() {
     const [anomaly, setAnomaly] = useState(null)
     const [archetype, setArchetype] = useState("NEURAL_WAITING")
 
+    // Python ML Service State
+    const [mlPrediction, setMlPrediction] = useState(null)
+    const [mlLoading, setMlLoading] = useState(true)
+
     useEffect(() => {
         setMounted(true)
 
@@ -68,6 +74,7 @@ export default function CyclesPage() {
         }
 
         refreshData()
+        fetchMLPrediction()
     }, [])
 
     const refreshData = async () => {
@@ -93,6 +100,22 @@ export default function CyclesPage() {
             }
         } catch (e) {
             console.error('Failed to load cycles data', e)
+        }
+    }
+
+    // ── Python ML Service Prediction ──
+    const fetchMLPrediction = async () => {
+        setMlLoading(true)
+        try {
+            const res = await fetch('/api/ml/predict', { method: 'POST' })
+            if (res.ok) {
+                const data = await res.json()
+                setMlPrediction(data)
+            }
+        } catch (e) {
+            console.error('ML prediction failed (service may be offline)', e)
+        } finally {
+            setMlLoading(false)
         }
     }
 
@@ -533,6 +556,10 @@ export default function CyclesPage() {
                     <section className="cyber-card" style={{ height: '100%' }}>
                         <div className="cyber-header" style={{ backgroundColor: 'var(--pink)', color: 'white' }}>Oracle_Output</div>
                         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {/* ML Service: Progressive Unlock + Prediction */}
+                            <OracleProgress prediction={mlPrediction} loading={mlLoading} />
+                            <PredictionCard prediction={mlPrediction} loading={mlLoading} />
+
                             {correlations.length === 0 && (
                                 <div style={{ padding: '20px', border: '2px dashed var(--blue)', background: 'rgba(0,0,255,0.05)', textAlign: 'center' }}>
                                     <p style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--blue)', margin: '0 0 8px 0' }}>PERFECT_STABILITY_DETECTED</p>
